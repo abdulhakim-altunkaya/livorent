@@ -1,0 +1,32 @@
+
+
+/* Media query for big screens */
+@media (min-width: 781px) {
+    .mainArea {
+        height: 100%;
+        width: 76%;
+        display: flex;
+        flex-direction: column;
+        margin: auto;
+        overflow-x: hidden;
+        scrollbar-width: thin;
+        background-color: white;
+        box-shadow: -10px 0 15px -5px rgba(127, 1, 1, 0.3), 10px 0 15px -5px rgba(0, 0, 0, 0.3); /* Left and right shadow */        
+    }
+    .topArea {
+        height: 10vh;
+        background-color: white;
+        display: flex;
+        flex-direction: row;
+    }
+    .bottomArea {
+        border-radius: 10px;
+        height: 90vh;
+
+    }
+}
+/* Media query for small screens */
+@media (max-width: 780px) {
+
+
+}
