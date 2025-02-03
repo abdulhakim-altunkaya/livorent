@@ -1,4 +1,5 @@
 import React, {useState} from "react";
+import axios from "axios";
 import "../styles/upload.css";
 
 function BtmUpload() {
@@ -10,9 +11,29 @@ function BtmUpload() {
   const [telephone, setTelephone] = useState(null);
   const [resultArea, setResultArea] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setResultArea("form button triggered")
+    try {
+      const adObject = {
+        adTitle: title, 
+        adDescription: description, 
+        adPrice: price, 
+        adCity: city, 
+        adName: name, 
+        adTelephone: telephone
+      };
+      console.log(adObject);
+      const res = await axios.post("http://localhost:5000/serversavead", adObject);
+      setResultArea(res.data.myMessage);
+    } catch (error) {
+      if (error.response) {
+        setResultArea(error.response.data.myMessage);
+        console.log(error.message);
+      } else {
+        setResultArea("An error happened while saving the news");
+        console.log(error.message);
+      }
+    }
   }
 
   return (
