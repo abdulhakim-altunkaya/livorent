@@ -2,7 +2,7 @@ const express = require("express");
 const app = express();
 const path = require("path");
 
-const {pool} = require("./db");
+const { pool, supabase, upload } = require("./db"); // Import configurations
 const useragent = require("useragent");
 
 const cors = require("cors");
@@ -29,7 +29,7 @@ const ignoredIPs = ["66.249.68.5", "66.249.68.4", "66.249.88.2", "66.249.89.2", 
 //A temporary cache to save ip addresses and it will prevent spam comments and replies for 1 minute.
 //I can do that by checking each ip with database ip addresses but then it will be too many requests to db
 const ipCache3 = {}
-app.post("/serversavead", async (req, res) => {
+app.post("/serversavead", upload.array("images", 4), async (req, res) => {
   //preventing spam comments
   const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
   // Check if IP exists in cache and if last comment was less than 1 minute ago
@@ -45,14 +45,47 @@ app.post("/serversavead", async (req, res) => {
 
   let client;
   const {adTitle, adDescription, adPrice, adCity, adName, adTelephone} = req.body;
+  const visitorData = {
+    ip: ipVisitor,
+    visitDate: new Date().toLocaleDateString('en-GB')
+  };
+
+  //IMAGE UPLOAD
+  const files = req.files;
+  let uploadedImageUrls = [];
+  // Supported image file types
+  const allowedMimeTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+  for (const file of files) {
+    const fileName = `${Date.now()}-${file.originalname}`;
+    const { data, error } = await supabase.storage
+                .from("livo") // Supabase Storage Bucket
+                .upload(fileName, file.buffer, {
+                    contentType: file.mimetype,
+                    cacheControl: "3600",
+                    upsert: false,
+                });
+    if (error) {
+        console.error("Supabase Upload Error:", error);
+        return res.status(500).json({ error: "Error uploading file to storage." });
+    }
+    const imageUrl = `${process.env.SUPABASE_URL}/storage/v1/object/public/livo/${fileName}`;
+    uploadedImageUrls.push(imageUrl);
+  }
 
   try {
     client = await pool.connect();
     const result = await client.query(
-      `INSERT INTO livorent_ads (title, description, price, city, name, telephone) 
-      values ($1, $2, $3, $4, $5, $6)`,
-      [adTitle, adDescription, adPrice, adCity, adName, adTelephone]
+      `INSERT INTO livorent_ads (title, description, price, city, name, telephone, ip, date) 
+      values ($1, $2, $3, $4, $5, $6, $7, $8)`,
+      [adTitle, adDescription, adPrice, adCity, adName, adTelephone, visitorData.ip, visitorData.visitDate]
     );
+
+    //UPLOAD IMAGE PART--WORK ON THIS 3 LINES OF CODE
+    // Insert only image URLs into PostgreSQL (No Return)
+    const query = "INSERT INTO livorent_ads (image_url) VALUES ($1)";
+    const values = [uploadedImageUrls];
+    await pool.query(query, values);
+
     res.status(201).json({myMessage: "Ad saved"});
   } catch (error) {
     console.log(error.message);
