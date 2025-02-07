@@ -9,7 +9,17 @@ function BtmUpload() {
   const [city, setCity] = useState("");
   const [name, setName] = useState("");
   const [telephone, setTelephone] = useState(null);
+  const [images, setImages] = useState([]); // New state for image files
   const [resultArea, setResultArea] = useState("");
+
+  const handleImageChange = (e) => {
+    const selectedFiles = Array.from(e.target.files);
+    if (selectedFiles.length > 4) {
+      alert("You can upload a maximum of 4 images.");
+      return;
+    }
+    setImages(selectedFiles);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -23,8 +33,17 @@ function BtmUpload() {
         adTelephone: telephone
       };
       console.log(adObject);
-      const res = await axios.post("http://localhost:5000/serversavead", adObject);
-      setResultArea(res.data.myMessage);
+
+
+      const formData = new FormData();
+      formData.append("adData", JSON.stringify(adObject)); // Send ad data as JSON string
+      // Append images
+      images.forEach((image) => formData.append("images", image));
+      const res1 = await axios.post("http://localhost:5000/serversavead", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      setResultArea(res1.data.myMessage);
+
     } catch (error) {
       if (error.response) {
         setResultArea(error.response.data.myMessage);
@@ -79,6 +98,19 @@ function BtmUpload() {
                 value={telephone} onChange={(e) => setTelephone(e.target.value)} required />
             </div>
           </div>
+          
+          {/* Image Upload Section */}
+          <div className="formInputs">
+            <label htmlFor="inputImages">Attēlu augšupielāde (max 4):</label>
+            <input
+              type="file"
+              id="inputImages"
+              name="images"  // ✅ This should match with "upload.array('images', 4)"
+              accept="image/*"
+              multiple
+              onChange={handleImageChange}
+            />
+          </div>
 
           <button className="button7007" type="submit">Augšupielādēt</button>
         </form>
@@ -88,7 +120,7 @@ function BtmUpload() {
       description-text
       price (per day, per hour, per week or per month)-number with two decimals
       telephone-numbers without decimals
-      name-text
+      name-text 
       City-text
 
       keep it longer weeks? numbers without decimals

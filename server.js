@@ -75,17 +75,10 @@ app.post("/serversavead", upload.array("images", 4), async (req, res) => {
   try {
     client = await pool.connect();
     const result = await client.query(
-      `INSERT INTO livorent_ads (title, description, price, city, name, telephone, ip, date) 
-      values ($1, $2, $3, $4, $5, $6, $7, $8)`,
-      [adTitle, adDescription, adPrice, adCity, adName, adTelephone, visitorData.ip, visitorData.visitDate]
+      `INSERT INTO livorent_ads (title, description, price, city, name, telephone, ip, date, image_url) 
+      values ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+      [adTitle, adDescription, adPrice, adCity, adName, adTelephone, visitorData.ip, visitorData.visitDate, uploadedImageUrls]
     );
-
-    //UPLOAD IMAGE PART--WORK ON THIS 3 LINES OF CODE
-    // Insert only image URLs into PostgreSQL (No Return)
-    const query = "INSERT INTO livorent_ads (image_url) VALUES ($1)";
-    const values = [uploadedImageUrls];
-    await pool.query(query, values);
-
     res.status(201).json({myMessage: "Ad saved"});
   } catch (error) {
     console.log(error.message);
