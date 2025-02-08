@@ -44,7 +44,9 @@ app.post("/serversavead", upload.array("images", 4), async (req, res) => {
   }
 
   let client;
-  const {adTitle, adDescription, adPrice, adCity, adName, adTelephone} = req.body;
+  const adData = JSON.parse(req.body.adData);  // ✅ Parse the JSON string
+  const { adTitle, adDescription, adPrice, adCity, adName, adTelephone } = adData;
+
   const visitorData = {
     ip: ipVisitor,
     visitDate: new Date().toLocaleDateString('en-GB')
@@ -77,7 +79,7 @@ app.post("/serversavead", upload.array("images", 4), async (req, res) => {
     const result = await client.query(
       `INSERT INTO livorent_ads (title, description, price, city, name, telephone, ip, date, image_url) 
       values ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
-      [adTitle, adDescription, adPrice, adCity, adName, adTelephone, visitorData.ip, visitorData.visitDate, uploadedImageUrls]
+      [adTitle, adDescription, adPrice, adCity, adName, adTelephone, visitorData.ip, visitorData.visitDate, JSON.stringify(uploadedImageUrls)]
     );
     res.status(201).json({myMessage: "Ad saved"});
   } catch (error) {

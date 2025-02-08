@@ -21,6 +21,18 @@ function BtmUpload() {
     setImages(selectedFiles);
   };
 
+  //files names of visitors can crash the database or server. So, we will convert them to 
+  //random alfanumerical number here before sending it to backend.
+  function generateUniqueFileName() {
+    const letters = Array.from({ length: 5 }, () =>
+      String.fromCharCode(65 + Math.floor(Math.random() * 26))
+    ).join('');
+    const numbers = Array.from({ length: 5 }, () =>
+      Math.floor(Math.random() * 10)
+    ).join('');
+    return `${letters}${numbers}`; // Example: ABCDE12345
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -37,8 +49,14 @@ function BtmUpload() {
 
       const formData = new FormData();
       formData.append("adData", JSON.stringify(adObject)); // Send ad data as JSON string
-      // Append images
-      images.forEach((image) => formData.append("images", image));
+
+      // Rename and Append images before uploading
+      images.forEach((image) => {
+        const uniqueFileName = generateUniqueFileName();
+        const renamedFile = new File([image], uniqueFileName, { type: image.type });
+        formData.append("images", renamedFile);
+      });
+
       const res1 = await axios.post("http://localhost:5000/serversavead", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
