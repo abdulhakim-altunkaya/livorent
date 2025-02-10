@@ -50,12 +50,16 @@ function BtmUpload() {
       const formData = new FormData();
       formData.append("adData", JSON.stringify(adObject)); // Send ad data as JSON string
 
-      // Rename and Append images before uploading
-      images.forEach((image) => {
-        const uniqueFileName = generateUniqueFileName();
-        const renamedFile = new File([image], uniqueFileName, { type: image.type });
-        formData.append("images", renamedFile);
-      });
+        // ✅ Check if images array has between 1 and 4 images
+        if (images.length >= 1 && images.length <= 4) {
+          images.forEach((image) => {
+            const uniqueFileName = generateUniqueFileName();
+            const renamedFile = new File([image], uniqueFileName, { type: image.type });
+            formData.append("images", renamedFile);
+          });
+        } else {
+          alert("Lūdzu, augšupielādējiet vismaz 1 un ne vairāk kā 4 attēlus.");  // Latvian: Please upload at least 1 and no more than 4 images.
+        }
 
       const res1 = await axios.post("http://localhost:5000/serversavead", formData, {
         headers: { "Content-Type": "multipart/form-data" },
@@ -117,18 +121,56 @@ function BtmUpload() {
             </div>
           </div>
           
-          {/* Image Upload Section */}
-          <div className="formInputs">
-            <label htmlFor="inputImages">Attēlu augšupielāde (max 4):</label>
-            <input
-              type="file"
-              id="inputImages"
-              name="images"  // ✅ This should match with "upload.array('images', 4)"
-              accept="image/*"
-              multiple
-              onChange={handleImageChange}
-            />
-          </div>
+{/* Image Upload Section */}
+<div className="formInputs">
+  {/* Custom File Upload Button */}
+  <label htmlFor="inputImages" className="customFileUpload">
+    <svg
+      aria-hidden="true"
+      stroke="currentColor"
+      stroke-width="2"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      width="60"
+      height="60" 
+    >
+      <path
+        stroke-width="2"
+        stroke="#ffffff"
+        d="M13.5 3H12H8C6.34315 3 5 4.34315 5 6V18C5 19.6569 6.34315 21 8 21H11M13.5 3L19 8.625M13.5 3V7.625C13.5 8.17728 13.9477 8.625 14.5 8.625H19M19 8.625V11.8125"
+        stroke-linejoin="round"
+        stroke-linecap="round"
+      ></path>
+      <path
+        stroke-linejoin="round"
+        stroke-linecap="round"
+        stroke-width="2"
+        stroke="#ffffff"
+        d="M17 15V18M17 21V18M17 18H14M17 18H20"
+      ></path>
+    </svg>
+    Izvēlieties attēlus (maks. 4)
+  </label>
+
+  <input
+    type="file"
+    id="inputImages"
+    name="images"
+    accept="image/*"
+    multiple
+    onChange={handleImageChange}
+    style={{ display: "none" }} // ✅ Hide the default file input
+  />
+
+  {/* Display selected file names */}
+  <div className="selectedFilesText">
+    {images.length > 0
+      ? images.map((file) => file.name).join(", ")
+      : "Nav izvēlēts neviens attēls"}
+  </div>
+</div>
+
 
           <button className="button7007" type="submit">Augšupielādēt</button>
         </form>

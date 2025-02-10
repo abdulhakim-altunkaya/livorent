@@ -128,6 +128,8 @@ Add limits for contact form inputs and textarea
 add how to become a citizen section, reference immigrant invest
 add two more comment section to each part
 add car rental page with pictures
+
+ip check to make sure same ip can upload once in 5 minutes and twice in 24 hour 
 */
 
 
