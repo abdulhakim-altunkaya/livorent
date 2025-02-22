@@ -1,0 +1,66 @@
+@import url("https://fonts.googleapis.com/css?family=Roboto:400,700");
+
+/* Smaller hero height */
+:root {
+  --heading-height: 300px; /* was 400px */
+}
+
+.testArea {
+  font-family: "Roboto", Arial, sans-serif;
+  min-height: 100vh;
+  background-color: #101010;
+}
+
+/* Fixed-height hero container */
+.testHeader {
+  position: fixed;
+  width: 100%;
+  height: var(--heading-height);
+}
+
+/* Angled background */
+.testHeader::before {
+  content: "";
+  display: block;
+  position: absolute;
+  left: 0;
+  /* Moved up the skew so it's not so tall */
+  bottom: 50px; 
+  width: 100%;
+  /* Slightly smaller total height than before */
+  height: calc(var(--heading-height) + 80px);
+  z-index: -1;
+  transform: skewY(-3.5deg);
+  background:
+    linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
+    url("https://images.unsplash.com/photo-1495464101292-552d0b52fe41?auto=format&fit=crop&w=1350&q=80")
+      no-repeat center,
+    linear-gradient(#4e4376, #2b5876);
+  background-size: cover;
+  border-bottom: 2px solid #fff;
+}
+
+/* Main title */
+.testTitle {
+  /* Smaller font size for the hero title */
+  font-size: 36px; 
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  /* Less top and left padding to bring text closer */
+  padding: 10px;
+  text-shadow: 1px 1px 2px #111;
+  color: #fff;
+}
+
+/* Main content below the hero */
+.testMain {
+  /* Less space so it starts closer to the hero area */
+  padding: calc(var(--heading-height) + 40px) 40px 0;
+}
+
+.testP {
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.6;
+  color: #fcfcfc;
+}

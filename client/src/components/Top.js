@@ -2,7 +2,10 @@ import React from 'react'
 
 function Top() {
   return (
-    <div className='topArea'>Top</div>
+    <div className='topArea'>
+      <header className='headerArea'><span>LIVORENT</span></header>
+      
+    </div>
   )
 }
 
