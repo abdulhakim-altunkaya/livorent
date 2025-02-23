@@ -13,33 +13,15 @@
         background-color: white;
         box-shadow: -10px 0 15px -5px rgba(127, 1, 1, 0.3), 10px 0 15px -5px rgba(0, 0, 0, 0.3); /* Left and right shadow */        
     }
-    .topArea {
-        height: 10vh;
+    .topMainArea {
+        height: 20vh;
         display: flex;
-        flex-direction: row;
-        background:
-            linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
-            url("https://images.unsplash.com/photo-1495464101292-552d0b52fe41?auto=format&fit=crop&w=1350&q=80")
-            no-repeat center,
-            linear-gradient(#4e4376, #2b5876);
-        border-bottom: 4px solid #edc618;
+        flex-direction: column;
     }
-    .headerArea {
-        font-family: "Honk", serif;
-        font-optical-sizing: auto;
-        font-weight: 300;
-        font-variation-settings:
-          "MORF" 16,
-          "SHLN" 50;
-        font-size: 70px;
-        letter-spacing: 5px;
-    }
-
-
     .bottomArea {
         border-radius: 10px;
-        height: 90vh;
-
+        height: 80vh;
+        margin-top: 40px;
     }
 }
 /* Media query for small screens */

@@ -1,0 +1,40 @@
+.topTitleArea {
+  height: 65%;
+  background-color: lightgreen;
+}
+.TopNavbarArea {
+  height: 35%;
+  background-color: #101820;
+  color: #FEE715;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+}
+.TopNavbarArea span {
+  font-size: 25px;
+  cursor: pointer;
+  height: 100%;
+  padding: 0 20px; /* Add 10px padding to left and right */
+  display: flex; /* Add Flexbox to the span */
+  align-items: center; /* Center text vertically */
+  justify-content: center; /* Center text horizontally */
+}
+.TopNavbarArea span:hover {
+  background-color: #233547;
+}
+
+.headerArea {
+    margin-left: 50px;
+    font-family: "Honk", serif;
+    font-optical-sizing: auto;
+    font-weight: 300;
+    font-variation-settings:
+      "MORF" 16,
+      "SHLN" 50;
+    font-size: 70px;
+    letter-spacing: 5px;
+}
+.headerArea span {
+  cursor: pointer;
+}

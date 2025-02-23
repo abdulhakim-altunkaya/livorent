@@ -96,13 +96,13 @@
 
       /* From Uiverse.io by SpatexDEV */ 
       .customFileUpload {
-        width: 40%;
+        width: 45%;
         border: none;
         display: flex;
         padding: 12px 16px;          
         background-color: #488aec;
         color: #ffffff !important;
-        font-size: 13px;             
+        font-size: 14px;             
         line-height: 16px;           
         font-weight: 700;
         text-align: center;

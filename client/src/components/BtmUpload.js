@@ -1,6 +1,7 @@
 import React, {useState} from "react";
 import axios from "axios";
 import "../styles/upload.css";
+import Footer from "./Footer";
 
 function BtmUpload() {
   const [title, setTitle] = useState("");
@@ -189,6 +190,8 @@ function BtmUpload() {
 
       location ip 
       date */}
+      <br /><br /><br /><br /><br /><br /><br /><br />
+      <Footer />
     </div>
   )
 }

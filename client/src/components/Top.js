@@ -1,10 +1,13 @@
-import React from 'react'
+import React from 'react';
+import TopNavbar from "./TopNavbar";
+import TopTitle from "./TopTitle";
+import "../styles/TopArea.css";
 
 function Top() {
   return (
-    <div className='topArea'>
-      <header className='headerArea'><span>LIVORENT</span></header>
-      
+    <div className='topMainArea'>
+      <TopTitle />
+      <TopNavbar />
     </div>
   )
 }
