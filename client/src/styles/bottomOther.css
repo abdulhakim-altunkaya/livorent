@@ -58,10 +58,11 @@
         padding-right: 10px;
         padding-bottom: 10px;
         line-height: 1.2; /* Improve readability */
-        color: #3f3f3f;
+        color: #1a1a1a;
         font-style: italic;
         display: flex;
         flex-direction: column;
+        font-weight: 500;
     }
     .infoText2 span {
         margin-bottom: 4px;
@@ -78,14 +79,15 @@
     }
     #companyBox:hover {
         cursor: pointer;
-        box-shadow: -4px -4px 12px rgba(0, 0, 0, 0.3); /* Moves shadow to the top-left */
+        /* box-shadow: -4px -4px 12px rgba(0, 0, 0, 0.3); *//* Moves shadow to the top-left */
+        box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.3); /* Moves shadow to the bottom-right */
     }
     #companyBox2 {
         transition: box-shadow 0.3s ease; /* Smooth transition for both effects */
     }
     #companyBox2:hover {
         cursor: pointer;
-        box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.3); /* Moves shadow to the bottom-right */
+        box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.3); /* Moves shadow to the bottom-right */
     }
     #companyBox3 {
         background-color: aliceblue;
@@ -93,8 +95,8 @@
     }
     #companyBox3:hover {
         cursor: pointer;
-        box-shadow: -4px -4px 12px rgba(0, 0, 0, 0.3); /* Moves shadow to the top-left */
-        transform: translate(-4px, -4px); /* Moves the element slightly to the top-left */
+        box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.3);
+        /*transform: translate(-4px, -4px);*/ /* Moves the element slightly to the top-left */
     }
 }
 
