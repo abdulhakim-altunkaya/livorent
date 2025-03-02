@@ -1,11 +1,11 @@
 .topTitleArea {
   height: 65%;
-  background-color: lightgreen;
+  background-color: rgb(203, 238, 203);
 }
 .TopNavbarArea {
   height: 35%;
-  background-color: #101820;
-  color: #FEE715;
+  background-color: #F5D042;
+  color: #0A174E;
   display: flex;
   flex-direction: row;
   justify-content: space-around;
@@ -21,7 +21,7 @@
   justify-content: center; /* Center text horizontally */
 }
 .TopNavbarArea span:hover {
-  background-color: #233547;
+  background-color: #947c1e;
 }
 
 .headerArea {

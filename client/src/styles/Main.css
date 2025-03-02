@@ -3,15 +3,17 @@
 /* Media query for big screens */
 @media (min-width: 781px) {
     .mainArea {
-        height: 100%;
+        /* Instead of height: 100%, use a min-height so it can grow if content is taller */
+        height: 100%; /* Ensures body fills the viewport height */
         width: 76%;
         display: flex;
         flex-direction: column;
         margin: auto;
-        overflow-y:visible;
         background-color: white;
-        box-shadow: -10px 0 15px -5px rgba(127, 1, 1, 0.3), 10px 0 15px -5px rgba(0, 0, 0, 0.3); /* Left and right shadow */        
-    }
+        box-shadow: -10px 0 15px -5px rgba(127, 1, 1, 0.3),
+                    10px 0 15px -5px rgba(0, 0, 0, 0.3);
+                 
+      }
     .topMainArea {
         height: 20vh;
         display: flex;
@@ -21,6 +23,8 @@
         border-radius: 10px;
         height: 80vh;
         margin-top: 40px;
+        overflow: auto;
+        scrollbar-width: none;    
     }
 }
 /* Media query for small screens */

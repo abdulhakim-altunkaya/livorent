@@ -2,7 +2,6 @@ import React from 'react';
 import {useNavigate} from "react-router-dom";
 import Footer from './Footer'; 
 import "../styles/bottomOther.css"
-import { Helmet } from "react-helmet";
 
 function BottomHome() {
   
@@ -12,11 +11,11 @@ function BottomHome() {
     <div className='bottomOtherArea'>
 
       <div className='infoAreas2'>
-        <div className='infoSheets2' id='companyBox'>
+        <div className='infoSheets2' id='companyBox' onClick={() => navigate("/machines-construction")}>
           <span className='infoSVG2'><img src='/svg_machine.svg' alt='Machine and Construction icon'/></span>
           <span className='infoTitle2'>Mašīnas, būvniecība</span>
           <div className='infoText2'>
-            <span>Būvmateriāli</span>
+            <span>Masti, torņi, konstrukcijas</span>
             <span>Santehnika</span>
             <span>Kompresori</span>
             <span>Pārvadāšana un iekraušana</span>
@@ -27,22 +26,22 @@ function BottomHome() {
             <span>Un vēl...</span>
           </div>
         </div>
-        <div className='infoSheets2' id='companyBox2'>
+        <div className='infoSheets2' id='companyBox2' onClick={() => navigate("/electronics-instruments")}>
           <span className='infoSVG2'><img src='/svg_laptop.svg' alt='Instruments and Electronics icon'/></span>
           <span className='infoTitle2'>Instrumenti, elektronika</span>
           <span className='infoText2'>
             <span>Telefoni</span>
             <span>Datori</span>
             <span>Virtuves tehnika</span>
-            <span>Orgtehnika</span>
+            <span>Biroja tehnika</span>
             <span>Baterijas, Akumulatori</span>
-            <span>Televizori</span>
+            <span>Apgaismojums, Televizori</span>
             <span>Foto un optika</span>
-            <span>Mūzikas instrumenti</span>
+            <span>Dārza tehnika</span>
             <span>Un vēl...</span>
           </span>
         </div>
-        <div className='infoSheets2' id='companyBox3' onClick={ () => navigate("/sirket-firma-kurulus")}>
+        <div className='infoSheets2' id='companyBox3' onClick={ () => navigate("/vehicles")}>
           <span className='infoSVG2'><img src='/svg_car2.svg' alt='Car icon'/></span>
           <span className='infoTitle2'>Transportlīdzekļi</span>
           <span className='infoText2'>
@@ -60,7 +59,7 @@ function BottomHome() {
       </div>
 
       <div className='infoAreas2'>
-        <div className='infoSheets2' id='companyBox2'>
+        <div className='infoSheets2' id='companyBox2' onClick={() => navigate("/clothes")}>
           <span className='infoSVG2'><img src='/svg_dress.svg' alt='Dress and shoes icon'/></span>
           <span className='infoTitle2'>Apģērbi, apavi</span>
           <span className='infoText2'>
@@ -69,39 +68,35 @@ function BottomHome() {
             <span>Sieviešu apavi</span>
             <span>Vīriešu apavi</span>
             <span>Aksesuāri</span>
-            <span>Kostīmi</span>
             <span>Sieviešu somiņas</span>
             <span>Mugursomas un Čemodāni</span>
             <span>Un vēl...</span>
           </span>
         </div>
-        <div className='infoSheets2' id='companyBox'>
-          <span className='infoSVG2'><img src='/svg_baby.svg' alt='Baby icon'/></span>
-          <span className='infoTitle2'>Bērni</span>
+        <div className='infoSheets2' id='companyBox' onClick={() => navigate("/hobbies")}>
+          <span className='infoSVG2'><img src='/svg_camping.svg' alt='Hobby icon'/></span>
+          <span className='infoTitle2'>Hobijs</span>
           <span className='infoText2'>
-            <span>Meiteņu apģērbs</span>
-            <span>Zēnu apģērbs</span>
-            <span>Meiteņu apavi</span>
-            <span>Zēnu apavi</span>
-            <span>Aksesuāri</span>
-            <span>Rati un ķengursomas</span>
-            <span>Zīdaiņu gultas</span>
-            <span>Rotaļlietas</span>
+            <span>Sporta aprīkojums</span>
+            <span>Medības, kempings</span>
+            <span>Mūzikas instrumenti</span>
+            <span>Slidošana</span>
+            <span>Rokdarbi</span>            
             <span>Un vēl...</span>
           </span>
         </div>
-        <div className='infoSheets2' id='companyBox2'>
-          <span className='infoSVG2'><img src='/svg_home.svg' alt='Home and Hobbies icon'/></span>
-          <span className='infoTitle2'>Māja, hobijs</span>
+        <div className='infoSheets2' id='companyBox2' onClick={() => navigate("/event-organization")}>
+          <span className='infoSVG2'><img src='/svg_event.svg' alt='Event organization icon'/></span>
+          <span className='infoTitle2'>Pasākumi</span>
           <span className='infoText2'>
-            <span>Mēbeles</span>
-            <span>Sadzīves tehnika</span>
-            <span>Dārza tehnika</span>
-            <span>Dārza mēbeles un aksesuāri</span>
+            <span>Dekorācijas</span>
+            <span>Dzīvnieki</span>
+            <span>Mēbeles un Paklāji</span>
+            <span>Inventārs aktīvai atpūtai</span>
+            <span>Atrakciju noma</span>
             <span>Trauki, galda rīki</span>
-            <span>Aizkari un Paklāji</span>
-            <span>Sporta aprīkojums</span>
-            <span>Medības, kempings</span>
+            <span>Kostīmi</span>
+            <span>Pirtis</span>
             <span>Un vēl...</span>
           </span>
         </div>
