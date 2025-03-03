@@ -20,7 +20,6 @@ function BottomHome() {
             <span>Kompresori</span>
             <span>Pārvadāšana un iekraušana</span>
             <span>Ģeneratori</span>
-            <span>Mazgāšanas aprīkojums</span>
             <span>Mērinstrumenti</span>
             <span>Mazgāšanas aprīkojums</span>
             <span>Un vēl...</span>
