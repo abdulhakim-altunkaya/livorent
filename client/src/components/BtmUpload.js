@@ -12,7 +12,6 @@ function BtmUpload() {
   const [telephone, setTelephone] = useState(null);
   const [images, setImages] = useState([]); // New state for image files
   const [resultArea, setResultArea] = useState("");
-  const [isList, setIsList] = useState(false);
 
   const handleImageChange = (e) => {
     const selectedFiles = Array.from(e.target.files);
@@ -123,67 +122,61 @@ function BtmUpload() {
             </div>
           </div>
                 
-          {/* Image Upload Section */}
-          <div className="formInputs">
-            {/* Custom File Upload Button */}
-            <label htmlFor="inputImages" className="customFileUpload">
-              <svg
-                aria-hidden="true"
-                stroke="currentColor"
-                stroke-width="2"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                width="60"
-                height="60" 
-              >
-                <path
-                  stroke-width="2"
-                  stroke="#ffffff"
-                  d="M13.5 3H12H8C6.34315 3 5 4.34315 5 6V18C5 19.6569 6.34315 21 8 21H11M13.5 3L19 8.625M13.5 3V7.625C13.5 8.17728 13.9477 8.625 14.5 8.625H19M19 8.625V11.8125"
-                  stroke-linejoin="round"
-                  stroke-linecap="round"
-                ></path>
-                <path
-                  stroke-linejoin="round"
-                  stroke-linecap="round"
-                  stroke-width="2"
-                  stroke="#ffffff"
-                  d="M17 15V18M17 21V18M17 18H14M17 18H20"
-                ></path>
-              </svg>
-              Izvēlieties attēlus (maks. 4)
-            </label>
+          
 
-            <input
-              type="file"
-              id="inputImages"
-              name="images"
-              accept="image/*"
-              multiple
-              onChange={handleImageChange}
-              style={{ display: "none" }} // ✅ Hide the default file input
-            />
+        <div className="btnUploadArea" >
+          {/* Hide the default file input */}
+          <input
+            type="file"
+            id="inputImages"
+            name="images"
+            accept="image/*"
+            multiple
+            onChange={handleImageChange}
+            style={{
+              opacity: 0, // Make the input invisible
+              position: 'absolute', // Position it absolutely
+              left: 0,
+              top: 0,
+              cursor: 'pointer', // Show pointer cursor
+            }}
+          />
+          {/* Custom button */}
+          <label
+            htmlFor="inputImages" // Associate the label with the input
+            style={{
+              padding: '8px 16px',
+              backgroundColor: '#007bff',
+              color: 'white',
+              border: 'none',
+              borderRadius: '5px',
+              cursor: 'pointer',
+              fontSize: '18px',
+              width: "240px",
+              display: 'inline-block',
+              textAlign: "center",
+              alignSelf: "center"
+            }}
+          >
+            Upload Images <img src='/svg_add_file.svg' className="svgUploadFile" alt='add file icon'/>
+          </label>
 
-            {/* Display selected file names */}
-            <div className="selectedFilesText">
+        </div>
+          {/* Display selected file names */}
+          <div className="selectedFilesText">
               {images.length > 0
                 ? images.map((file) => file.name).join(", ")
                 : "Nav izvēlēts neviens attēls"}
-            </div>
           </div>
 
-          <div className="selectArea">
-            <div className="selectTitle" onClick={ () => setIsList(!isList)}>
-              <span>Choose Ad Category</span> <span>▼</span>
+          <div>
+            <div className="btnSelectCategory" >
+              <span>Choose Ad Category</span> &nbsp;&nbsp;<span>▼</span>
 
             </div>
-            {
-              isList ? (
                 <div className="selectCategoryArea">
-
-                  <div>
-                    <span className="selectCategoryTitle">Mašīnas, būvniecība</span>
+                  <div className="selectCategoryAreaDiv">
+                    <span className="selectCategoryTitle">&#128978;Mašīnas, būvniecība&#128978;</span>
                     <span className="selectCategoryList">Masti, torņi, konstrukcijas</span>
                     <span className="selectCategoryList">Santehnika</span>
                     <span className="selectCategoryList">Kompresori</span>
@@ -194,8 +187,8 @@ function BtmUpload() {
                     <span className="selectCategoryList">Citi</span>
                   </div>
 
-                  <div>
-                    <span className="selectCategoryTitle">Instrumenti, elektronika</span>
+                  <div className="selectCategoryAreaDiv">
+                    <span className="selectCategoryTitle">&#128978;Instrumenti, elektronika&#128978;</span>
                     <span className="selectCategoryList">Telefoni</span>
                     <span className="selectCategoryList">Datori</span>
                     <span className="selectCategoryList">Virtuves tehnika</span>
@@ -207,8 +200,8 @@ function BtmUpload() {
                     <span className="selectCategoryList">Citi</span>
                   </div>
 
-                  <div>
-                    <span className="selectCategoryTitle">Transportlīdzekļi</span>
+                  <div className="selectCategoryAreaDiv">
+                    <span className="selectCategoryTitle">&#128978;Transportlīdzekļi&#128978;</span>
                     <span className="selectCategoryList">Vieglie auto</span>
                     <span className="selectCategoryList">Velosipēdi, skūteri</span>
                     <span className="selectCategoryList">Kravas automašīnas</span>
@@ -220,8 +213,8 @@ function BtmUpload() {
                     <span className="selectCategoryList">Citi</span>
                   </div>
 
-                  <div>
-                    <span className="selectCategoryTitle">Apģērbi, apavi</span>
+                  <div className="selectCategoryAreaDiv">
+                    <span className="selectCategoryTitle">&#128978;Apģērbi, apavi&#128978;</span>
                     <span className="selectCategoryList">Sieviešu apģērbi</span>
                     <span className="selectCategoryList">Vīriešu apģērbi</span>
                     <span className="selectCategoryList">Sieviešu apavi</span>
@@ -232,8 +225,8 @@ function BtmUpload() {
                     <span className="selectCategoryList">Citi</span>
                   </div>
 
-                  <div>
-                    <span className="selectCategoryTitle">Hobijs</span>
+                  <div className="selectCategoryAreaDiv">
+                    <span className="selectCategoryTitle">&#128978;Hobijs&#128978;</span>
                     <span className="selectCategoryList">Sporta aprīkojums</span>
                     <span className="selectCategoryList">Medības, kempings</span>
                     <span className="selectCategoryList">Mūzikas instrumenti</span>
@@ -242,8 +235,8 @@ function BtmUpload() {
                     <span className="selectCategoryList">Citi</span>
                   </div>
 
-                  <div>
-                    <span className="selectCategoryTitle">Pasākumi</span>
+                  <div className="selectCategoryAreaDiv">
+                    <span className="selectCategoryTitle">&#128978;Pasākumi&#128978;</span>
                     <span className="selectCategoryList">Dekorācijas</span>
                     <span className="selectCategoryList">Dzīvnieki</span>
                     <span className="selectCategoryList">Mēbeles un Paklāji</span>
@@ -256,9 +249,6 @@ function BtmUpload() {
                   </div>
 
                 </div>
-              ) : null
-
-            }
 
           </div>
 
