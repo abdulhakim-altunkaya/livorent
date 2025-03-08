@@ -45,7 +45,7 @@ app.post("/serversavead", upload.array("images", 4), async (req, res) => {
 
   let client;
   const adData = JSON.parse(req.body.adData);  // ✅ Parse the JSON string
-  const { adTitle, adDescription, adPrice, adCity, adName, adTelephone } = adData;
+  const { adTitle, adDescription, adPrice, adCity, adName, adTelephone, adCategory } = adData;
 
   const visitorData = {
     ip: ipVisitor,
@@ -74,12 +74,18 @@ app.post("/serversavead", upload.array("images", 4), async (req, res) => {
     uploadedImageUrls.push(imageUrl);
   }
 
+  //CATEGORY DATA MANAGEMENT
+  const stringNum = adCategory.toString(); // Convert number to string
+  const numPart1 = parseInt(stringNum[0], 10); // Convert first character back to number
+  const numPart2 = parseInt(stringNum[1], 10); // Convert second character back to number
+
   try {
     client = await pool.connect();
     const result = await client.query(
-      `INSERT INTO livorent_ads (title, description, price, city, name, telephone, ip, date, image_url) 
-      values ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
-      [adTitle, adDescription, adPrice, adCity, adName, adTelephone, visitorData.ip, visitorData.visitDate, JSON.stringify(uploadedImageUrls)]
+      `INSERT INTO livorent_ads (title, description, price, city, name, telephone, ip, date, image_url, main_group, sub_group) 
+      values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
+      [adTitle, adDescription, adPrice, adCity, adName, adTelephone, visitorData.ip, 
+        visitorData.visitDate, JSON.stringify(uploadedImageUrls), numPart1, numPart2]
     );
     res.status(201).json({myMessage: "Ad saved"});
   } catch (error) {

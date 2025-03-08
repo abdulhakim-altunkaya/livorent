@@ -48,7 +48,8 @@ function BtmUpload() {
         adPrice: price, 
         adCity: city, 
         adName: name, 
-        adTelephone: telephone
+        adTelephone: telephone,
+        adCategory: selectedCategory
       };
       console.log(adObject);
 
