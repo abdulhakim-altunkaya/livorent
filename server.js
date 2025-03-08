@@ -97,6 +97,35 @@ app.post("/serversavead", upload.array("images", 4), async (req, res) => {
 
 })
 
+app.get("/api/get/adsbycategory/:idcategory", async (req, res) => {
+  const { idcategory } = req.params;
+  let client;
+  if(!idcategory) {
+    return res.status(404).json({message: "No category detected"});
+  }
+
+  try {
+    /*
+    client = await pool.connect();
+    const result = await client.query(
+      `SELECT * FROM livorent_ads WHERE main_group = $1`, [idcategory]
+    );
+    const categoryDetails = await result.rows[0];
+    if(!categoryDetails) {
+      return res.status(404).json({ message: "Category details not found although category id is correct"})
+    }
+    */
+    res.status(200).json({apple: 2});
+    console.log("all good from backend")
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({message: "Error at the Backend: Couldnt fetch category details"})
+  } finally {
+    if(client) client.release();
+  }
+});
+
+
 
 
 //This line must be under all server routes. Otherwise you will have like not being able to fetch comments etc.

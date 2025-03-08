@@ -8,6 +8,7 @@ import AdsPasakumi from "./AdsPasakumi";
 import AdsMasinas from "./AdsMasinas";
 import AdsHobi from "./AdsHobi";
 import AdsElectro from "./AdsElectro";
+import BtmDisplay from "./BtmDisplay";
 
 function Bottom() {
   return (
@@ -20,6 +21,7 @@ function Bottom() {
         <Route path="/clothes" element={<AdsApgerbi/>} />
         <Route path="/event-organization" element={<AdsPasakumi/>} />
         <Route path="/vehicles" element={<AdsTransport/>} />
+        <Route path="/category/:categoryId" element={<BtmDisplay/>} />
         <Route path="*" element={<BtmHome/>} />
       </Routes>
     </div>

@@ -1,7 +1,27 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import "../styles/AdsMain.css";
 
 function AdsApgerbi() {
+  const [message, setMessage] = useState(null); // Initialize with null to better handle initial state
+  const [error, setError] = useState(null); // Add error state
+  const [loading, setLoading] = useState(true); // Add loading state
+
+  useEffect(() => {
+    const getData = async () => {
+      try {
+        const response = await axios.get(`http://localhost:5000/api/get/adsbycategory/4`);
+        console.log(response.data);
+      } catch (error) {
+        console.log(error.message);
+        setError("Error happened");
+      } finally {
+        setLoading(false);
+      }
+    };
+    getData();
+  }, []);
+
   return (
     <div>
       <div className='adsMainArea'>
@@ -19,6 +39,9 @@ function AdsApgerbi() {
             <span>Mugursomas un Čemodāni</span>
             <span>Citi...</span>
         </div> 
+      </div>
+      <div className='resultArea'>
+        {message}
       </div>
     </div>
   )
