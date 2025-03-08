@@ -12,6 +12,11 @@ function BtmUpload() {
   const [telephone, setTelephone] = useState(null);
   const [images, setImages] = useState([]); // New state for image files
   const [resultArea, setResultArea] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState(null);
+
+  const saveCategoryNumber = (n) => {
+    setSelectedCategory(n);
+  }
 
   const handleImageChange = (e) => {
     const selectedFiles = Array.from(e.target.files);
@@ -177,79 +182,127 @@ function BtmUpload() {
                 <div className="selectCategoryArea">
                   <div className="selectCategoryAreaDiv">
                     <span className="selectCategoryTitle">&#128978;Mašīnas, būvniecība&#128978;</span>
-                    <span className="selectCategoryList">Masti, torņi, konstrukcijas</span>
-                    <span className="selectCategoryList">Santehnika</span>
-                    <span className="selectCategoryList">Kompresori</span>
-                    <span className="selectCategoryList">Pārvadāšana un iekraušana</span>
-                    <span className="selectCategoryList">Ģeneratori</span>
-                    <span className="selectCategoryList">Mērinstrumenti</span>
-                    <span className="selectCategoryList">Mazgāšanas aprīkojums</span>
-                    <span className="selectCategoryList">Citi</span>
+                    <span className={`selectCategoryList ${selectedCategory === 11 ? "selected" : ""}`}
+                     onClick={() => saveCategoryNumber(11)}>Masti, torņi, konstrukcijas</span>
+                    <span className={`selectCategoryList ${selectedCategory === 12 ? "selected" : ""}`}
+                     onClick={() => saveCategoryNumber(12)}>Santehnika</span>
+                    <span className={`selectCategoryList ${selectedCategory === 13 ? "selected" : ""}`}
+                     onClick={() => saveCategoryNumber(13)}>Kompresori</span>
+                    <span className={`selectCategoryList ${selectedCategory === 14 ? "selected" : ""}`}
+                     onClick={() => saveCategoryNumber(14)}>Pārvadāšana un iekraušana</span>
+                    <span className={`selectCategoryList ${selectedCategory === 15 ? "selected" : ""}`}
+                     onClick={() => saveCategoryNumber(15)}>Ģeneratori</span>
+                    <span className={`selectCategoryList ${selectedCategory === 16 ? "selected" : ""}`}
+                     onClick={() => saveCategoryNumber(16)}>Mērinstrumenti</span>
+                    <span className={`selectCategoryList ${selectedCategory === 17 ? "selected" : ""}`}
+                     onClick={() => saveCategoryNumber(17)}>Mazgāšanas aprīkojums</span>
+                    <span className={`selectCategoryList ${selectedCategory === 18 ? "selected" : ""}`}
+                     onClick={() => saveCategoryNumber(18)}>Citi</span>
                   </div>
 
                   <div className="selectCategoryAreaDiv">
                     <span className="selectCategoryTitle">&#128978;Instrumenti, elektronika&#128978;</span>
-                    <span className="selectCategoryList">Telefoni</span>
-                    <span className="selectCategoryList">Datori</span>
-                    <span className="selectCategoryList">Virtuves tehnika</span>
-                    <span className="selectCategoryList">Biroja tehnika</span>
-                    <span className="selectCategoryList">Baterijas, Akumulatori</span>
-                    <span className="selectCategoryList">Apgaismojums, Televizori</span>
-                    <span className="selectCategoryList">Foto un optika</span>
-                    <span className="selectCategoryList">Dārza tehnika</span>
-                    <span className="selectCategoryList">Citi</span>
+                    <span className={`selectCategoryList ${selectedCategory === 21 ? "selected" : ""}`}
+                     onClick={() => saveCategoryNumber(21)}>Telefoni</span>
+                    <span className={`selectCategoryList ${selectedCategory === 22 ? "selected" : ""}`}
+                     onClick={() => saveCategoryNumber(22)}>Datori</span>
+                    <span className={`selectCategoryList ${selectedCategory === 23 ? "selected" : ""}`}
+                     onClick={() => saveCategoryNumber(23)}>Virtuves tehnika</span>
+                    <span className={`selectCategoryList ${selectedCategory === 24 ? "selected" : ""}`}
+                     onClick={() => saveCategoryNumber(24)}>Biroja tehnika</span>
+                    <span className={`selectCategoryList ${selectedCategory === 25 ? "selected" : ""}`}
+                     onClick={() => saveCategoryNumber(25)}>Baterijas, Akumulatori</span>
+                    <span className={`selectCategoryList ${selectedCategory === 26 ? "selected" : ""}`}
+                     onClick={() => saveCategoryNumber(26)}>Apgaismojums, Televizori</span>
+                    <span className={`selectCategoryList ${selectedCategory === 27 ? "selected" : ""}`}
+                     onClick={() => saveCategoryNumber(27)}>Foto un optika</span>
+                    <span className={`selectCategoryList ${selectedCategory === 28 ? "selected" : ""}`}
+                     onClick={() => saveCategoryNumber(28)}>Dārza tehnika</span>
+                    <span className={`selectCategoryList ${selectedCategory === 29 ? "selected" : ""}`}
+                     onClick={() => saveCategoryNumber(29)}>Citi</span>
                   </div>
 
                   <div className="selectCategoryAreaDiv">
                     <span className="selectCategoryTitle">&#128978;Transportlīdzekļi&#128978;</span>
-                    <span className="selectCategoryList">Vieglie auto</span>
-                    <span className="selectCategoryList">Velosipēdi, skūteri</span>
-                    <span className="selectCategoryList">Kravas automašīnas</span>
-                    <span className="selectCategoryList">Traktori</span>
-                    <span className="selectCategoryList">Lauksaimniecības mašīnas</span>
-                    <span className="selectCategoryList">Piekabes</span>
-                    <span className="selectCategoryList">Jumta kastes</span>
-                    <span className="selectCategoryList">Ūdens transports</span>
-                    <span className="selectCategoryList">Citi</span>
+                    <span className={`selectCategoryList ${selectedCategory === 31 ? "selected" : ""}`}
+                      onClick={() => saveCategoryNumber(31)}>Vieglie auto</span>
+                    <span className={`selectCategoryList ${selectedCategory === 32 ? "selected" : ""}`}
+                      onClick={() => saveCategoryNumber(32)}>Velosipēdi, skūteri</span>
+                    <span className={`selectCategoryList ${selectedCategory === 33 ? "selected" : ""}`}
+                      onClick={() => saveCategoryNumber(33)}>Kravas automašīnas</span>
+                    <span className={`selectCategoryList ${selectedCategory === 34 ? "selected" : ""}`}
+                      onClick={() => saveCategoryNumber(34)}>Traktori</span>
+                    <span className={`selectCategoryList ${selectedCategory === 35 ? "selected" : ""}`}
+                      onClick={() => saveCategoryNumber(35)}>Lauksaimniecības mašīnas</span>
+                    <span className={`selectCategoryList ${selectedCategory === 36 ? "selected" : ""}`}
+                      onClick={() => saveCategoryNumber(36)}>Piekabes</span>
+                    <span className={`selectCategoryList ${selectedCategory === 37 ? "selected" : ""}`}
+                      onClick={() => saveCategoryNumber(37)}>Jumta kastes</span>
+                    <span className={`selectCategoryList ${selectedCategory === 38 ? "selected" : ""}`}
+                      onClick={() => saveCategoryNumber(38)}>Ūdens transports </span>
+                    <span className={`selectCategoryList ${selectedCategory === 39 ? "selected" : ""}`}
+                      onClick={() => saveCategoryNumber(39)}> Citi </span>
                   </div>
 
                   <div className="selectCategoryAreaDiv">
                     <span className="selectCategoryTitle">&#128978;Apģērbi, apavi&#128978;</span>
-                    <span className="selectCategoryList">Sieviešu apģērbi</span>
-                    <span className="selectCategoryList">Vīriešu apģērbi</span>
-                    <span className="selectCategoryList">Sieviešu apavi</span>
-                    <span className="selectCategoryList">Vīriešu apavi</span>
-                    <span className="selectCategoryList">Aksesuāri</span>
-                    <span className="selectCategoryList">Sieviešu somiņas</span>
-                    <span className="selectCategoryList">Mugursomas un Čemodāni</span>
-                    <span className="selectCategoryList">Citi</span>
+                    <span className={`selectCategoryList ${selectedCategory === 41 ? "selected" : ""}`}
+                     onClick={() => saveCategoryNumber(41)}>Sieviešu apģērbi</span>
+                    <span className={`selectCategoryList ${selectedCategory === 42 ? "selected" : ""}`}
+                     onClick={() => saveCategoryNumber(42)}>Vīriešu apģērbi</span>
+                    <span className={`selectCategoryList ${selectedCategory === 43 ? "selected" : ""}`}
+                     onClick={() => saveCategoryNumber(43)}>Sieviešu apavi</span>
+                    <span className={`selectCategoryList ${selectedCategory === 44 ? "selected" : ""}`}
+                     onClick={() => saveCategoryNumber(44)}>Vīriešu apavi</span>
+                    <span className={`selectCategoryList ${selectedCategory === 45 ? "selected" : ""}`}
+                     onClick={() => saveCategoryNumber(45)}>Aksesuāri</span>
+                    <span className={`selectCategoryList ${selectedCategory === 46 ? "selected" : ""}`}
+                     onClick={() => saveCategoryNumber(46)}>Sieviešu somiņas</span>
+                    <span className={`selectCategoryList ${selectedCategory === 47 ? "selected" : ""}`}
+                     onClick={() => saveCategoryNumber(47)}>Mugursomas un Čemodāni</span>
+                    <span className={`selectCategoryList ${selectedCategory === 48 ? "selected" : ""}`}
+                     onClick={() => saveCategoryNumber(48)}>Citi</span>
                   </div>
 
                   <div className="selectCategoryAreaDiv">
                     <span className="selectCategoryTitle">&#128978;Hobijs&#128978;</span>
-                    <span className="selectCategoryList">Sporta aprīkojums</span>
-                    <span className="selectCategoryList">Medības, kempings</span>
-                    <span className="selectCategoryList">Mūzikas instrumenti</span>
-                    <span className="selectCategoryList">Slidošana</span>
-                    <span className="selectCategoryList">Rokdarbi</span>   
-                    <span className="selectCategoryList">Citi</span>
+                    <span className={`selectCategoryList ${selectedCategory === 51 ? "selected" : ""}`}
+                     onClick={() => saveCategoryNumber(51)}>Sporta aprīkojums</span>
+                    <span className={`selectCategoryList ${selectedCategory === 52 ? "selected" : ""}`}
+                     onClick={() => saveCategoryNumber(52)}>Medības, kempings</span>
+                    <span className={`selectCategoryList ${selectedCategory === 53 ? "selected" : ""}`}
+                     onClick={() => saveCategoryNumber(53)}>Mūzikas instrumenti</span>
+                    <span className={`selectCategoryList ${selectedCategory === 54 ? "selected" : ""}`}
+                     onClick={() => saveCategoryNumber(54)}>Slidošana</span>
+                    <span className={`selectCategoryList ${selectedCategory === 55 ? "selected" : ""}`}
+                     onClick={() => saveCategoryNumber(55)}>Rokdarbi</span>   
+                    <span className={`selectCategoryList ${selectedCategory === 56 ? "selected" : ""}`}
+                     onClick={() => saveCategoryNumber(56)}>Citi</span>
                   </div>
 
                   <div className="selectCategoryAreaDiv">
                     <span className="selectCategoryTitle">&#128978;Pasākumi&#128978;</span>
-                    <span className="selectCategoryList">Dekorācijas</span>
-                    <span className="selectCategoryList">Dzīvnieki</span>
-                    <span className="selectCategoryList">Mēbeles un Paklāji</span>
-                    <span className="selectCategoryList">Inventārs aktīvai atpūtai</span>
-                    <span className="selectCategoryList">Atrakciju noma</span>
-                    <span className="selectCategoryList">Trauki, galda rīki</span>
-                    <span className="selectCategoryList">Kostīmi</span>
-                    <span className="selectCategoryList">Pirtis</span>
-                    <span className="selectCategoryList">Citi</span>
+                    <span className={`selectCategoryList ${selectedCategory === 61 ? "selected" : ""}`}
+                     onClick={() => saveCategoryNumber(61)}>Dekorācijas</span>
+                    <span className={`selectCategoryList ${selectedCategory === 62 ? "selected" : ""}`}
+                     onClick={() => saveCategoryNumber(62)}>Dzīvnieki</span>
+                    <span className={`selectCategoryList ${selectedCategory === 63 ? "selected" : ""}`}
+                     onClick={() => saveCategoryNumber(63)}>Mēbeles un Paklāji</span>
+                    <span className={`selectCategoryList ${selectedCategory === 64 ? "selected" : ""}`}
+                     onClick={() => saveCategoryNumber(64)}>Inventārs aktīvai atpūtai</span>
+                    <span className={`selectCategoryList ${selectedCategory === 65 ? "selected" : ""}`}
+                     onClick={() => saveCategoryNumber(65)}>Atrakciju noma</span>
+                    <span className={`selectCategoryList ${selectedCategory === 66 ? "selected" : ""}`}
+                     onClick={() => saveCategoryNumber(66)}>Trauki, galda rīki</span>
+                    <span className={`selectCategoryList ${selectedCategory === 67 ? "selected" : ""}`}
+                     onClick={() => saveCategoryNumber(67)}>Kostīmi</span>
+                    <span className={`selectCategoryList ${selectedCategory === 68 ? "selected" : ""}`}
+                     onClick={() => saveCategoryNumber(68)}>Pirtis</span>
+                    <span className={`selectCategoryList ${selectedCategory === 69 ? "selected" : ""}`}
+                     onClick={() => saveCategoryNumber(69)}>Citi</span>
                   </div>
 
                 </div>
-
           </div>
 
           <button className="button7007" type="submit">Augšupielādēt</button>

@@ -160,6 +160,12 @@
       .selectCategoryTitle {
         font-weight: bold;
       }
+      .selectCategoryList:hover {
+        background-color: #cccccc;
+      }
+      .selectCategoryList.selected {
+        background-color: #d74f3aea; /* Background color for selected element */
+      }
 }
 
 
