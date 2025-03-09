@@ -9,10 +9,10 @@ function BtmUpload() {
   const [price, setPrice] = useState("");
   const [city, setCity] = useState("");
   const [name, setName] = useState("");
-  const [telephone, setTelephone] = useState(null);
+  const [telephone, setTelephone] = useState("");
   const [images, setImages] = useState([]); // New state for image files
   const [resultArea, setResultArea] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState("");
 
   const saveCategoryNumber = (n) => {
     setSelectedCategory(n);

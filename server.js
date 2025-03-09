@@ -105,7 +105,6 @@ app.get("/api/get/adsbycategory/:idcategory", async (req, res) => {
   }
 
   try {
-    /*
     client = await pool.connect();
     const result = await client.query(
       `SELECT * FROM livorent_ads WHERE main_group = $1`, [idcategory]
@@ -114,8 +113,7 @@ app.get("/api/get/adsbycategory/:idcategory", async (req, res) => {
     if(!categoryDetails) {
       return res.status(404).json({ message: "Category details not found although category id is correct"})
     }
-    */
-    res.status(200).json({apple: 2});
+    res.status(200).json(categoryDetails);
     console.log("all good from backend")
   } catch (error) {
     console.log(error.message);
