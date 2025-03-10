@@ -15,13 +15,14 @@
                  
       }
     .topMainArea {
-        height: 20vh;
+        height: 10vh;
         display: flex;
         flex-direction: column;
+        box-shadow: 0 4px 6px -2px rgba(0, 0, 0, 0.2); /* Add bottom border shadow */
     }
     .bottomArea {
         border-radius: 10px;
-        height: 80vh;
+        height: 90vh;
         margin-top: 40px;
         overflow: auto;
         scrollbar-width: none;    

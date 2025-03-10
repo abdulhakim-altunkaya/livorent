@@ -1,12 +1,11 @@
 
 .tableMainCategoryArea{
     width: 100%;
-    font-size: 18px;
+    font-size: 16px;
 }
 .tableMainCategory {
-    width: 90%;
+    width: 98%;
     margin: auto;
-    background-color: white;
 }
 .column3 {
     width: 50%;
@@ -15,7 +14,7 @@
     text-align: left;
 }
 .tableMainCategory tr {
-    background-color: rgba(237, 231, 231, 0.915);
+    background-color: white
 }
 .tableRows {
     height: 80px;
@@ -25,6 +24,12 @@
     display: flex;
     justify-content: center;
     align-items: center;
+}
+.column2, .column3, .column4, .column5 {
+    border-bottom: 2px double #979797;
+}
+.cell2, .cell3, .cell4, .cell5 {
+    border-bottom: 2px dashed #c0c0c0;
 }
 .tableRows img {
     width: 90%; /* Fixed width for the image */

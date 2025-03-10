@@ -6,10 +6,13 @@ function TopNavbar() {
 
   return (
     <div className='TopNavbarArea'>
-      <span onClick={() => navigate("/upload")}>Iesniegt Sludinājumu</span>
-      <span onClick={() => navigate("/")}>Meklēšana</span>
-      <span onClick={() => navigate("/")}>Jautājumi&Atbildes</span>
-      <span onClick={() => navigate("/")}>Kontakti</span>
+      <div className='topTitleArea'>
+        <header className='headerArea'><span onClick={ () => navigate("/")}>LIVORENT</span></header>
+      </div>
+      <span className='topAreaNavSpans' onClick={() => navigate("/upload")}>Iesniegt Sludinājumu</span>
+      <span className='topAreaNavSpans' onClick={() => navigate("/")}>Meklēšana</span>
+      <span className='topAreaNavSpans' onClick={() => navigate("/")}>Jautājumi&Atbildes</span>
+      <span className='topAreaNavSpans' onClick={() => navigate("/")}>Kontakti</span>
     </div>
   )
 }

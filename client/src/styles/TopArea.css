@@ -1,9 +1,5 @@
-.topTitleArea {
-  height: 65%;
-  background-color: black ;
-}
 .TopNavbarArea {
-  height: 35%;
+  height: 100%;
   background-color: #F5D042;
   color: #0A174E;
   display: flex;
@@ -12,13 +8,16 @@
   align-items: center;
 }
 .TopNavbarArea span {
-  font-size: 25px;
   cursor: pointer;
   height: 100%;
   padding: 0 20px; /* Add 10px padding to left and right */
   display: flex; /* Add Flexbox to the span */
   align-items: center; /* Center text vertically */
   justify-content: center; /* Center text horizontally */
+}
+.topAreaNavSpans{
+  font-size: 20px;
+  font-weight: bold;
 }
 .TopNavbarArea span:hover {
   background-color: #947c1e;
@@ -32,9 +31,11 @@
     font-variation-settings:
       "MORF" 16,
       "SHLN" 50;
-    font-size: 70px;
+    font-size: 50px;
     letter-spacing: 5px;
+    
 }
 .headerArea span {
   cursor: pointer;
+  font-size: 50px; 
 }

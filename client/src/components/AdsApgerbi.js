@@ -46,6 +46,7 @@ function AdsApgerbi() {
             <span>Citi...</span>
         </div> 
       </div>
+      <br/><br/><br/>
       <div className='resultArea'>
         { loading ? 
             <div aria-live="polite">Loading...</div> 
@@ -68,10 +69,10 @@ function AdsApgerbi() {
                         {message.map( record => (
                           <tr key={record} className='tableRows'>
                             <td className='imgContainerTd'> <img src={record.image_url[0]} alt='an image representing the ad'/></td>
-                            <td>{record.title}</td>
-                            <td>{record.description}</td>
-                            <td>{record.price}</td>
-                            <td>{record.city}</td>
+                            <td className='cell2'>{record.title}</td>
+                            <td className='cell3'>{record.description}</td>
+                            <td className='cell4'>{record.price}</td>
+                            <td className='cell5'>{record.city}</td>
                           </tr>
                         ))}
                       </tbody>
