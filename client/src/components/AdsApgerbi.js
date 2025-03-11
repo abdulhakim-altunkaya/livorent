@@ -6,7 +6,7 @@ import Footer from "./Footer.js";
 
 function AdsApgerbi() {
   const [message, setMessage] = useState(null); // Initialize with null to better handle initial state
-  const [error, setError] = useState(null); // Add error state
+  const [errorFrontend, setErrorFrontend] = useState(null); // Add error state
   const [loading, setLoading] = useState(true); // Add loading state
 
   useEffect(() => {
@@ -15,18 +15,14 @@ function AdsApgerbi() {
         const response = await axios.get(`http://localhost:5000/api/get/adsbycategory/4`);
         setMessage(response.data);
       } catch (error) {
-        console.log(error.message);
-        setError("Error happened");
+        setErrorFrontend("Error: ads could not be fetched");
+        console.log(error.message)
       } finally {
         setLoading(false);
       }
     };
     getData();
   }, []);
-
-  if (error) {
-    return <div>{error}</div>; // Display error message
-  }
 
   return (
     <div>
@@ -50,7 +46,9 @@ function AdsApgerbi() {
       <div className='resultArea'>
         { loading ? 
             <div aria-live="polite">Loading...</div> 
-          :
+          : errorFrontend ? ( // Check for error first
+            <p className='errorFieldAdsMain'>{errorFrontend}</p>
+          ) :
             <>
               {message ? (
                 <>

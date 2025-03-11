@@ -93,7 +93,7 @@ app.post("/serversavead", upload.array("images", 4), async (req, res) => {
     res.status(500).json({myMessage: "Error while saving ad"})
   } finally {
     client.release();
-  }
+  } 
 
 })
 

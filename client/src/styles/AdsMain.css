@@ -44,6 +44,11 @@
         justify-content: center;
         align-items: center;
     }
+    .errorFieldAdsMain {
+        font-size: 15px;
+        font-style: italic;
+        margin-left: 20px;
+    }
 }
 
 
