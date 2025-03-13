@@ -9,6 +9,7 @@ import AdsMasinas from "./AdsMasinas";
 import AdsHobi from "./AdsHobi";
 import AdsElectro from "./AdsElectro";
 import BtmDisplay from "./BtmDisplay";
+import BtmLogin from "./BtmLogin";
 
 function Bottom() {
   return (
@@ -22,6 +23,7 @@ function Bottom() {
         <Route path="/event-organization" element={<AdsPasakumi/>} />
         <Route path="/vehicles" element={<AdsTransport/>} />
         <Route path="/category/:categoryId" element={<BtmDisplay/>} />
+        <Route path="/login" element={<BtmLogin/>} />
         <Route path="*" element={<BtmHome/>} />
       </Routes>
     </div>

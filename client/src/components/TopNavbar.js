@@ -13,7 +13,10 @@ function TopNavbar() {
       <span className='topAreaNavSpans' onClick={() => navigate("/")}>Meklēšana</span>
       <span className='topAreaNavSpans' onClick={() => navigate("/")}>Jautājumi&Atbildes</span>
       <span className='topAreaNavSpans' onClick={() => navigate("/")}>Kontakti</span>
-      <span className='topAreaNavSpans' onClick={() => navigate("/")}>Ieinet</span>
+      <div className='topAreaLoginArea' onClick={() => navigate("/")}>
+        <img src='/svg_login.svg' alt='Login icon'/>
+        <div>Ieiet</div>
+      </div>
     </div>
   )
 }
