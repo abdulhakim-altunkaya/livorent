@@ -1,0 +1,37 @@
+/* Media query for big screens */
+@media (min-width: 781px) {
+
+    .loginFormArea{
+        height: 100%;
+        width: 100%;
+        margin-left: 20px;
+        font-size: 16px;
+    }
+    .adForm {
+        width: 45%;
+    }
+    .loginInputs {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 18px;
+    }
+    .loginInputs label {
+        color: black;
+        margin-bottom: 8px;
+    }
+    .loginInputs input:hover {
+        border: 1px solid #4236e9;
+    }
+    .loginInputShort {
+        padding: 12px 20px;
+        border-radius: 6px;
+        border: 1px solid #b0b0b0;
+        background: white;
+        font-weight: 500;
+        font-size: 16px;
+        font-family: "Concert One";
+        color: #6b7280;
+        outline: none;
+        resize: none;
+    }
+}
