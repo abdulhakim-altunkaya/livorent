@@ -8,8 +8,8 @@ import AdsPasakumi from "./AdsPasakumi";
 import AdsMasinas from "./AdsMasinas";
 import AdsHobi from "./AdsHobi";
 import AdsElectro from "./AdsElectro";
-import BtmDisplay from "./BtmDisplay";
 import BtmLogin from "./BtmLogin";
+import BtmRegister from "./BtmRegister";
 
 function Bottom() {
   return (
@@ -22,7 +22,8 @@ function Bottom() {
         <Route path="/clothes" element={<AdsApgerbi/>} />
         <Route path="/event-organization" element={<AdsPasakumi/>} />
         <Route path="/vehicles" element={<AdsTransport/>} />
-        <Route path="/category/:categoryId" element={<BtmDisplay/>} />
+        <Route path="/category/:categoryId" element={<BtmHome/>} />
+        <Route path="/registration" element={<BtmRegister/>} />
         <Route path="/login" element={<BtmLogin/>} />
         <Route path="*" element={<BtmHome/>} />
       </Routes>

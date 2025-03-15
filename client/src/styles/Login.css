@@ -3,12 +3,14 @@
 
     .loginFormArea{
         height: 100%;
-        width: 100%;
-        margin-left: 20px;
+        width: 99%;
+        margin: auto;
+        padding-top: 20px;
         font-size: 16px;
     }
-    .adForm {
-        width: 45%;
+    .loginForm {
+        max-width: 45%;
+        margin-left: 20px;
     }
     .loginInputs {
         display: flex;
@@ -33,5 +35,48 @@
         color: #6b7280;
         outline: none;
         resize: none;
+    }
+    .btnSelectCategory2 {
+        padding: 8px 16px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 18px;
+        width: 240px;
+        text-align: center;
+        margin-top: 15px;
+    }
+    .tabContainer {
+        display: flex;
+        flex-direction: row;
+        margin-left: 25px;
+        font-size: 18px;
+    }
+    .activeTab {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 150px;
+        height: 35px;
+        cursor: pointer;
+        background-color: #ffffff;
+        color: #202124;
+        border: 1px solid #ccc; /* Add border to active tab */
+        border-bottom: none;
+        border-radius: 5px 5px 0 0; /* Rounded top corners */
+    }
+    .inactiveTab {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 150px;
+        height: 35px;
+        cursor: pointer;
+        background-color: #f1f3f4;
+        color: #5f6368;
+        border: 1px solid #ccc; /* Add border to active tab */
+        border-radius: 5px 5px 0 0; /* Rounded top corners */
     }
 }

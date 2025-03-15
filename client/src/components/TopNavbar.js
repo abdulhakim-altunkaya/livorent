@@ -11,7 +11,6 @@ function TopNavbar() {
       </div>
       <span className='topAreaNavSpans' onClick={() => navigate("/upload")}>Iesniegt Sludinājumu</span>
       <span className='topAreaNavSpans' onClick={() => navigate("/")}>Meklēšana</span>
-      <span className='topAreaNavSpans' onClick={() => navigate("/")}>Jautājumi&Atbildes</span>
       <span className='topAreaNavSpans' onClick={() => navigate("/")}>Kontakti</span>
       <div className='topAreaLoginArea' onClick={() => navigate("/login")}>
         <img src='/svg_login.svg' alt='Login icon'/>

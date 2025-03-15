@@ -167,6 +167,7 @@ ip check to make sure same ip can upload once in 5 minutes and twice in 24 hour
 
     //Only last 10 records will be uploaded to the main pages. How to add a button to add another 10 when user clicks?
     //And another 10 if user clicks again and so on?
+    //upload component has hard coded css style. Maybe I can remove it?
 
 /* //Then go to server.js file and make sure you serve static files from build directory:
 app.use(express.static(path.join(__dirname, 'client/build'))); */
