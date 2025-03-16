@@ -16,6 +16,13 @@ function BtmRegister() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+      
+    // Check if passwords match
+    if (passtext !== passtextControl) {
+      alert("passwords do not match")
+      return; // Stop form submission
+    }
+
     try {
       const registerObject = {
         registerName: name, 
@@ -25,13 +32,7 @@ function BtmRegister() {
       };
       console.log(registerObject);
 
-      const formData = new FormData();
-      //formData is a key-value pair. And registerData is the name we have chosen for the key.
-      formData.append("registerData", JSON.stringify(registerObject)); // Send ad data as JSON string
-
-      const res1 = await axios.post("http://localhost:5000/api/register", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const res1 = await axios.post("http://localhost:5000/api/register", registerObject);
       setResultArea(res1.data.myMessage);
 
     } catch (error) {

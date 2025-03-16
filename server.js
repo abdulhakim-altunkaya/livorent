@@ -97,6 +97,55 @@ app.post("/serversavead", upload.array("images", 4), async (req, res) => {
 
 })
 
+//A temporary cache to save ip addresses and it will prevent spam sign-up attempts for 1 minute.
+//I can do that by checking each ip with database ip addresses but then it will be too many requests to db
+const ipCache4 = {}
+app.post("/api/register", async (req, res) => {
+  //preventing spam comments
+  const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
+  // Check if IP exists in cache and if last comment was less than 1 minute ago
+  if (ipCache4[ipVisitor] && Date.now() - ipCache4[ipVisitor] < 1000) {
+    return res.status(429).json({myMessage: 'Too many uploads from this visitor'});
+  }
+  ipCache4[ipVisitor] = Date.now();//save visitor ip to ipCache4
+
+  // Check if the IP is in the ignored list
+  if (ignoredIPs.includes(ipVisitor)) {
+    return res.status(429).json({myMessage: 'This visitor is banned to upload or signup.'}); 
+  }
+  console.log("hi connection is fine");
+  let client;
+
+  const registerObject = req.body;
+  const registerLoad = {
+    name1: registerObject.registerName.trim(),
+    telephone1: registerObject.registerTelephone.trim(),     // Ensure text values are trimmed
+    email1: registerObject.registerEmail.trim(),     // Ensure date is trimmed (still stored as text in DB),
+    passtext1: registerObject.registerPasstext.trim()
+  };
+  const visitorData = {
+    ip: ipVisitor,
+    visitDate: new Date().toLocaleDateString('en-GB')
+  };
+
+  try {
+
+    client = await pool.connect();
+    const result = await client.query(
+      `INSERT INTO livorent_users (name, telephone, email, passtext, ip, date) 
+      VALUES ($1, $2, $3, $4, $5, $6)`,
+      [registerLoad.name1, registerLoad.telephone1, registerLoad.email1, registerLoad.passtext1, visitorData.ip, visitorData.visitDate]
+    );
+    res.status(201).json({myMessage: "Profile created"});
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({myMessage: "Error while creating the profile"})
+  } finally {
+    client.release();
+  } 
+
+})
+
 app.get("/api/get/adsbycategory/:idcategory", async (req, res) => {
   const { idcategory } = req.params;
   let client;
@@ -161,7 +210,9 @@ Add limits for contact form inputs and textarea
 add how to become a citizen section, reference immigrant invest
 add two more comment section to each part
 add car rental page with pictures
-
+before creating a new profile, a check on emails to make sure user does exist
+password forget remind
+check time limits on post routes . They are not 1 minute, if so, convert them to 1 minute
 ip check to make sure same ip can upload once in 5 minutes and twice in 24 hour 
 */
 
