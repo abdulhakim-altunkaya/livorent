@@ -2,6 +2,11 @@ const express = require("express");
 const app = express();
 const path = require("path");
 
+//user authentication packages, bcrypt is used to hash passwords
+//jsonwebtoken is used to send frontend an ok if the user is created
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+
 const { pool, supabase, upload } = require("./db"); // Import configurations
 const useragent = require("useragent");
 
@@ -100,6 +105,8 @@ app.post("/serversavead", upload.array("images", 4), async (req, res) => {
 //A temporary cache to save ip addresses and it will prevent spam sign-up attempts for 1 minute.
 //I can do that by checking each ip with database ip addresses but then it will be too many requests to db
 const ipCache4 = {}
+const JWT_SEC = process.env.JWT_SECRET; // Ensure you have this in your .env file
+const SALT_ROUNDS = 5; // For password hashing
 app.post("/api/register", async (req, res) => {
   //preventing spam comments
   const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
@@ -129,14 +136,19 @@ app.post("/api/register", async (req, res) => {
   };
 
   try {
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(registerLoad.passtext1, SALT_ROUNDS);
 
     client = await pool.connect();
-    const result = await client.query(
+    const { rows: newUser } = await client.query(
       `INSERT INTO livorent_users (name, telephone, email, passtext, ip, date) 
-      VALUES ($1, $2, $3, $4, $5, $6)`,
-      [registerLoad.name1, registerLoad.telephone1, registerLoad.email1, registerLoad.passtext1, visitorData.ip, visitorData.visitDate]
+      VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`,
+      [registerLoad.name1, registerLoad.telephone1, registerLoad.email1, hashedPassword, visitorData.ip, visitorData.visitDate]
     );
-    res.status(201).json({myMessage: "Profile created"});
+
+    // Generate a JWT for the new user and send it to frontend
+    const token = jwt.sign({ userId: newUser[0].id }, JWT_SEC, { expiresIn: '100d' });
+    res.status(201).json({ myMessage: 'Profile created', token });
   } catch (error) {
     console.log(error.message);
     res.status(500).json({myMessage: "Error while creating the profile"})

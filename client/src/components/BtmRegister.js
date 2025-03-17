@@ -30,10 +30,15 @@ function BtmRegister() {
         registerEmail: email, 
         registerPasstext: passtext
       };
-      console.log(registerObject);
 
       const res1 = await axios.post("http://localhost:5000/api/register", registerObject);
       setResultArea(res1.data.myMessage);
+      
+      // Save the token in localStorage
+      if (res1.data.token) {
+        localStorage.setItem("token_livorent", res1.data.token); // Save the token
+        navigate("/profile"); // Redirect to the profile page or another protected route
+      }
 
     } catch (error) {
       if (error.response) {
