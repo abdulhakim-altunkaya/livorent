@@ -1,0 +1,44 @@
+
+.tableProfileArea{
+    width: 100%;
+    font-size: 16px;
+}
+.tableProfile {
+    width: 98%;
+    margin: auto;
+}
+.columnProfile3 {
+    width: 50%;
+}
+.tableProfile th {
+    text-align: left;
+}
+.tableProfile tr {
+    background-color: white
+}
+.tableRowsProfile {
+    height: 80px;
+    
+}
+.imgContainerCell {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.columnProfile2, .columnProfile3, .columnProfile4, .columnProfile5 {
+    border-bottom: 2px double #979797;
+}
+.cellProfile2, .cellProfile3, .cellProfile4, .cellProfile5 {
+    border-bottom: 2px dashed #c0c0c0;
+}
+.tableRowsProfile img {
+    width: 90%; /* Fixed width for the image */
+    max-height: 75px; /* Fixed height for the image */
+    object-fit: cover; /* Ensures the image covers the area without distortion */
+    border-radius: 5px; /* Optional: Adds rounded corners */
+  }
+.errorFieldProfile {
+    font-size: 15px;
+    font-style: italic;
+    margin-left: 20px;
+}

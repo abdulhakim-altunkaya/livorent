@@ -36,8 +36,9 @@ function BtmRegister() {
       
       // Save the token in localStorage
       if (res1.data.token) {
-        localStorage.setItem("token_livorent", res1.data.token); // Save the token
-        navigate("/profile"); // Redirect to the profile page or another protected route
+        localStorage.setItem("token_livorent", res1.data.token); // Save the token 
+        localStorage.setItem("visitorNumber", Number(res1.data.visitorNumber)); //save the user id
+        navigate(`/profile/${res1.data.visitorNumber}`); // Include visitorNumber in the URL
       }
 
     } catch (error) {

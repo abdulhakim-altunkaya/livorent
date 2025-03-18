@@ -24,7 +24,7 @@ function Bottom() {
         <Route path="/event-organization" element={<AdsPasakumi/>} />
         <Route path="/vehicles" element={<AdsTransport/>} />
         <Route path="/category/:categoryId" element={<BtmHome/>} />
-        <Route path="/profile" element={<BtmProfile/>} />
+        <Route path="/profile/:visitorNumber" element={<BtmProfile />} />
         <Route path="/registration" element={<BtmRegister/>} />
         <Route path="/login" element={<BtmLogin/>} />
         <Route path="*" element={<BtmHome/>} />

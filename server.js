@@ -50,7 +50,7 @@ app.post("/serversavead", upload.array("images", 4), async (req, res) => {
 
   let client;
   const adData = JSON.parse(req.body.adData);  // ✅ Parse the JSON string
-  const { adTitle, adDescription, adPrice, adCity, adName, adTelephone, adCategory } = adData;
+  const { adTitle, adDescription, adPrice, adCity, adName, adTelephone, adCategory, adVisitorNumber } = adData;
 
   const visitorData = {
     ip: ipVisitor,
@@ -87,10 +87,11 @@ app.post("/serversavead", upload.array("images", 4), async (req, res) => {
   try {
     client = await pool.connect();
     const result = await client.query(
-      `INSERT INTO livorent_ads (title, description, price, city, name, telephone, ip, date, image_url, main_group, sub_group) 
-      values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
+      `INSERT INTO livorent_ads 
+      (title, description, price, city, name, telephone, ip, date, image_url, main_group, sub_group, user_id) 
+      values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
       [adTitle, adDescription, adPrice, adCity, adName, adTelephone, visitorData.ip, 
-        visitorData.visitDate, JSON.stringify(uploadedImageUrls), numPart1, numPart2]
+        visitorData.visitDate, JSON.stringify(uploadedImageUrls), numPart1, numPart2, adVisitorNumber]
     );
     res.status(201).json({myMessage: "Ad saved"});
   } catch (error) {
@@ -106,7 +107,7 @@ app.post("/serversavead", upload.array("images", 4), async (req, res) => {
 //I can do that by checking each ip with database ip addresses but then it will be too many requests to db
 const ipCache4 = {}
 const JWT_SEC = process.env.JWT_SECRET; // Ensure you have this in your .env file
-const SALT_ROUNDS = 5; // For password hashing
+const SALT_ROUNDS = 5; // For password hashing, normally 10 would be safe. I am not storing sensitive data. So, 5 is enough.
 app.post("/api/register", async (req, res) => {
   //preventing spam comments
   const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
@@ -148,7 +149,7 @@ app.post("/api/register", async (req, res) => {
 
     // Generate a JWT for the new user and send it to frontend
     const token = jwt.sign({ userId: newUser[0].id }, JWT_SEC, { expiresIn: '100d' });
-    res.status(201).json({ myMessage: 'Profile created', token });
+    res.status(201).json({ myMessage: 'Profile created', visitorNumber:newUser[0].id, token });
   } catch (error) {
     console.log(error.message);
     res.status(500).json({myMessage: "Error while creating the profile"})
@@ -184,7 +185,31 @@ app.get("/api/get/adsbycategory/:idcategory", async (req, res) => {
   }
 });
 
-
+app.get("/api/get/adsbyuser/:iduser", async (req, res) => {
+  const { iduser } = req.params;
+  let client;
+  if(!iduser) {
+    return res.status(404).json({message: "No user detected"});
+  }
+  try {
+    client = await pool.connect();
+    //Only last 10 records will be uploaded to the page. 
+    const result = await client.query(
+      `SELECT * FROM livorent_ads WHERE user_id = $1
+      ORDER BY id DESC LIMIT 100`, [iduser]
+    );
+    const userAds = await result.rows;
+    if(!userAds) {
+      return res.status(404).json({ message: "Category details not found although category id is correct"})
+    }
+    res.status(200).json(userAds);
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({message: "Error at the Backend: Couldnt fetch category details"})
+  } finally {
+    if(client) client.release();
+  }
+});
 
 
 //This line must be under all server routes. Otherwise you will have like not being able to fetch comments etc.
@@ -226,6 +251,7 @@ before creating a new profile, a check on emails to make sure user does exist
 password forget remind
 check time limits on post routes . They are not 1 minute, if so, convert them to 1 minute
 ip check to make sure same ip can upload once in 5 minutes and twice in 24 hour 
+also create a signout option to allow a new user to sign in from the same computer. 
 */
 
     //Only last 10 records will be uploaded to the main pages. How to add a button to add another 10 when user clicks?

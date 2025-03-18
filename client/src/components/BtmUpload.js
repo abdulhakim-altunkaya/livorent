@@ -13,6 +13,7 @@ function BtmUpload() {
   const [images, setImages] = useState([]); // New state for image files
   const [resultArea, setResultArea] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
+  const visitorNumberFromStorage = Number(localStorage.getItem("visitorNumber"));
 
   const saveCategoryNumber = (n) => {
     setSelectedCategory(n);
@@ -49,7 +50,8 @@ function BtmUpload() {
         adCity: city, 
         adName: name, 
         adTelephone: telephone,
-        adCategory: selectedCategory
+        adCategory: selectedCategory,
+        adVisitorNumber: visitorNumberFromStorage,
       };
       console.log(adObject);
 
