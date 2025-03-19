@@ -9,7 +9,7 @@ const Footer = () => {
       <div className="footer-content">
         <p>E-mail: <a href="mailto:drysoftware1@gmail.com" 
           aria-label="Email contact to drysoftware1@gmail.com">drysoftware1@gmail.com</a></p>
-        <p>Telephone/WhatsApp: +371 20669310</p>
+        <p>Telephone/WhatsApp: +371 20669310 Thank you</p>
         <div className="footer-header">
           <p>Icons:&nbsp;
             <a href="https://icons8.com/icons" target="_blank" rel="noopener noreferrer" 
