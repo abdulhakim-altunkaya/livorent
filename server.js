@@ -160,7 +160,7 @@ app.post("/api/register", async (req, res) => {
 })
 
 app.get("/api/get/adsbycategory/:idcategory", async (req, res) => {
-  const { idcategory } = req.params;
+  const { idcategory } = req.params; 
   let client;
   if(!idcategory) {
     return res.status(404).json({message: "No category detected"});
