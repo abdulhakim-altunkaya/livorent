@@ -1,7 +1,7 @@
 .TopNavbarArea {
   height: 100%;
-  background-color: #F5D042;
-  color: #0A174E;
+  background-color: #c0e5b5;
+  color: #121111;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -47,13 +47,15 @@
   height: 100%;
   font-size: 18px;
   font-weight: bold;
-  background-color:rgb(238, 130, 238);
+  background-color: #2F3C7E;
+  color: #FBEAEB;
 }
 .topAreaLoginArea:hover {
-  background-color:rgb(134, 46, 134);
-  color: white;
+  background-color:#16215c;
+  color: #d3caca;
 }
 .topAreaLoginArea img {
   width: 33px;
   margin-right: 10px;
+  color: #FBEAEB;
 }

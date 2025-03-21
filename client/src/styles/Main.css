@@ -10,7 +10,7 @@
         flex-direction: column;
         margin: auto;
         background-color: white;
-        box-shadow: -10px 0 15px -5px rgba(127, 1, 1, 0.3),
+        box-shadow: -10px 0 15px -5px rgba(0, 0, 0, 0.3),
                     10px 0 15px -5px rgba(0, 0, 0, 0.3);
                  
       }
