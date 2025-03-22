@@ -3,8 +3,11 @@ import axios from 'axios';
 import "../styles/AdsMain.css";
 import "../styles/tableMain.css";
 import Footer from "./Footer.js";
+import { useNavigate } from 'react-router-dom';
 
 function AdsApgerbi() {
+  const navigate = useNavigate();
+
   const [message, setMessage] = useState(null); // Initialize with null to better handle initial state
   const [errorFrontend, setErrorFrontend] = useState(null); // Add error state
   const [loading, setLoading] = useState(true); // Add loading state
@@ -62,15 +65,17 @@ function AdsApgerbi() {
                           <th className='column4' scope="col">Cena</th>
                           <th className='column5' scope="col">Pilsēta</th>
                         </tr>
-                      </thead>
+                      </thead> 
                       <tbody>
                         {message.map( record => (
                           <tr key={record} className='tableRows'>
-                            <td className='imgContainerTd'> <img src={record.image_url[0]} alt='an image representing the ad'/></td>
-                            <td className='cell2'>{record.title}</td>
-                            <td className='cell3'>{record.description}</td>
-                            <td className='cell4'>{record.price}</td>
-                            <td className='cell5'>{record.city}</td>
+                            <td onClick={() => navigate(`/item/${record.id}`)} className='imgContainerTd'>
+                               <img src={record.image_url[0]} alt='small pic of advertisement'/>
+                            </td>
+                            <td onClick={() => navigate(`/item/${record.id}`)} className='cell2'>{record.title}</td>
+                            <td onClick={() => navigate(`/item/${record.id}`)} className='cell3'>{record.description}</td>
+                            <td onClick={() => navigate(`/item/${record.id}`)} className='cell4'>{record.price}</td>
+                            <td onClick={() => navigate(`/item/${record.id}`)} className='cell5'>{record.city}</td>
                           </tr>
                         ))}
                       </tbody>

@@ -18,7 +18,14 @@
 }
 .tableRows {
     height: 80px;
-    
+}
+.tableRows td {
+    cursor: pointer;
+}
+.tableRows:hover {
+    background-color: #e5e4e4d1;
+    color:#120fcb;
+    font-weight: bolder;
 }
 .imgContainerTd {
     display: flex;
