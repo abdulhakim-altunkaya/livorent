@@ -3,9 +3,16 @@
     flex-direction: column;
     width: 100%;
     margin: 20px;
-    font-size: 15px;
+    font-size: 17px;
 }
 .errorFieldItem {
     font-size: 15px;
     font-style: italic;
+}
+.carouselArea {
+    display: flex;
+    flex-direction: row;
+}
+.itemArrows img {
+    width: 25px;
 }

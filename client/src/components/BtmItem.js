@@ -10,6 +10,8 @@ function BtmItem() {
   const [message, setMessage] = useState(null); // Initialize with null to better handle initial state
   const [errorFrontend, setErrorFrontend] = useState(null); // Add error state
   const [loading, setLoading] = useState(true); // Add loading state
+  const [displayedImage, setDisplayedImage] = useState(0);
+  const [imagesLength, setImagesLength] = useState(0);
 
   useEffect(() => {
     const getData = async () => {
@@ -26,13 +28,32 @@ function BtmItem() {
     getData();
   }, [itemNumber]);
 
+  useEffect(() => {
+    if (message && message.image_url) {
+      setImagesLength(message.image_url.length);
+    }
+  }, [message]);
+
+  const changeImageLeft = () => {
+    if (displayedImage === 0) {
+      setDisplayedImage(imagesLength)
+    } else {
+      setDisplayedImage(displayedImage-1)
+    }
+  }
+
+  const changeImageRight = () => {
+    if (displayedImage === imagesLength-1) {
+      setDisplayedImage(0)
+    } else {
+      setDisplayedImage(displayedImage+1)
+    }
+  }
+
   return ( 
     <div>
+
       <div className='itemMainContainer'>
-
-
-
-
         { loading ? 
             <div aria-live="polite">Loading...</div> 
           : errorFrontend ? ( // Check for error first
@@ -42,7 +63,19 @@ function BtmItem() {
               {message ? (
                 <>
                   <div>Title: {itemNumber}</div>
-                  <div>Carousel</div>
+
+                  <div className='carouselArea'>
+                    <div className='itemArrows' onClick={changeImageLeft}>
+                      <img src='/svg_arrow_left.svg' alt='Go to left'/>
+                    </div>
+                    <div className='itemImagesArea'>
+                      <img src={message.image_url[displayedImage]} alt='small pic of advertisement'/>
+                    </div>
+                    <div className='itemArrows' onClick={changeImageRight}>
+                      <img src='/svg_arrow_right.svg' alt='Go to right'/>
+                    </div>
+                  </div>
+
                   <div>Description: {message.description}</div>
                   <div>Price: {message.price}</div>
                   <div> <span>Name: {message.name}</span> <span>Telephone: {message.telephone}</span> </div>
@@ -52,13 +85,13 @@ function BtmItem() {
               )}
             </>
         }
-
-
       </div>
+
       <br/><br/><br/><br/><br/><br/>
       <div className='FooterContainer'>
         <Footer />
       </div>
+
     </div>
   )
 }
