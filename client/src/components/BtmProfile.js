@@ -23,7 +23,7 @@ function BtmProfile() {
       }
     };
     getData();
-  }, []);
+  }, [visitorNumber]);
 
   return (
     <div>
@@ -50,7 +50,7 @@ function BtmProfile() {
                       <tbody>
                         {message.map( record => (
                           <tr key={record} className='tableRowsProfile'>
-                            <td className='imgContainerCell'> <img src={record.image_url[0]} alt='an image representing the ad'/></td>
+                            <td className='imgContainerCell'> <img src={record.image_url[0]} alt='a small pic of ad'/></td>
                             <td className='cellProfile2'>{record.title}</td>
                             <td className='cellProfile3'>{record.description}</td>
                             <td className='cellProfile4'>{record.price}</td>

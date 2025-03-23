@@ -211,7 +211,30 @@ app.get("/api/get/adsbyuser/:iduser", async (req, res) => {
   }
 });
 
-
+app.get("/api/get/item/:itemNumber", async (req, res) => {
+  const { itemNumber } = req.params;
+  let client;
+  if(!itemNumber) {
+    return res.status(404).json({message: "No item number detected"});
+  }
+  try {
+    client = await pool.connect();
+    const result = await client.query(
+      `SELECT * FROM livorent_ads WHERE id = $1`,
+      [itemNumber]
+    );
+    if (result.rows.length > 0) {
+      res.status(200).json(result.rows[0]); ; // Return the first matching item
+    } else {
+      return res.status(404).json({ message: "Item details not found although item id is correct"})
+    }
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({message: "Error at the Backend: Couldnt fetch item details"})
+  } finally {
+    if(client) client.release();
+  }
+});
 //This line must be under all server routes. Otherwise you will have like not being able to fetch comments etc.
 //This code helps with managing routes that are not defined on react frontend. If you dont add, only index 
 //route will be visible.
