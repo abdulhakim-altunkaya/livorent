@@ -280,7 +280,8 @@ also create a signout option to allow a new user to sign in from the same comput
     //Only last 10 records will be uploaded to the main pages. How to add a button to add another 10 when user clicks?
     //And another 10 if user clicks again and so on?
     //upload component has hard coded css style. Maybe I can remove it?
-
+//convert all alerts and backend messages to Latvian, you can components and server file line by line
+//Add a loading circle when uploading an ad and waiting for reply if ad is saved
 /* //Then go to server.js file and make sure you serve static files from build directory:
 app.use(express.static(path.join(__dirname, 'client/build'))); */
 

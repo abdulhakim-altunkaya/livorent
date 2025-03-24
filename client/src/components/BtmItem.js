@@ -12,6 +12,7 @@ function BtmItem() {
   const [loading, setLoading] = useState(true); // Add loading state
   const [displayedImage, setDisplayedImage] = useState(0);
   const [imagesLength, setImagesLength] = useState(0);
+  const [showFullPhone, setShowFullPhone] = useState(false);
 
   useEffect(() => {
     const getData = async () => {
@@ -38,7 +39,7 @@ function BtmItem() {
 
   const changeImageLeft = () => {
     if (displayedImage === 0) {
-      setDisplayedImage(imagesLength)
+      setDisplayedImage(imagesLength-1)
     } else {
       setDisplayedImage(displayedImage-1)
     }
@@ -67,6 +68,29 @@ function BtmItem() {
     );
   };
 
+  // Function to format phone number display
+  const formatPhoneNumber = (phone) => {
+    if (!phone) return 'Not provided';
+    
+    if (showFullPhone) {
+      return phone;
+    } else {
+      // Show first 3 digits plus asterisks for remaining
+      return `${phone.slice(0, 3)}${'*'.repeat(phone.length - 3)}`;
+    }
+  };
+
+  // Format name display
+  const formatName = (name) => {
+    if (!name) return 'Not provided';
+    
+    const names = name.trim().split(/\s+/);
+    if (names.length === 1) return name; // Single name
+    
+    // Return first name + last initial
+    return `${names[0]} ${names[names.length - 1].charAt(0)}.`;
+  };
+
   return ( 
     <div>
 
@@ -79,10 +103,7 @@ function BtmItem() {
             <>
               {message ? (
                 <>
-                  <div>Title: {itemNumber}</div>
-
                   <div className='carouselArea'>
-
                     {imagesLength > 1 && ( // Only show arrows if more than 1 image
                       <div className='itemArrows' onClick={changeImageLeft}>
                         <img src='/svg_arrow_left.svg' alt='Go to left'/>
@@ -98,10 +119,15 @@ function BtmItem() {
                       </div>
                     )}
                   </div>
-
-                  <div>Description: {message.description}</div>
-                  <div>Price: {message.price}</div>
-                  <div> <span>Name: {message.name}</span> <span>Telephone: {message.telephone}</span> </div>
+                  <div className='itemDetailsArea'><h2>Title: {itemNumber}</h2> </div>
+                  <div className='itemDetailsArea'>Description: {message.description}</div>
+                  <div className='itemDetailsArea'>Price: {message.price}</div>
+                  <div className='itemDetailsArea'>
+                    <span className='detailItem'>Name: {formatName(message?.name)}</span> 
+                    <span className='detailItem phoneNumber' onClick={() => setShowFullPhone(!showFullPhone)}>
+                      Telephone: {formatPhoneNumber(message?.telephone)}
+                    </span> 
+                  </div>
                 </>
               ) : (
                 <p>No data available</p> // Handle case where message is null or empty
