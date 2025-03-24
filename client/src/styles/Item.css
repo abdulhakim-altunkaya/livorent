@@ -16,3 +16,27 @@
 .itemArrows img {
     width: 25px;
 }
+.itemImagesArea {
+    display: flex;
+    flex-direction: column;
+}
+
+
+.dotsContainer {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    margin-top: 8px;
+  }
+  
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #ccc;
+    cursor: pointer;
+  }
+  
+  .dot.active {
+    background: #555;
+  }

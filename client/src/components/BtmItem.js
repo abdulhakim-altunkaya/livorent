@@ -30,7 +30,9 @@ function BtmItem() {
 
   useEffect(() => {
     if (message && message.image_url) {
-      setImagesLength(message.image_url.length);
+      //max number of images to be displayed is 10
+      const limitedImages = message.image_url.slice(0, 10);
+      setImagesLength(limitedImages.length);
     }
   }, [message]);
 
@@ -50,6 +52,21 @@ function BtmItem() {
     }
   }
 
+  // Render dots indicator
+  const renderDots = () => {
+    return (
+      <div className="dotsContainer">
+        {message.image_url.map((_, index) => (
+          <span 
+            key={index}
+            className={`dot ${index === displayedImage ? 'active' : ''}`}
+            onClick={() => setDisplayedImage(index)}
+          />
+        ))}
+      </div>
+    );
+  };
+
   return ( 
     <div>
 
@@ -65,15 +82,21 @@ function BtmItem() {
                   <div>Title: {itemNumber}</div>
 
                   <div className='carouselArea'>
-                    <div className='itemArrows' onClick={changeImageLeft}>
-                      <img src='/svg_arrow_left.svg' alt='Go to left'/>
-                    </div>
+
+                    {imagesLength > 1 && ( // Only show arrows if more than 1 image
+                      <div className='itemArrows' onClick={changeImageLeft}>
+                        <img src='/svg_arrow_left.svg' alt='Go to left'/>
+                      </div>
+                    )}
                     <div className='itemImagesArea'>
-                      <img src={message.image_url[displayedImage]} alt='small pic of advertisement'/>
+                      <span><img src={message.image_url[displayedImage]} alt='small pic of advertisement'/></span>
+                      <span>{imagesLength > 1 && renderDots()} {/* Only show dots if multiple images */}</span> 
                     </div>
-                    <div className='itemArrows' onClick={changeImageRight}>
-                      <img src='/svg_arrow_right.svg' alt='Go to right'/>
-                    </div>
+                    {imagesLength > 1 && ( // Only show arrows if more than 1 image
+                      <div className='itemArrows' onClick={changeImageRight}>
+                        <img src='/svg_arrow_right.svg' alt='Go to right'/>
+                      </div>
+                    )}
                   </div>
 
                   <div>Description: {message.description}</div>
