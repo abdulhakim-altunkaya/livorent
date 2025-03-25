@@ -11,6 +11,7 @@ function BtmItem() {
   const [loading, setLoading] = useState(true);
   const [displayedImage, setDisplayedImage] = useState(0);
   const [imagesLength, setImagesLength] = useState(0);
+  //The states below are for fullscreen image viewing
   const [showFullPhone, setShowFullPhone] = useState(false);
   const [isImageExpanded, setIsImageExpanded] = useState(false);
   const [images, setImages] = useState([]); // Added to store limited images
@@ -53,13 +54,13 @@ function BtmItem() {
       setDisplayedImage(displayedImage+1)
     }
   }
-
+  //Fullscreen image function 1
   const handleImageClick = () => {
     if (message?.image_url?.[displayedImage]) {
       setIsImageExpanded(true);
     }
   };
-
+  //Fullscreen image function 2
   const closeExpandedImage = () => {
     setIsImageExpanded(false);
   };
@@ -88,6 +89,7 @@ function BtmItem() {
     }
   };
 
+  //We dont need to display all the name, just name and if there is surname, the first letter of it.
   const formatName = (name) => {
     if (!name) return 'Not provided';
     
@@ -131,7 +133,7 @@ function BtmItem() {
                       </div>
                     )}
                   </div>
-                  
+                  {/*Below is the code for fullscreen image viewwing only */}
                   {isImageExpanded && (
                     <div className="imageModal" onClick={closeExpandedImage}>
                       <div className="modalContent">
@@ -149,15 +151,16 @@ function BtmItem() {
                   
                   <div className='itemDetailsArea'><h2>Title: {itemNumber}</h2> </div>
                   <div className='itemDetailsArea'>Description: {message.description}</div>
-                  <div className='itemDetailsArea'>Price: {message.price}</div>
-                  <div className='itemDetailsArea'>
-                    <span className='detailItem'>Name: {formatName(message?.name)}</span> 
-                    <span 
-                      className='detailItem phoneNumber' 
-                      onClick={() => setShowFullPhone(!showFullPhone)}
-                    >
-                      Telephone: {formatPhoneNumber(message?.telephone)}
-                    </span> 
+                  <div className='itemDetailsArea otherDetailsArea'>
+                    <div><span className='grayText'>Pilsēta, pagasts vai rajons:</span><span>    {message.city}</span></div>
+                    <div><span className='grayText'>Cena:</span><span>    {message.price}</span></div>
+                    <div><span className='grayText'>Vārds:</span><span>    {formatName(message?.name)}</span></div>
+                    <div>
+                      <span className='grayText'>Telefons:    </span>
+                      <span className='phoneNumber' onClick={() => setShowFullPhone(!showFullPhone)}>
+                        {formatPhoneNumber(message?.telephone)}</span>
+                    </div>
+                  
                   </div>
                 </>
               ) : (
