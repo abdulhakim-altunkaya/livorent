@@ -4,15 +4,16 @@ import { useParams } from "react-router-dom";
 import "../styles/Item.css"
 import Footer from "./Footer.js";
 
-
 function BtmItem() {
   const { itemNumber } = useParams();
-  const [message, setMessage] = useState(null); // Initialize with null to better handle initial state
-  const [errorFrontend, setErrorFrontend] = useState(null); // Add error state
-  const [loading, setLoading] = useState(true); // Add loading state
+  const [message, setMessage] = useState(null);
+  const [errorFrontend, setErrorFrontend] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [displayedImage, setDisplayedImage] = useState(0);
   const [imagesLength, setImagesLength] = useState(0);
   const [showFullPhone, setShowFullPhone] = useState(false);
+  const [isImageExpanded, setIsImageExpanded] = useState(false);
+  const [images, setImages] = useState([]); // Added to store limited images
 
   useEffect(() => {
     const getData = async () => {
@@ -31,8 +32,8 @@ function BtmItem() {
 
   useEffect(() => {
     if (message && message.image_url) {
-      //max number of images to be displayed is 10
       const limitedImages = message.image_url.slice(0, 10);
+      setImages(limitedImages);
       setImagesLength(limitedImages.length);
     }
   }, [message]);
@@ -53,11 +54,20 @@ function BtmItem() {
     }
   }
 
-  // Render dots indicator
+  const handleImageClick = () => {
+    if (message?.image_url?.[displayedImage]) {
+      setIsImageExpanded(true);
+    }
+  };
+
+  const closeExpandedImage = () => {
+    setIsImageExpanded(false);
+  };
+
   const renderDots = () => {
     return (
       <div className="dotsContainer">
-        {message.image_url.map((_, index) => (
+        {images.map((_, index) => (
           <span 
             key={index}
             className={`dot ${index === displayedImage ? 'active' : ''}`}
@@ -68,69 +78,90 @@ function BtmItem() {
     );
   };
 
-  // Function to format phone number display
   const formatPhoneNumber = (phone) => {
     if (!phone) return 'Not provided';
     
     if (showFullPhone) {
       return phone;
     } else {
-      // Show first 3 digits plus asterisks for remaining
       return `${phone.slice(0, 3)}${'*'.repeat(phone.length - 3)}`;
     }
   };
 
-  // Format name display
   const formatName = (name) => {
     if (!name) return 'Not provided';
     
     const names = name.trim().split(/\s+/);
-    if (names.length === 1) return name; // Single name
+    if (names.length === 1) return name;
     
-    // Return first name + last initial
     return `${names[0]} ${names[names.length - 1].charAt(0)}.`;
   };
 
   return ( 
     <div>
-
       <div className='itemMainContainer'>
         { loading ? 
             <div aria-live="polite">Loading...</div> 
-          : errorFrontend ? ( // Check for error first
+          : errorFrontend ? (
             <p className='errorFieldItem'>{errorFrontend}</p>
           ) :
             <>
               {message ? (
                 <>
                   <div className='carouselArea'>
-                    {imagesLength > 1 && ( // Only show arrows if more than 1 image
+                    {imagesLength > 1 && (
                       <div className='itemArrows' onClick={changeImageLeft}>
                         <img src='/svg_arrow_left.svg' alt='Go to left'/>
                       </div>
                     )}
                     <div className='itemImagesArea'>
-                      <span><img src={message.image_url[displayedImage]} alt='small pic of advertisement'/></span>
-                      <span>{imagesLength > 1 && renderDots()} {/* Only show dots if multiple images */}</span> 
+                      <span className='itemImageContainer'>
+                        <img 
+                          src={message.image_url[displayedImage]} 
+                          alt='small pic of advertisement'
+                          onClick={handleImageClick}
+                          style={{ cursor: 'pointer' }}
+                        />
+                      </span>
+                      <span>{imagesLength > 1 && renderDots()}</span> 
                     </div>
-                    {imagesLength > 1 && ( // Only show arrows if more than 1 image
+                    {imagesLength > 1 && (
                       <div className='itemArrows' onClick={changeImageRight}>
                         <img src='/svg_arrow_right.svg' alt='Go to right'/>
                       </div>
                     )}
                   </div>
+                  
+                  {isImageExpanded && (
+                    <div className="imageModal" onClick={closeExpandedImage}>
+                      <div className="modalContent">
+                        <img 
+                          src={message.image_url[displayedImage]} 
+                          alt="Expanded view" 
+                          onClick={e => e.stopPropagation()}
+                        />
+                        <button className="closeButton" onClick={closeExpandedImage}>
+                          &times;
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                  
                   <div className='itemDetailsArea'><h2>Title: {itemNumber}</h2> </div>
                   <div className='itemDetailsArea'>Description: {message.description}</div>
                   <div className='itemDetailsArea'>Price: {message.price}</div>
                   <div className='itemDetailsArea'>
                     <span className='detailItem'>Name: {formatName(message?.name)}</span> 
-                    <span className='detailItem phoneNumber' onClick={() => setShowFullPhone(!showFullPhone)}>
+                    <span 
+                      className='detailItem phoneNumber' 
+                      onClick={() => setShowFullPhone(!showFullPhone)}
+                    >
                       Telephone: {formatPhoneNumber(message?.telephone)}
                     </span> 
                   </div>
                 </>
               ) : (
-                <p>No data available</p> // Handle case where message is null or empty
+                <p>No data available</p>
               )}
             </>
         }
@@ -140,9 +171,8 @@ function BtmItem() {
       <div className='FooterContainer'>
         <Footer />
       </div>
-
     </div>
   )
 }
 
-export default BtmItem
+export default BtmItem;
