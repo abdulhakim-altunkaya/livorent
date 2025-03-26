@@ -26,15 +26,15 @@
 
 .headerArea {
   height: 100%;
-    margin-left: 50px;
-    font-family: "Honk", serif;
-    font-optical-sizing: auto;
-    font-weight: 300;
-    font-variation-settings:
-      "MORF" 16,
-      "SHLN" 50;
-    font-size: 50px;
-    letter-spacing: 5px;
+  margin-left: 50px;
+  font-family: "Honk", serif;
+  font-optical-sizing: auto;
+  font-weight: 300;
+  font-variation-settings:
+    "MORF" 16,
+    "SHLN" 50;
+  font-size: 50px;
+  letter-spacing: 5px;
 }
 .headerArea span {
   cursor: pointer;

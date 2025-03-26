@@ -80,9 +80,10 @@ app.post("/serversavead", upload.array("images", 4), async (req, res) => {
   }
 
   //CATEGORY DATA MANAGEMENT
+  //First digit of each number represent its main category. The number itself is its section category.
   const stringNum = adCategory.toString(); // Convert number to string
-  const numPart1 = parseInt(stringNum[0], 10); // Convert first character back to number
-  const numPart2 = parseInt(stringNum[1], 10); // Convert second character back to number
+  const mainCategoryNum = parseInt(stringNum[0], 10); // Convert first character back to number
+  const sectionCategoryNum = parseInt(adCategory); // Convert second character back to number
 
   try {
     client = await pool.connect();
@@ -91,7 +92,7 @@ app.post("/serversavead", upload.array("images", 4), async (req, res) => {
       (title, description, price, city, name, telephone, ip, date, image_url, main_group, sub_group, user_id) 
       values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
       [adTitle, adDescription, adPrice, adCity, adName, adTelephone, visitorData.ip, 
-        visitorData.visitDate, JSON.stringify(uploadedImageUrls), numPart1, numPart2, adVisitorNumber]
+        visitorData.visitDate, JSON.stringify(uploadedImageUrls), mainCategoryNum, sectionCategoryNum, adVisitorNumber]
     );
     res.status(201).json({myMessage: "Ad saved"});
   } catch (error) {
@@ -171,6 +172,31 @@ app.get("/api/get/adsbycategory/:idcategory", async (req, res) => {
     const result = await client.query(
       `SELECT * FROM livorent_ads WHERE main_group = $1
       ORDER BY id DESC LIMIT 10`, [idcategory]
+    );
+    const categoryDetails = await result.rows;
+    if(!categoryDetails) {
+      return res.status(404).json({ message: "Category details not found although category id is correct"})
+    }
+    res.status(200).json(categoryDetails);
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({message: "Error at the Backend: Couldnt fetch category details"})
+  } finally {
+    if(client) client.release();
+  }
+});
+
+app.get("/api/get/adsbysubsection/:sectionNumber", async (req, res) => {
+  const { sectionNumber } = req.params; 
+  let client;
+  if(!sectionNumber) {
+    return res.status(404).json({message: "No category detected"});
+  }
+  try {
+    client = await pool.connect();
+    const result = await client.query(
+      `SELECT * FROM livorent_ads WHERE sub_group = $1
+      ORDER BY id DESC`, [sectionNumber]
     );
     const categoryDetails = await result.rows;
     if(!categoryDetails) {
@@ -276,10 +302,13 @@ check time limits on post routes . They are not 1 minute, if so, convert them to
 ip check to make sure same ip can upload once in 5 minutes and twice in 24 hour 
 also create a signout option to allow a new user to sign in from the same computer. 
 */
-
-    //Only last 10 records will be uploaded to the main pages. How to add a button to add another 10 when user clicks?
-    //And another 10 if user clicks again and so on?
-    //upload component has hard coded css style. Maybe I can remove it?
+//integrate a comment section and a visit counter to each advertisement
+//Only last 10 records will be uploaded to the main pages. How to add a button to add another 10 when user clicks?
+//And another 10 if user clicks again and so on?
+//upload component has hard coded css style. Maybe I can remove it?
+//prevent spam uploads by putting a time limit
+//put a limit on inputs on upload component
+//Also input checks on upload and signup and login components
 //convert all alerts and backend messages to Latvian, you can components and server file line by line
 //Add a loading circle when uploading an ad and waiting for reply if ad is saved
 /* //Then go to server.js file and make sure you serve static files from build directory:

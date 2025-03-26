@@ -149,17 +149,21 @@ function BtmItem() {
                     </div>
                   )}
                   
-                  <div className='itemDetailsArea'><h2>Title: {itemNumber}</h2> </div>
-                  <div className='itemDetailsArea'>Description: {message.description}</div>
+                  <div className='itemDetailsArea'><h2>{message.title}</h2> </div>
+                  <div className='itemDetailsArea'>{message.description}</div>
                   <div className='itemDetailsArea otherDetailsArea'>
                     <div><span className='grayText'>Pilsēta, pagasts vai rajons:</span><span>    {message.city}</span></div>
                     <div><span className='grayText'>Cena:</span><span>    {message.price}</span></div>
-                    <div><span className='grayText'>Vārds:</span><span>    {formatName(message?.name)}</span></div>
                     <div>
                       <span className='grayText'>Telefons:    </span>
                       <span className='phoneNumber' onClick={() => setShowFullPhone(!showFullPhone)}>
                         {formatPhoneNumber(message?.telephone)}</span>
                     </div>
+                    <div><span className='grayText'>Vārds:</span><span>    {formatName(message?.name)}</span></div>
+                    <br/> <br/>
+                    <div className='smallText'><span>Datums:</span><span>    {message.date}</span></div>
+                    <div className='smallText'><span>Unikālo apmeklējumu skaits:</span><span></span></div>
+                    
                   
                   </div>
                 </>

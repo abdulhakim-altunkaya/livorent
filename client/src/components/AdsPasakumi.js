@@ -47,7 +47,7 @@ function AdsPasakumi() {
         </div> 
       </div>
       <br/><br/><br/>
-      <div className='resultArea'>
+      <div>
         { loading ? 
             <div aria-live="polite">Loading...</div> 
           : errorFrontend ? ( // Check for error first

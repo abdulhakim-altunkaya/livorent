@@ -1,21 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import "../styles/AdsMain.css";
+import { useParams } from "react-router-dom";
+import "../styles/BtmSection.css"
 import "../styles/tableMain.css";
 import Footer from "./Footer.js";
 import { useNavigate } from 'react-router-dom';
 
-function AdsElectro() {
+function BtmSection() {
   const navigate = useNavigate();
-  
+  const { sectionNumber } = useParams();
+
   const [message, setMessage] = useState(null); // Initialize with null to better handle initial state
   const [errorFrontend, setErrorFrontend] = useState(null); // Add error state
   const [loading, setLoading] = useState(true); // Add loading state
+  const [titleSection, setTitleSection] = useState("");
 
   useEffect(() => {
-    const getData = async () => {
+    const getData = async () => { 
       try {
-        const response = await axios.get(`http://localhost:5000/api/get/adsbycategory/2`);
+        const response = await axios.get(`http://localhost:5000/api/get/adsbysubsection/${sectionNumber}`);
         setMessage(response.data);
       } catch (error) {
         setErrorFrontend("Error: ads could not be fetched");
@@ -25,38 +28,86 @@ function AdsElectro() {
       }
     };
     getData();
-  }, []);
+  }, [sectionNumber]);
+
+  useEffect(() => {
+    //code for the title area
+    const sectionTitles = {
+      11: "Masti, torņi, konstrukcijas",
+      12: "Santehnika",
+      13: "Kompresori",
+      14: "Pārvadāšana un iekraušana",
+      15: "Ģeneratori",
+      16: "Mērinstrumenti",
+      17: "Mazgāšanas aprīkojums",
+      18: "Citi",
+      21: "Telefoni",
+      22: "Datori",
+      23: "Virtuves tehnika",
+      24: "Biroja tehnika",
+      25: "Baterijas, Akumulatori",
+      26: "Apgaismojums, Televizori",
+      27: "Foto un optika",
+      28: "Dārza tehnika",
+      29: "Citi",
+      31: "Vieglie auto",
+      32: "Velosipēdi, skūteri",
+      33: "Kravas automašīnas",
+      34: "Traktori",
+      35: "Lauksaimniecības mašīnas",
+      36: "Piekabes",
+      37: "Jumta kastes",
+      38: "Ūdens transports",
+      39: "Citi",
+      41: "Sieviešu apģērbi",
+      42: "Vīriešu apģērbi",
+      43: "Sieviešu apavi",
+      44: "Vīriešu apavi",
+      45: "Aksesuāri",
+      46: "Sieviešu somiņas",
+      47: "Mugursomas un Čemodāni",
+      48: "Citi",
+      51: "Sporta aprīkojums",
+      52: "Medības, kempings",
+      53: "Mūzikas instrumenti",
+      54: "Slidošana",
+      55: "Rokdarbi",
+      56: "Citi",
+      61: "Dekorācijas",
+      62: "Dzīvnieki",
+      63: "Mēbeles un Paklāji",
+      64: "Inventārs aktīvai atpūtai",
+      65: "Atrakciju noma",
+      66: "Trauki, galda rīki",
+      67: "Kostīmi",
+      68: "Pirtis",
+      69: "Citi",
+    };
+    const sectionNum = Number(sectionNumber); // Convert to number
+
+    if (sectionNum in sectionTitles) {
+      setTitleSection(sectionTitles[sectionNum]);
+    } else {
+      setTitleSection("Unknown Section");
+    }
+  }, [sectionNumber]);
 
   return (
     <div>
-      <div className='adsMainArea'>
-        <div className='adsTopArea'>
-          <span className='adsMainSVG'><img src='/svg_laptop.svg' alt='Instruments and Electronics icon'/></span>
-          <span className='adsMainTitle'>Instrumenti, elektronika</span>
-        </div>
-        <div className='adsListArea'>
-          <span>Telefoni</span>
-          <span>Datori</span>
-          <span>Virtuves tehnika</span>
-          <span>Biroja tehnika</span>
-          <span>Baterijas, Akumulatori</span>
-          <span>Apgaismojums, Televizori</span>
-          <span>Foto un optika</span>
-          <span>Dārza tehnika</span>
-          <span>Citi...</span>
-        </div> 
-      </div>
+      <div className='sectionTitleArea'><h3>{titleSection}</h3></div>
       <br/><br/><br/>
       <div>
         { loading ? 
             <div aria-live="polite">Loading...</div> 
           : errorFrontend ? ( // Check for error first
-            <p className='errorFieldAdsMain'>{errorFrontend}</p>
+            <p className='errorFieldSection'>{errorFrontend}</p>
           ) :
             <>
               {message ? (
                 <>
+                
                   <div className='tableMainCategoryArea'>
+                  
                     <table className='tableMainCategory'>
                       <thead>
                         <tr>
@@ -66,12 +117,12 @@ function AdsElectro() {
                           <th className='column4' scope="col">Cena</th>
                           <th className='column5' scope="col">Pilsēta</th>
                         </tr>
-                      </thead>
+                      </thead> 
                       <tbody>
                         {message.map( record => (
                           <tr key={record} className='tableRows'>
-                            <td onClick={() => navigate(`/item/${record.id}`)} className='imgContainerTd'> 
-                              <img src={record.image_url[0]} alt='small pic of advertisement'/>
+                            <td onClick={() => navigate(`/item/${record.id}`)} className='imgContainerTd'>
+                               <img src={record.image_url[0]} alt='small pic of advertisement'/>
                             </td>
                             <td onClick={() => navigate(`/item/${record.id}`)} className='cell2'>{record.title}</td>
                             <td onClick={() => navigate(`/item/${record.id}`)} className='cell3'>{record.description}</td>
@@ -98,4 +149,6 @@ function AdsElectro() {
   )
 }
 
-export default AdsElectro;
+export default BtmSection;
+
+

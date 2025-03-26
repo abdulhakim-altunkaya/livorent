@@ -43,4 +43,4 @@
     max-height: 75px; /* Fixed height for the image */
     object-fit: cover; /* Ensures the image covers the area without distortion */
     border-radius: 5px; /* Optional: Adds rounded corners */
-  }
+}

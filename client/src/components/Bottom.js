@@ -12,20 +12,23 @@ import BtmLogin from "./BtmLogin";
 import BtmRegister from "./BtmRegister";
 import BtmProfile from "./BtmProfile";
 import BtmItem from "./BtmItem";
+import BtmSection from "./BtmSection";
 
 function Bottom() {
   return (
     <div className='bottomArea'>
       <Routes>
-        <Route path="/upload" element={<BtmUpload/>} />
         <Route path="/machines-construction" element={<AdsMasinas/>} />
         <Route path="/hobbies" element={<AdsHobi/>} />
         <Route path="/electronics-instruments" element={<AdsElectro/>} />
         <Route path="/clothes" element={<AdsApgerbi/>} />
         <Route path="/event-organization" element={<AdsPasakumi/>} />
         <Route path="/vehicles" element={<AdsTransport/>} />
-        <Route path="/category/:categoryId" element={<BtmHome/>} />
+
+        <Route path="/upload" element={<BtmUpload/>} />
         <Route path="/item/:itemNumber" element={<BtmItem />} />
+        <Route path="/section/:sectionNumber" element={<BtmSection />} />
+
         <Route path="/profile/:visitorNumber" element={<BtmProfile />} />
         <Route path="/registration" element={<BtmRegister/>} />
         <Route path="/login" element={<BtmLogin/>} />

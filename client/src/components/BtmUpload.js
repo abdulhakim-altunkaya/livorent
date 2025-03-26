@@ -234,7 +234,7 @@ function BtmUpload() {
                     <span className={`selectCategoryList ${selectedCategory === 33 ? "selected" : ""}`}
                       onClick={() => saveCategoryNumber(33)}>Kravas automašīnas</span>
                     <span className={`selectCategoryList ${selectedCategory === 34 ? "selected" : ""}`}
-                      onClick={() => saveCategoryNumber(34)}>Traktori</span>
+                      onClick={() => saveCategoryNumber(34)}>Traktori</span> 
                     <span className={`selectCategoryList ${selectedCategory === 35 ? "selected" : ""}`}
                       onClick={() => saveCategoryNumber(35)}>Lauksaimniecības mašīnas</span>
                     <span className={`selectCategoryList ${selectedCategory === 36 ? "selected" : ""}`}

@@ -19,7 +19,8 @@
     align-items: center;
 }
 .itemArrows img {
-    width: 25px;
+    width: 35px;
+    cursor: pointer;
 }
 .itemImagesArea {
     display: flex;
@@ -59,6 +60,9 @@
     font-style: italic;
     font-size: 16px;
     font-family: "Concert One";
+}
+.smallText {
+  font-size: 13px;
 }
 .phoneNumber {
     cursor: pointer;
