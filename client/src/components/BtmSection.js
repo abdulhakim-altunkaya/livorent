@@ -63,7 +63,7 @@ function BtmSection() {
       42: "Vīriešu apģērbi",
       43: "Sieviešu apavi",
       44: "Vīriešu apavi",
-      45: "Aksesuāri",
+      45: "Aksesuāri", 
       46: "Sieviešu somiņas",
       47: "Mugursomas un Čemodāni",
       48: "Citi",
