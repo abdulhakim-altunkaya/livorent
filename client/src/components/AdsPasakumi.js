@@ -35,15 +35,15 @@ function AdsPasakumi() {
           <span className='adsMainTitle'>Pasākumi</span>
         </div>
         <div className='adsListArea'>
-            <span>Dekorācijas</span>
-            <span>Dzīvnieki</span>
-            <span>Mēbeles un Paklāji</span>
-            <span>Inventārs aktīvai atpūtai</span>
-            <span>Atrakciju noma</span>
-            <span>Trauki, galda rīki</span>
-            <span>Kostīmi</span>
-            <span>Pirtis</span>
-            <span>Citi...</span>
+          <span onClick={() => navigate("/section/61")}>Dekorācijas</span>
+          <span onClick={() => navigate("/section/62")}>Dzīvnieki</span>
+          <span onClick={() => navigate("/section/63")}>Mēbeles un Paklāji</span>
+          <span onClick={() => navigate("/section/64")}>Inventārs aktīvai atpūtai</span>
+          <span onClick={() => navigate("/section/65")}>Atrakciju noma</span>
+          <span onClick={() => navigate("/section/66")}>Trauki, galda rīki</span>
+          <span onClick={() => navigate("/section/67")}>Kostīmi</span>
+          <span onClick={() => navigate("/section/68")}>Pirtis</span>
+          <span onClick={() => navigate("/section/69")}>Un vēl...</span>
         </div> 
       </div>
       <br/><br/><br/>

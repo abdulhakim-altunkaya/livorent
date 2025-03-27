@@ -35,15 +35,15 @@ function AdsTransport() {
           <span className='adsMainTitle'>Transportlīdzekļi</span>
         </div>
         <div className='adsListArea'>
-            <span>Vieglie auto</span>
-            <span>Velosipēdi, skūteri</span>
-            <span>Kravas automašīnas</span>
-            <span>Traktori</span>
-            <span>Lauksaimniecības mašīnas</span>
-            <span>Piekabes</span>
-            <span>Jumta kastes</span>
-            <span>Ūdens transports</span>
-            <span>Citi...</span>
+          <span onClick={() => navigate("/section/31")}>Vieglie auto</span>
+          <span onClick={() => navigate("/section/32")}>Velosipēdi, skūteri</span>
+          <span onClick={() => navigate("/section/33")}>Kravas automašīnas</span>
+          <span onClick={() => navigate("/section/34")}>Traktori</span>
+          <span onClick={() => navigate("/section/35")}>Lauksaimniecības mašīnas</span>
+          <span onClick={() => navigate("/section/36")}>Piekabes</span>
+          <span onClick={() => navigate("/section/37")}>Jumta kastes</span>
+          <span onClick={() => navigate("/section/38")}>Ūdens transports</span>
+          <span onClick={() => navigate("/section/39")}>Un vēl...</span>
         </div> 
       </div>
       <br/><br/><br/>

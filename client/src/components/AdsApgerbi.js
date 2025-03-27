@@ -35,14 +35,14 @@ function AdsApgerbi() {
           <span className='adsMainTitle'>Apģērbi, apavi</span>
         </div>
         <div className='adsListArea'>
-            <span>Sieviešu apģērbi</span>
-            <span>Vīriešu apģērbi</span>
-            <span>Sieviešu apavi</span>
-            <span>Vīriešu apavi</span>
-            <span>Aksesuāri</span>
-            <span>Sieviešu somiņas</span>
-            <span>Mugursomas un Čemodāni</span>
-            <span>Citi...</span>
+            <span onClick={() => navigate("/section/41")}>Sieviešu apģērbi</span>
+            <span onClick={() => navigate("/section/42")}>Vīriešu apģērbi</span>
+            <span onClick={() => navigate("/section/43")}>Sieviešu apavi</span>
+            <span onClick={() => navigate("/section/44")}>Vīriešu apavi</span>
+            <span onClick={() => navigate("/section/45")}>Aksesuāri</span>
+            <span onClick={() => navigate("/section/46")}>Sieviešu somiņas</span>
+            <span onClick={() => navigate("/section/47")}>Mugursomas un Čemodāni</span>
+            <span onClick={() => navigate("/section/48")}>Un vēl...</span>
         </div> 
       </div>
       <br/><br/><br/>

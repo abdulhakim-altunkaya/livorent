@@ -35,15 +35,15 @@ function AdsElectro() {
           <span className='adsMainTitle'>Instrumenti, elektronika</span>
         </div>
         <div className='adsListArea'>
-          <span>Telefoni</span>
-          <span>Datori</span>
-          <span>Virtuves tehnika</span>
-          <span>Biroja tehnika</span>
-          <span>Baterijas, Akumulatori</span>
-          <span>Apgaismojums, Televizori</span>
-          <span>Foto un optika</span>
-          <span>Dārza tehnika</span>
-          <span>Citi...</span>
+          <span onClick={() => navigate("/section/21")}>Telefoni</span>
+          <span onClick={() => navigate("/section/22")}>Datori</span>
+          <span onClick={() => navigate("/section/23")}>Virtuves tehnika</span>
+          <span onClick={() => navigate("/section/24")}>Biroja tehnika</span>
+          <span onClick={() => navigate("/section/25")}>Baterijas, Akumulatori</span>
+          <span onClick={() => navigate("/section/26")}>Apgaismojums, Televizori</span>
+          <span onClick={() => navigate("/section/27")}>Foto un optika</span>
+          <span onClick={() => navigate("/section/28")}>Dārza tehnika</span>
+          <span onClick={() => navigate("/section/29")}>Un vēl...</span>
         </div> 
       </div>
       <br/><br/><br/>

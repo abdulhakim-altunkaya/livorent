@@ -35,12 +35,12 @@ function AdsHobi() {
           <span className='adsMainTitle'>Hobijs</span>
         </div>
         <div className='adsListArea'>
-            <span>Sporta aprīkojums</span>
-            <span>Medības, kempings</span>
-            <span>Mūzikas instrumenti</span>
-            <span>Slidošana</span>
-            <span>Rokdarbi</span>
-            <span>Citi...</span>
+          <span onClick={() => navigate("/section/51")}>Sporta aprīkojums</span>
+          <span onClick={() => navigate("/section/52")}>Medības, kempings</span>
+          <span onClick={() => navigate("/section/53")}>Mūzikas instrumenti</span>
+          <span onClick={() => navigate("/section/54")}>Slidošana</span>
+          <span onClick={() => navigate("/section/55")}>Rokdarbi</span>            
+          <span onClick={() => navigate("/section/56")}>Un vēl...</span>
         </div> 
       </div>
       <br/><br/><br/>

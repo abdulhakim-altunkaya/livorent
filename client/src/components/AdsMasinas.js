@@ -35,14 +35,14 @@ function AdsMasinas() {
           <span className='adsMainTitle'>Mašīnas, būvniecība</span>
         </div>
         <div className='adsListArea'>
-            <span>Masti, torņi, konstrukcijas</span>
-            <span>Santehnika</span>
-            <span>Kompresori</span>
-            <span>Pārvadāšana un iekraušana</span>
-            <span>Ģeneratori</span>
-            <span>Mērinstrumenti</span>
-            <span>Mazgāšanas aprīkojums</span>
-            <span>Citi...</span>
+          <span onClick={() => navigate("/section/11")}>Masti, torņi, konstrukcijas</span>
+          <span onClick={() => navigate("/section/12")}>Santehnika</span>
+          <span onClick={() => navigate("/section/13")}>Kompresori</span>
+          <span onClick={() => navigate("/section/14")}>Pārvadāšana un iekraušana</span>
+          <span onClick={() => navigate("/section/15")}>Ģeneratori</span>
+          <span onClick={() => navigate("/section/16")}>Mērinstrumenti</span>
+          <span onClick={() => navigate("/section/17")}>Mazgāšanas aprīkojums</span>
+          <span onClick={() => navigate("/section/18")}>Un vēl...</span>
         </div> 
       </div>
       <br/><br/><br/>
