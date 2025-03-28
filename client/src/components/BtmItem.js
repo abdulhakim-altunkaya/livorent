@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import "../styles/Item.css"
 import Footer from "./Footer.js";
+import { detectSection, detectCategory } from './utilsCategories';
 
 function BtmItem() {
+  const navigate = useNavigate();
+
   const { itemNumber } = useParams();
   const [message, setMessage] = useState(null);
   const [errorFrontend, setErrorFrontend] = useState(null);
@@ -15,6 +18,11 @@ function BtmItem() {
   const [showFullPhone, setShowFullPhone] = useState(false);
   const [isImageExpanded, setIsImageExpanded] = useState(false);
   const [images, setImages] = useState([]); // Added to store limited images
+  const [titleMainCategory, setTitleMainCategory] = useState("");
+  const [titleSection, setTitleSection] = useState("");
+  //states for returning back main category or section pages
+  const [mainCategoryNum, setMainCategoryNum] = useState(0);
+  const [sectionNum, setSectionNum] = useState(0);
 
   useEffect(() => {
     const getData = async () => {
@@ -99,6 +107,43 @@ function BtmItem() {
     return `${names[0]} ${names[names.length - 1].charAt(0)}.`;
   };
 
+  //get main category name and section name from utilsCategories js file
+  //We cannot directly get this data as we have done it in BtmSection file
+  //Because in BtmSection file, the input for the function is coming easily from route parameters
+  //here the input for the function is coming from database. Thats why we are using useEffect
+  //And we have to wait a little with loading state until message variable gets data from db
+  useEffect(() => {
+    if (loading === false && message?.sub_group) {
+      setMainCategoryNum( Number(message.main_group) );
+      setSectionNum( Number(message.sub_group) );
+      
+      setTitleMainCategory(detectCategory(mainCategoryNum));
+      setTitleSection(detectSection(sectionNum));
+    }
+  }, [message, loading]);
+
+  //Also, back navigation links to return to main category or section pages
+  const goMain = () => {
+    if (mainCategoryNum === 1) {
+      navigate("/machines-construction")
+    } else if(mainCategoryNum === 2) {
+      navigate("electronics-instruments")
+    } else if(mainCategoryNum === 3) {
+      navigate("/vehicles")
+    } else if(mainCategoryNum === 4) {
+      navigate("/clothes")
+    } else if(mainCategoryNum === 5) {
+      navigate("/hobbies")
+    } else if(mainCategoryNum === 6) {
+      navigate("/event-organization")
+    } else {
+      return;
+    }
+  }
+  const goSection = () => {
+    navigate(`/section/${sectionNum}`)
+  }
+
   return ( 
     <div>
       <div className='itemMainContainer'>
@@ -148,7 +193,11 @@ function BtmItem() {
                       </div>
                     </div>
                   )}
-                  
+                  <div className='itemDetailsArea'>
+                    <span className='itemCategoryLinks' onClick={goMain}>{titleMainCategory}</span>
+                    &nbsp;&nbsp;/&nbsp;&nbsp;
+                    <span className='itemCategoryLinks' onClick={goSection}>{titleSection}</span>
+                  </div>
                   <div className='itemDetailsArea'><h2>{message.title}</h2> </div>
                   <div className='itemDetailsArea'>{message.description}</div>
                   <div className='itemDetailsArea otherDetailsArea'>

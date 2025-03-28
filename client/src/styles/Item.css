@@ -67,7 +67,11 @@
 .phoneNumber {
     cursor: pointer;
 }
-
+.itemCategoryLinks {
+  color: blue;
+  text-decoration: underline;
+  cursor: pointer;
+}
 .dotsContainer {
     display: flex;
     justify-content: center;
