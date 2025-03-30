@@ -13,6 +13,7 @@ function BtmLogin() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
       const loginObject = {
         loginEmail: email, 
@@ -21,21 +22,23 @@ function BtmLogin() {
       console.log(loginObject);
 
 
-      const formData = new FormData();
-      //formData is a key-value pair. And loginData is the name we have chosen for the key.
-      formData.append("loginData", JSON.stringify(loginObject)); // Send ad data as JSON string
-
-      const res1 = await axios.post("http://localhost:5000/api/login", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const res1 = await axios.post("http://localhost:5000/api/login", loginObject);
       setResultArea(res1.data.myMessage);
+
+      // Servers sends ok message and token upon successful login,
+      // and we save token in localStorage
+      if (res1.data.token) {
+        localStorage.setItem("token_livorent", res1.data.token); // Save the token 
+        localStorage.setItem("visitorNumber", Number(res1.data.visitorNumber)); //save the user id
+        navigate(`/profile/${res1.data.visitorNumber}`); // Include visitorNumber in the URL
+      }
 
     } catch (error) {
       if (error.response) {
         setResultArea(error.response.data.myMessage);
         console.log(error.message);
       } else {
-        setResultArea("An error happened while saving the news");
+        setResultArea("Error happened login, no data from backend");
         console.log(error.message);
       }
     }

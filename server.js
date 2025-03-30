@@ -45,7 +45,7 @@ app.post("/serversavead", upload.array("images", 4), async (req, res) => {
 
   // Check if the IP is in the ignored list
   if (ignoredIPs.includes(ipVisitor)) {
-    return res.status(429).json({myMessage: 'This visitor is banned to upload or cannot upload'}); 
+    return res.status(429).json({myMessage: 'Visitor is banned'}); 
   }
 
   let client;
@@ -110,21 +110,21 @@ const ipCache4 = {}
 const JWT_SEC = process.env.JWT_SECRET; // Ensure you have this in your .env file
 const SALT_ROUNDS = 5; // For password hashing, normally 10 would be safe. I am not storing sensitive data. So, 5 is enough.
 app.post("/api/register", async (req, res) => {
-  //preventing spam comments
+  //preventing spam signups
   const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
-  // Check if IP exists in cache and if last comment was less than 1 minute ago
+  // Check if IP exists in cache and if last signup was less than 1 minute ago
   if (ipCache4[ipVisitor] && Date.now() - ipCache4[ipVisitor] < 1000) {
-    return res.status(429).json({myMessage: 'Too many uploads from this visitor'});
+    return res.status(429).json({myMessage: 'Too many signup attempts from this visitor'});
   }
   ipCache4[ipVisitor] = Date.now();//save visitor ip to ipCache4
 
   // Check if the IP is in the ignored list
   if (ignoredIPs.includes(ipVisitor)) {
-    return res.status(429).json({myMessage: 'This visitor is banned to upload or signup.'}); 
+    return res.status(429).json({myMessage: 'Visitor is banned'}); 
   }
   console.log("hi connection is fine");
-  let client;
 
+  let client;
   const registerObject = req.body;
   const registerLoad = {
     name1: registerObject.registerName.trim(),
@@ -160,11 +160,66 @@ app.post("/api/register", async (req, res) => {
 
 })
 
+app.post("/api/login", async (req, res) => {
+  //preventing spam logins
+  const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
+  // Check if IP exists in cache and if last login was less than 1 minute ago
+  if (ipCache4[ipVisitor] && Date.now() - ipCache4[ipVisitor] < 1000) {
+    return res.status(429).json({myMessage: 'Too many login attempts from this visitor'});
+  }
+  ipCache4[ipVisitor] = Date.now();//save visitor ip to ipCache4
+
+  // Check if the IP is in the ignored list
+  if (ignoredIPs.includes(ipVisitor)) {
+    return res.status(429).json({myMessage: 'Visitor is banned.'}); 
+  }
+  console.log("hi connection is fine");
+
+  let client; 
+  const loginObject = req.body;
+  const loginLoad = {
+    email1: loginObject.loginEmail.trim(),     // Ensure date is trimmed, now whitespace,
+    passtext1: loginObject.loginPasstext.trim()
+  };
+  console.log("loginObject: ", loginObject);
+  console.log("loginLoad: ", loginLoad);
+  try {
+    client = await pool.connect();
+    //find user by email
+    const { rows: users } = await client.query(
+      `SELECT id, passtext FROM livorent_users WHERE email = $1`, [loginLoad.email1]
+    )
+    if(users.length === 0) {
+      return res.status(401).json({ error: "Wrong e-mail or password"});
+    }
+    const user = users[0];
+    console.log("user: ", user);
+    //comparing password. Bcrypt will know from hashed password the number of salt rounds
+    const passwordMatch = await bcrypt.compare(loginLoad.passtext1, user.passtext);
+    if (!passwordMatch) {
+      return res.status(401).json({ error: "Wrong password or e-mail"});
+    }
+    //generating JWT for authenticated users
+    const token = jwt.sign({ userId: user.id}, JWT_SEC, { expiresIn: "100d" });
+    res.status(200).json({
+      message: "Login successful",
+      visitorNumber: user.id,
+      token
+    })
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({myMessage: "Error while login"})
+  } finally {
+    client.release();
+  } 
+
+})
+
 app.get("/api/get/adsbycategory/:idcategory", async (req, res) => {
   const { idcategory } = req.params; 
   let client;
   if(!idcategory) {
-    return res.status(404).json({message: "No category detected"});
+    return res.status(404).json({myMessage: "No category detected"});
   }
   try {
     client = await pool.connect();
@@ -175,12 +230,12 @@ app.get("/api/get/adsbycategory/:idcategory", async (req, res) => {
     );
     const categoryDetails = await result.rows;
     if(!categoryDetails) {
-      return res.status(404).json({ message: "Category details not found although category id is correct"})
+      return res.status(404).json({ myMessage: "Category details not found although category id is correct"})
     }
     res.status(200).json(categoryDetails);
   } catch (error) {
     console.log(error.message);
-    res.status(500).json({message: "Error at the Backend: Couldnt fetch category details"})
+    res.status(500).json({myMessage: "Error at the Backend: Couldnt fetch category details"})
   } finally {
     if(client) client.release();
   }
@@ -190,7 +245,7 @@ app.get("/api/get/adsbysubsection/:sectionNumber", async (req, res) => {
   const { sectionNumber } = req.params; 
   let client;
   if(!sectionNumber) {
-    return res.status(404).json({message: "No category detected"});
+    return res.status(404).json({myMessage: "No category detected"});
   }
   try {
     client = await pool.connect();
@@ -200,12 +255,12 @@ app.get("/api/get/adsbysubsection/:sectionNumber", async (req, res) => {
     );
     const categoryDetails = await result.rows;
     if(!categoryDetails) {
-      return res.status(404).json({ message: "Category details not found although category id is correct"})
+      return res.status(404).json({ myMessage: "Category details not found although category id is correct"})
     }
     res.status(200).json(categoryDetails);
   } catch (error) {
     console.log(error.message);
-    res.status(500).json({message: "Error at the Backend: Couldnt fetch category details"})
+    res.status(500).json({myMessage: "Error at the Backend: Couldnt fetch category details"})
   } finally {
     if(client) client.release();
   }
@@ -215,7 +270,7 @@ app.get("/api/get/adsbyuser/:iduser", async (req, res) => {
   const { iduser } = req.params;
   let client;
   if(!iduser) {
-    return res.status(404).json({message: "No user detected"});
+    return res.status(404).json({myMessage: "No user detected"});
   }
   try {
     client = await pool.connect();
@@ -226,12 +281,12 @@ app.get("/api/get/adsbyuser/:iduser", async (req, res) => {
     );
     const userAds = await result.rows;
     if(!userAds) {
-      return res.status(404).json({ message: "Category details not found although category id is correct"})
+      return res.status(404).json({ myMessage: "Category details not found although category id is correct"})
     }
     res.status(200).json(userAds);
   } catch (error) {
     console.log(error.message);
-    res.status(500).json({message: "Error at the Backend: Couldnt fetch category details"})
+    res.status(500).json({myMessage: "Error at the Backend: Couldnt fetch category details"})
   } finally {
     if(client) client.release();
   }
@@ -241,7 +296,7 @@ app.get("/api/get/item/:itemNumber", async (req, res) => {
   const { itemNumber } = req.params;
   let client;
   if(!itemNumber) {
-    return res.status(404).json({message: "No item number detected"});
+    return res.status(404).json({myMessage: "No item number detected"});
   }
   try {
     client = await pool.connect();
@@ -252,11 +307,11 @@ app.get("/api/get/item/:itemNumber", async (req, res) => {
     if (result.rows.length > 0) {
       res.status(200).json(result.rows[0]); ; // Return the first matching item
     } else {
-      return res.status(404).json({ message: "Item details not found although item id is correct"})
+      return res.status(404).json({ myMessage: "Item details not found although item id is correct"})
     }
   } catch (error) {
     console.log(error.message);
-    res.status(500).json({message: "Error at the Backend: Couldnt fetch item details"})
+    res.status(500).json({myMessage: "Error at the Backend: Couldnt fetch item details"})
   } finally {
     if(client) client.release();
   }
@@ -309,6 +364,11 @@ also create a signout option to allow a new user to sign in from the same comput
 //prevent spam uploads by putting a time limit
 //put a limit on inputs on upload component
 //Also input checks on upload and signup and login components
+//In the list display of ads, limit the number of characters displayed. Otherwise some ads might have 
+//too long texts and it will overflow list. Also limit the number of inputs. People should not upload
+//many images and information inputs
+//before signingup a new user, make sure the email does not exist already.
+// fix "encountered the same children witht he same key" error when displaying the table of ads, it happens in all components
 //convert all alerts and backend messages to Latvian, you can components and server file line by line
 //Add a loading circle when uploading an ad and waiting for reply if ad is saved
 /* //Then go to server.js file and make sure you serve static files from build directory:

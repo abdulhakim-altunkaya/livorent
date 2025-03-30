@@ -19,7 +19,7 @@ function BtmRegister() {
       
     // Check if passwords match
     if (passtext !== passtextControl) {
-      alert("passwords do not match")
+      alert("passwords do not match") 
       return; // Stop form submission
     }
 
@@ -34,7 +34,8 @@ function BtmRegister() {
       const res1 = await axios.post("http://localhost:5000/api/register", registerObject);
       setResultArea(res1.data.myMessage);
       
-      // Save the token in localStorage
+      // Servers sends ok message and token upon successful login,
+      // and we save token in localStorage
       if (res1.data.token) {
         localStorage.setItem("token_livorent", res1.data.token); // Save the token 
         localStorage.setItem("visitorNumber", Number(res1.data.visitorNumber)); //save the user id
@@ -46,7 +47,7 @@ function BtmRegister() {
         setResultArea(error.response.data.myMessage);
         console.log(error.message);
       } else {
-        setResultArea("An error happened while saving the news");
+        setResultArea("Error happened while signup, no data from backend");
         console.log(error.message);
       }
     }
