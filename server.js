@@ -291,6 +291,30 @@ app.get("/api/get/adsbyuser/:iduser", async (req, res) => {
     if(client) client.release();
   }
 });
+app.get("/api/get/userdata/:iduser", async (req, res) => {
+  const { iduser } = req.params;
+  let client;
+  if(!iduser) {
+    return res.status(404).json({myMessage: "No user id detected"});
+  }
+  try {
+    client = await pool.connect();
+    const result = await client.query(
+      `SELECT * FROM livorent_users WHERE id = $1`,
+      [iduser]
+    );
+    const userRawData = await result.rows;
+    if(!userRawData) {
+      return res.status(404).json({ myMessage: "User details not found although user id is correct"})
+    }
+    res.status(200).json(userRawData);
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({myMessage: "Error at the Backend: Couldnt fetch user details"})
+  } finally {
+    if(client) client.release();
+  }
+});
 
 app.get("/api/get/item/:itemNumber", async (req, res) => {
   const { itemNumber } = req.params;

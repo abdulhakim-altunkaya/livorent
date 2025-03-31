@@ -7,6 +7,7 @@ import { useParams } from "react-router-dom";
 function BtmProfile() {
   const { visitorNumber } = useParams();
   const [message, setMessage] = useState(null); // Initialize with null to better handle initial state
+  const [userData, setUserData] = useState(null);
   const [errorFrontend, setErrorFrontend] = useState(null); // Add error state
   const [loading, setLoading] = useState(true); // Add loading state
 
@@ -15,9 +16,15 @@ function BtmProfile() {
       try {
         const response = await axios.get(`http://localhost:5000/api/get/adsbyuser/${visitorNumber}`);
         setMessage(response.data);
+  
+        const responseUser = await axios.get(`http://localhost:5000/api/get/userdata/${visitorNumber}`);
+        const data = await responseUser.data[0] || {}; // Fallback to empty object if null
+        setUserData(data);
+        
       } catch (error) {
         setErrorFrontend("Error: ads could not be fetched");
-        console.log(error.message)
+        console.log(error.message);
+        setUserData({}); // Ensure userData is never null
       } finally {
         setLoading(false);
       }
@@ -27,6 +34,7 @@ function BtmProfile() {
 
   return (
     <div>
+      <div className='userInfoArea'>laipni lūdzam <strong>{userData.name}</strong></div>
       <div>
         { loading ? 
             <div aria-live="polite">Loading...</div> 
@@ -34,7 +42,7 @@ function BtmProfile() {
             <p className='errorFieldProfile'>{errorFrontend}</p>
           ) :
             <>
-              {message ? (
+              {message && message.length > 0  ? (
                 <>
                   <div className='tableProfileArea'>
                     <table className='tableMainCategory'>
@@ -62,7 +70,9 @@ function BtmProfile() {
                   </div>
                 </>
               ) : (
-                <p>No data available</p> // Handle case where message is null or empty
+                <div className="noAdsMessage">
+                  <p>Jums vēl nav sludinājumu</p> {/* "You don't have any ads yet" in Latvian */}
+                </div>
               )}
             </>
         }

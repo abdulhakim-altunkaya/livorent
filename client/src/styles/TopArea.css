@@ -51,8 +51,9 @@
   color: #FBEAEB;
 }
 .topAreaLoginArea:hover {
-  background-color:#16215c;
+  background-color:#ca5410;
   color: #d3caca;
+  border: 2px black dashed
 }
 .loginIcon {
   width: 39px;

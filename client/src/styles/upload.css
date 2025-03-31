@@ -63,6 +63,32 @@
         outline: none;
         resize: none;
     }
+    
+    .btnUploadArea {
+        display: flex;
+        flex-direction: row;
+        text-align: center;
+    }
+    .btnUploadArea input {
+        opacity: 0;
+        position: absolute;
+        left: 0;
+        top: 0;
+        cursor: pointer;
+    }
+    .btnUploadArea label {
+        padding: 8px 16px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 18px;
+        width: 240px;
+        display: inline-block;
+        text-align: center;
+        align-self: center;
+    }
     /*<button class="button7007">COPY ME</button>*/
     @import url('https://fonts.googleapis.com/css2?family=Dosis:wght@500&display=swap'); /*Dosis*/
     .button7007 {
@@ -87,11 +113,7 @@
         box-shadow: 0 0 .25rem rgba(0, 0, 0, 0.5), -.125rem -.125rem 1rem rgba(239, 71, 101, 0.5), .125rem .125rem 1rem rgba(255, 154, 90, 0.5);
     }
 
-    .btnUploadArea {
-        display: flex;
-        flex-direction: row;
-        text-align: center;
-    }
+
     .selectedFilesText {
         margin-top: 5px;
         font-size: 14px;

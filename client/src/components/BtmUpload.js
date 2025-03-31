@@ -134,38 +134,9 @@ function BtmUpload() {
 
         <div className="btnUploadArea" >
           {/* Hide the default file input */}
-          <input
-            type="file"
-            id="inputImages"
-            name="images"
-            accept="image/*"
-            multiple
-            onChange={handleImageChange}
-            style={{
-              opacity: 0, // Make the input invisible
-              position: 'absolute', // Position it absolutely
-              left: 0,
-              top: 0,
-              cursor: 'pointer', // Show pointer cursor
-            }}
-          />
-          {/* Custom button */}
-          <label
-            htmlFor="inputImages" // Associate the label with the input
-            style={{
-              padding: '8px 16px',
-              backgroundColor: '#007bff',
-              color: 'white',
-              border: 'none',
-              borderRadius: '5px',
-              cursor: 'pointer',
-              fontSize: '18px',
-              width: "240px",
-              display: 'inline-block',
-              textAlign: "center",
-              alignSelf: "center"
-            }}
-          >
+          <input type="file" id="inputImages" name="images" accept="image/*" multiple 
+            onChange={handleImageChange} />
+          <label htmlFor="inputImages" >
             Upload Images <img src='/svg_add_file.svg' className="svgUploadFile" alt='add file icon'/>
           </label>
 
