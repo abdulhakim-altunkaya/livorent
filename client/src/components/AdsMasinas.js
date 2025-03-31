@@ -68,7 +68,7 @@ function AdsMasinas() {
                       </thead>
                       <tbody>
                         {message.map( record => (
-                          <tr key={record} className='tableRows'>
+                          <tr key={record.id} className='tableRows'>
                             <td onClick={() => navigate(`/item/${record.id}`)} className='imgContainerTd'> 
                               <img src={record.image_url[0]} alt='small pic of advertisement'/>
                             </td>
