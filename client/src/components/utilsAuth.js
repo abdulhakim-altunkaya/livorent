@@ -1,6 +1,3 @@
-
-
-
 export const getUserId = () => {
     // 1. Get user id from local storage. if user id("visitorNumber") exists, it is good
     // Then we can make a call to the backend and fetch user details. I separated functions
@@ -22,5 +19,5 @@ export const getUserId = () => {
   };
 
 export const getUserDetails = async () => {
-return 11111;
+  return 11111;
 }

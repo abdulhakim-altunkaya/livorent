@@ -54,8 +54,12 @@
   background-color:#16215c;
   color: #d3caca;
 }
-.topAreaLoginArea img {
-  width: 33px;
+.loginIcon {
+  width: 39px;
   margin-right: 10px;
+  color: #FBEAEB;
+}
+.profileIcon {
+  width: 33px;
   color: #FBEAEB;
 }
