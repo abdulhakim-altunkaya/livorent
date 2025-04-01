@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import "../styles/Profile.css";
 import Footer from "./Footer.js";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 
 function BtmProfile() {
+  const navigate = useNavigate()
+
   const { visitorNumber } = useParams();
   const [message, setMessage] = useState(null); // Initialize with null to better handle initial state
   const [userData, setUserData] = useState(null);
@@ -15,12 +17,12 @@ function BtmProfile() {
     const getData = async () => {
       try {
         const response = await axios.get(`http://localhost:5000/api/get/adsbyuser/${visitorNumber}`);
-        setMessage(response.data);
-  
+        setMessage(response.data);     
+
         const responseUser = await axios.get(`http://localhost:5000/api/get/userdata/${visitorNumber}`);
-        const data = await responseUser.data[0] || {}; // Fallback to empty object if null
-        setUserData(data);
-        
+        setUserData(responseUser.data);
+
+
       } catch (error) {
         setErrorFrontend("Error: ads could not be fetched");
         console.log(error.message);
@@ -32,9 +34,28 @@ function BtmProfile() {
     getData();
   }, [visitorNumber]);
 
+  const deleteAccount = () => {
+    alert("Accounts which are inactive for 6 months will be deleted together with their ads if any");
+    return;
+  }
+
+
   return (
     <div>
-      <div className='userInfoArea'>laipni lūdzam <strong>{userData.name}</strong></div>
+      { loading ? 
+        ( <div>lietotāja informācijas ielāde</div> )
+          :
+        ( 
+        <div>
+          <div className='userInfoArea'>laipni lūdzam <strong>{userData.name}</strong></div> 
+          <div>
+            <span>Personal Information:</span>
+            <span><button onClick={() => navigate(`/profile/update-account/${visitorNumber}`)}>Update Account</button></span>
+            <span><button onClick={deleteAccount}>Delete Account</button></span>
+          </div>
+        </div>
+        )
+      }
       <div>
         { loading ? 
             <div aria-live="polite">Loading...</div> 

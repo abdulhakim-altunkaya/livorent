@@ -303,7 +303,7 @@ app.get("/api/get/userdata/:iduser", async (req, res) => {
       `SELECT * FROM livorent_users WHERE id = $1`,
       [iduser]
     );
-    const userRawData = await result.rows;
+    const userRawData = await result.rows[0];
     if(!userRawData) {
       return res.status(404).json({ myMessage: "User details not found although user id is correct"})
     }
@@ -393,7 +393,8 @@ also create a signout option to allow a new user to sign in from the same comput
 //many images and information inputs
 //before signingup a new user, make sure the email does not exist already.
 // fix "encountered the same children witht he same key" error when displaying the table of ads, it happens in all components
-//convert all alerts and backend messages to Latvian, you can components and server file line by line
+// Also add a password update section in cases forgetting
+// convert all alerts and backend messages to Latvian, you can components and server file line by line
 //Add a loading circle when uploading an ad and waiting for reply if ad is saved
 /* //Then go to server.js file and make sure you serve static files from build directory:
 app.use(express.static(path.join(__dirname, 'client/build'))); */
