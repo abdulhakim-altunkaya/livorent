@@ -40,8 +40,9 @@ function BtmProfile() {
   }
 
   const signoutAccount = () => {
-    alert("signout button clicked");
-    return;  
+    localStorage.removeItem("token_livorent");
+    localStorage.removeItem("visitorNumber");
+    navigate("/");
   }
 
   return (
@@ -61,7 +62,10 @@ function BtmProfile() {
           <div className='profileButtonsArea'>
             <span><button className='button-54' onClick={signoutAccount}>Sign out</button></span>
             <span><button className='button-54'
-              onClick={() => navigate(`/profile/update-account/${visitorNumber}`)}>Update Account</button></span>
+              onClick={() => navigate(`/profile/update-account/${visitorNumber}`, {state: { userData: userData } }
+              )}>
+              Update Account</button>
+            </span>
             <span><button className='button-54' onClick={deleteAccount}>Delete Account</button></span>
           </div>
         </div>

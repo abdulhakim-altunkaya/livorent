@@ -1,0 +1,54 @@
+/* Media query for big screens */
+@media (min-width: 781px) {
+    .profileUpdateTitle {
+        margin-left: 30px;
+        font-family: "Acme"
+    }
+    .loginFormArea1 {
+        height: 100%;
+        width: 99%;
+        margin: auto;
+        padding-top: 20px;
+        font-size: 16px;
+    }
+    .loginForm1 {
+        max-width: 45%;
+        margin-left: 20px;
+    }
+    .loginInputs1 {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 18px;
+    }
+    .loginInputs1 label {
+        color: black;
+        margin-bottom: 8px;
+    }
+    .loginInputs1 input:hover {
+        border: 1px solid #4236e9;
+    }
+    .loginInputShort1 {
+        padding: 12px 20px;
+        border-radius: 6px;
+        border: 1px solid #b0b0b0;
+        background: white;
+        font-weight: 500;
+        font-size: 16px;
+        font-family: "Concert One";
+        color: #6b7280;
+        outline: none;
+        resize: none;
+    }
+    .btnSelectCategory3 {
+        padding: 8px 16px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 18px;
+        width: 240px;
+        text-align: center;
+        margin-top: 15px;
+    }
+}
