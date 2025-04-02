@@ -47,4 +47,52 @@
 }
 .userInfoArea {
     margin-left: 20px;
+    font-size: 17px;
+    margin-bottom: 50px;
+}
+.userInfoArea div {
+    margin-top: 8px;
+}
+.lastDivProfile {
+    margin-bottom: 30px;
+}
+.welcomeMessageProfile {
+    font-family: "Style Script", cursive;
+    font-size: 33px;
+    font-weight: 500;
+    font-style: normal;
+}
+/* CSS */
+.button-54 {
+  font-family: "Open Sans", sans-serif;
+  font-size: 14px;
+  letter-spacing: 2px;
+  min-width: 155px;
+  text-decoration: none;
+  text-transform: uppercase;
+  color: #000;
+  cursor: pointer;
+  border: 3px solid;
+  padding: 0.25em 0.5em;
+  box-shadow: 1px 1px 0px 0px, 2px 2px 0px 0px, 3px 3px 0px 0px, 4px 4px 0px 0px, 5px 5px 0px 0px;
+  position: relative;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  margin-right: 20px;
+}
+.button-54:hover {
+    background-color: #b0adad;
+}
+.button-54:active {
+  box-shadow: 0px 0px 0px 0px;
+  top: 5px;
+  left: 5px;
+}
+
+
+@media (min-width: 768px) {
+  .button-54 {
+    padding: 0.25em 0.75em;
+  }
 }

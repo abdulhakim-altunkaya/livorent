@@ -39,6 +39,10 @@ function BtmProfile() {
     return;
   }
 
+  const signoutAccount = () => {
+    alert("signout button clicked");
+    return;  
+  }
 
   return (
     <div>
@@ -46,12 +50,19 @@ function BtmProfile() {
         ( <div>lietotāja informācijas ielāde</div> )
           :
         ( 
-        <div>
-          <div className='userInfoArea'>laipni lūdzam <strong>{userData.name}</strong></div> 
-          <div>
-            <span>Personal Information:</span>
-            <span><button onClick={() => navigate(`/profile/update-account/${visitorNumber}`)}>Update Account</button></span>
-            <span><button onClick={deleteAccount}>Delete Account</button></span>
+        <div className='userInfoArea'>
+          <div className='welcomeMessageProfile'>laipni lūdzam </div> 
+
+          <div><strong>Name:</strong> {userData.name}</div>
+          <div><strong>E-mail:</strong> {userData.email}</div>
+          <div><strong>Telephone:</strong> {userData.telephone}</div>
+          <div className='lastDivProfile'><strong>Member since:</strong> {userData.date}</div>
+
+          <div className='profileButtonsArea'>
+            <span><button className='button-54' onClick={signoutAccount}>Sign out</button></span>
+            <span><button className='button-54'
+              onClick={() => navigate(`/profile/update-account/${visitorNumber}`)}>Update Account</button></span>
+            <span><button className='button-54' onClick={deleteAccount}>Delete Account</button></span>
           </div>
         </div>
         )
