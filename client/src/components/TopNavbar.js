@@ -1,14 +1,11 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getUserId, getUserDetails } from './utilsAuth';
+import { getUserId } from './utilsAuth';
 
 function TopNavbar() {
   const userIdData = getUserId(); // This returns an object { userNumber }
   const myNum = userIdData.userNumber; // Get the actual number
-  const myNum2 = getUserDetails();
   
-  console.log("User ID:", myNum); // Now this will log the number
-  console.log("User Details:", myNum2);
   const navigate = useNavigate();
 
   return (

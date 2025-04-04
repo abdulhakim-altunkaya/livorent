@@ -3,9 +3,13 @@ import axios from 'axios';
 import "../styles/Profile.css";
 import Footer from "./Footer.js";
 import { useParams, useNavigate } from "react-router-dom";
+import useUserStore from '../store/userStore';
 
 function BtmProfile() {
   const navigate = useNavigate()
+  //we will check zustand store to see if there is any user data in it. If there is
+  //then no need to make repetitive requests to backend and database about user information
+  const { cachedUserData } = useUserStore.getState();
 
   const { visitorNumber } = useParams();
   const [message, setMessage] = useState(null); // Initialize with null to better handle initial state
@@ -18,10 +22,14 @@ function BtmProfile() {
       try {
         const response = await axios.get(`http://localhost:5000/api/get/adsbyuser/${visitorNumber}`);
         setMessage(response.data);     
-
-        const responseUser = await axios.get(`http://localhost:5000/api/get/userdata/${visitorNumber}`);
-        setUserData(responseUser.data);
-
+        if (cachedUserData?.id === visitorNumber) {
+          setUserData(cachedUserData);
+          console.log("cached data displayed")
+        } else {
+          const responseUser = await axios.get(`http://localhost:5000/api/get/userdata/${visitorNumber}`);
+          setUserData(responseUser.data);
+          useUserStore.getState().setCachedUserData(responseUser.data);  // Zustand cache
+        }
 
       } catch (error) {
         setErrorFrontend("Error: ads could not be fetched");
@@ -32,7 +40,7 @@ function BtmProfile() {
       }
     };
     getData();
-  }, [visitorNumber]);
+  }, [visitorNumber, cachedUserData]);
 
   const deleteAccount = () => {
     alert("Accounts which are inactive for 6 months will be deleted together with their ads if any");
