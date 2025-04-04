@@ -24,18 +24,21 @@ function BtmProfileUpdate() {
 
     try {
       const updateObject = {
+        updateId: Number(visitorNumber),
         updateName: name, 
         updateTelephone: telephone, 
         updateEmail: email, 
         updatePasstext: passtext
-      };
+      }; 
 
       const res1 = await axios.post("http://localhost:5000/api/update", updateObject);
       setResultArea(res1.data.myMessage);
-      
-      // Servers sends ok message and token upon successful login,
+      // Servers sends ok message and token upon successful update,
       // and we save token in localStorage
       if (res1.data.token) {
+        localStorage.setItem("token_livorent", res1.data.token); // Save the token 
+        localStorage.setItem("visitorNumber", Number(res1.data.visitorNumber)); //save the user id
+        alert("atjaunināšana ir veiksmīga")
         navigate(`/profile/${res1.data.visitorNumber}`); // Include visitorNumber in the URL
       }
 
@@ -48,6 +51,10 @@ function BtmProfileUpdate() {
         console.log(error.message);
       }
     }
+  }
+
+  const cancelUpdate = () => {
+    navigate(`/profile/${visitorNumber}`); // Include visitorNumber in the URL
   }
 
   return (
@@ -76,6 +83,7 @@ function BtmProfileUpdate() {
                 value={passtext} onChange={(e) => setPasstext(e.target.value)} required  />
             </div>
           <button className="btnSelectCategory3" type="submit">Atjaunināt</button>
+          <span className="btnSelectCategory4" onClick={cancelUpdate}>Atcelt</span>
         </form>
         <div>{resultArea}</div>
       </div>

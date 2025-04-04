@@ -40,6 +40,8 @@
         resize: none;
     }
     .btnSelectCategory3 {
+        box-sizing: border-box;
+        vertical-align: middle; /* Aligns with inline elements */
         padding: 8px 16px;
         background-color: #007bff;
         color: white;
@@ -47,8 +49,36 @@
         border-radius: 5px;
         cursor: pointer;
         font-size: 18px;
-        width: 240px;
+        width: 150px;
         text-align: center;
         margin-top: 15px;
+    }
+    .btnSelectCategory4 {
+        display: inline-block; /* Makes the span respect width */
+        vertical-align: middle; /* Aligns with inline elements */
+        padding: 8px 16px;
+        background-color: #dbf438;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 18px;
+        width: 120px;
+        text-align: center;
+        margin-top: 15px;
+        margin-left: 25px;
+    }
+    .btnSelectCategory3:hover {
+        background-color: #0d0ddbba;
+        font-weight: bolder;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), 
+                0 6px 12px rgba(0, 0, 0, 0.15);
+        transition: all 0.3s ease; /* Smooth animation */
+    }
+    .btnSelectCategory4:hover {
+        background-color: #829604;
+        font-weight: bolder;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), 
+                0 6px 12px rgba(0, 0, 0, 0.15);
+        transition: all 0.3s ease; /* Smooth animation */
     }
 }

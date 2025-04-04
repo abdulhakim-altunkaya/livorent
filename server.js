@@ -340,6 +340,53 @@ app.get("/api/get/item/:itemNumber", async (req, res) => {
     if(client) client.release();
   }
 });
+app.post("/api/update", async (req, res) => {
+  //preventing spam signups
+  const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
+  // Check if IP exists in cache and if last signup was less than 1 minute ago
+  if (ipCache4[ipVisitor] && Date.now() - ipCache4[ipVisitor] < 1000) {
+    return res.status(429).json({myMessage: 'Too many attempts from this visitor'});
+  }
+  ipCache4[ipVisitor] = Date.now();//save visitor ip to ipCache4
+
+  // Check if the IP is in the ignored list
+  if (ignoredIPs.includes(ipVisitor)) {
+    return res.status(429).json({myMessage: 'Visitor is banned'}); 
+  }
+
+  let client;
+  const updateObject = req.body;
+  
+  const updateLoad = {
+    id1: updateObject.updateId,
+    name1: updateObject.updateName.trim(),
+    telephone1: updateObject.updateTelephone.trim(),     // Ensure text values are trimmed
+    email1: updateObject.updateEmail.trim(),     // Ensure date is trimmed (still stored as text in DB),
+    passtext1: updateObject.updatePasstext.trim()
+  };
+
+  try {
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(updateLoad.passtext1, SALT_ROUNDS);
+
+    client = await pool.connect();
+    const { rows: updatedUser } = await client.query(
+      `UPDATE livorent_users SET name = $1, telephone = $2, email = $3, passtext = $4 WHERE id = $5 
+      RETURNING id`,
+      [updateLoad.name1, updateLoad.telephone1, updateLoad.email1, hashedPassword, updateLoad.id1]
+    );
+
+    // Generate a JWT for the new user and send it to frontend
+    const token = jwt.sign({ userId: updatedUser[0].id }, JWT_SEC, { expiresIn: '100d' });
+    res.status(201).json({ myMessage: 'Profile updated', visitorNumber:updatedUser[0].id, token });
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({myMessage: "Error while updating the profile"})
+  } finally {
+    client.release();
+  } 
+})
+
 //This line must be under all server routes. Otherwise you will have like not being able to fetch comments etc.
 //This code helps with managing routes that are not defined on react frontend. If you dont add, only index 
 //route will be visible.
