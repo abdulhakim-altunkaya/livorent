@@ -17,8 +17,6 @@ app.use(express.json()); //we need this to send data from frontend to backend in
 
 //UNCOMMENT WHEN IN PRODUCTION
 //app.use(express.static(path.join(__dirname, "client/build")));
-
-
 app.get("/serversendhello", (req, res) => {
   res.status(200).json({myMessage: "Hello from Backend"});
 })
@@ -102,7 +100,7 @@ app.post("/serversavead", upload.array("images", 4), async (req, res) => {
     client.release();
   } 
 
-})
+});
 
 //A temporary cache to save ip addresses and it will prevent spam sign-up attempts for 1 minute.
 //I can do that by checking each ip with database ip addresses but then it will be too many requests to db
@@ -158,7 +156,7 @@ app.post("/api/register", async (req, res) => {
     client.release();
   } 
 
-})
+});
 
 app.post("/api/login", async (req, res) => {
   //preventing spam logins
@@ -213,7 +211,7 @@ app.post("/api/login", async (req, res) => {
     client.release();
   } 
 
-})
+});
 
 app.get("/api/get/adsbycategory/:idcategory", async (req, res) => {
   const { idcategory } = req.params; 
@@ -291,6 +289,7 @@ app.get("/api/get/adsbyuser/:iduser", async (req, res) => {
     if(client) client.release();
   }
 });
+
 app.get("/api/get/userdata/:iduser", async (req, res) => {
   const { iduser } = req.params;
   let client;
@@ -340,6 +339,7 @@ app.get("/api/get/item/:itemNumber", async (req, res) => {
     if(client) client.release();
   }
 });
+
 app.post("/api/update", async (req, res) => {
   //preventing spam signups
   const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
@@ -385,7 +385,7 @@ app.post("/api/update", async (req, res) => {
   } finally {
     client.release();
   } 
-})
+});
 
 //This line must be under all server routes. Otherwise you will have like not being able to fetch comments etc.
 //This code helps with managing routes that are not defined on react frontend. If you dont add, only index 
@@ -413,6 +413,20 @@ app.listen(PORT, () => {
 /*Also add this otherwise only index route will be visible when you deploy app to production
 add "::1", to the ignored ip list
 
+/*       title-text
+      description-text
+      price (per day, per hour, per week or per month)-number with two decimals
+      telephone-numbers without decimals
+      name-text 
+      City-text
+
+      keep it longer weeks? numbers without decimals
+      Make title bolder? True or false
+      move it to the top? True or false
+
+      location ip 
+      date */
+  /*    
 change 1000 to 3600000 in the time limit of serversavevisitor endpoint
 change 1000 to 60000 in the serversavecomment endpoint
 change 1000 to 60000 in the serversavecommentreply endpoint
@@ -428,6 +442,10 @@ check time limits on post routes . They are not 1 minute, if so, convert them to
 ip check to make sure same ip can upload once in 5 minutes and twice in 24 hour 
 also create a signout option to allow a new user to sign in from the same computer. 
 */
+//remove console.log statements from all components and server.js
+//convert all error, success and alert messages to Latvian, also buttons and any other text
+//add a password renewal in case of repetitive wrong login attemps
+//update and delete functionality on user page for the ads he added
 //integrate a comment section and a visit counter to each advertisement
 //Only last 10 records will be uploaded to the main pages. How to add a button to add another 10 when user clicks?
 //And another 10 if user clicks again and so on?

@@ -188,6 +188,15 @@
       .selectCategoryList.selected {
         background-color: #d74f3aea; /* Background color for selected element */
       }
+      .noUserBtmUpload {
+        margin-left: 20px;
+        font-size: 18px;
+      }
+      .noUserBtmUpload span {
+        cursor: pointer;
+        font-weight: bold;
+        color: blue;
+      }
 }
 
 
