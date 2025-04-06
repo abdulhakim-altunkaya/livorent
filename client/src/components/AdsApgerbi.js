@@ -57,29 +57,33 @@ function AdsApgerbi() {
                 <>
                   <div className='tableMainCategoryArea'>
                     <table className='tableMainCategory'>
-                      <thead>
-                        <tr>
-                          <th className='column1' scope="col"></th>
-                          <th className='column2' scope="col">Sludinājumi</th>
-                          <th className='column3' scope="col">Informācija</th>
-                          <th className='column4' scope="col">Cena</th>
-                          <th className='column5' scope="col">Pilsēta</th>
+                    <thead>
+                      <tr>
+                        <th className='column1' scope="col"></th>
+                        <th className='column2' scope="col">Sludinājumi</th>
+                        <th className='column3' scope="col">Informācija</th>
+                        <th className='column4' scope="col">Cena</th>
+                        <th className='column5' scope="col">Pilsēta</th>
+                      </tr>
+                    </thead> 
+                    <tbody>
+                      {message.map(record => (
+                        <tr key={record.id} className='tableRows'>
+                          <td onClick={() => navigate(`/item/${record.id}`)} className='imgContainerTd'>
+                            <img src={record.image_url[0]} alt='small pic of advertisement'/>
+                          </td>
+                          <td onClick={() => navigate(`/item/${record.id}`)} className='cell2'>
+                            {record.title.length > 100 ? `${record.title.substring(0, 100)}...` : record.title}
+                          </td>
+                          <td onClick={() => navigate(`/item/${record.id}`)} className='cell3'>
+                            {record.description.length > 200 ? `${record.description.substring(0, 200)}...` : record.description}
+                          </td>
+                          <td onClick={() => navigate(`/item/${record.id}`)} className='cell4'>{record.price}</td>
+                          <td onClick={() => navigate(`/item/${record.id}`)} className='cell5'>{record.city}</td>
                         </tr>
-                      </thead> 
-                      <tbody>
-                        {message.map( record => (
-                          <tr key={record.id} className='tableRows'>
-                            <td onClick={() => navigate(`/item/${record.id}`)} className='imgContainerTd'>
-                               <img src={record.image_url[0]} alt='small pic of advertisement'/>
-                            </td>
-                            <td onClick={() => navigate(`/item/${record.id}`)} className='cell2'>{record.title}</td>
-                            <td onClick={() => navigate(`/item/${record.id}`)} className='cell3'>{record.description}</td>
-                            <td onClick={() => navigate(`/item/${record.id}`)} className='cell4'>{record.price}</td>
-                            <td onClick={() => navigate(`/item/${record.id}`)} className='cell5'>{record.city}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                      ))}
+                    </tbody>
+                  </table>
                   </div>
                 </>
               ) : (
