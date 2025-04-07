@@ -97,13 +97,14 @@ function BtmProfile() {
                           <th className='columnProfile3' scope="col">Informācija</th>
                           <th className='columnProfile4' scope="col">Cena</th>
                           <th className='columnProfile5' scope="col">Pilsēta</th>
+                          <th className='columnProfile5' scope="col"></th>
                         </tr>
                       </thead>
                       <tbody>
                         {message.map( record => (
                           <tr key={record} className='tableRowsProfile'>
                             <td onClick={() => navigate(`/item/${record.id}`)} className='imgContainerCell'> 
-                              <img src={record.image_url[0]} alt='a small pic of ad'/></td>
+                              <img className='adMainImage' src={record.image_url[0]} alt='a small pic of ad'/></td>
                             <td onClick={() => navigate(`/item/${record.id}`)} className='cellProfile2'>
                               {record.title.length > 100 
                                 ? `${record.title.substring(0, 100)}...` 
@@ -116,6 +117,16 @@ function BtmProfile() {
                             </td>
                             <td onClick={() => navigate(`/item/${record.id}`)} className='cellProfile4'>{record.price}</td>
                             <td onClick={() => navigate(`/item/${record.id}`)} className='cellProfile5'>{record.city}</td>
+                            <td className='cellProfile6'>
+                              <div className='profileListButtonsArea'>
+                                <span>Atjaunināt</span>
+                                <span className='profileListIcons'><img src='/svg_delete.svg' alt='Delete icon'/></span>
+                              </div>
+                              <div className='profileListButtonsArea profileListButtonsAreaLower'>
+                                <span>Dzēst</span>
+                                <span className='profileListIcons'><img src='/svg_update2.svg' alt='Update icon'/></span>
+                              </div>
+                            </td>
                           </tr>
                         ))}
                       </tbody>

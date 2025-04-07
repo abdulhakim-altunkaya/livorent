@@ -34,7 +34,7 @@
     cursor: pointer;
 }
 
-.tableRowsProfile img {
+.adMainImage {
     max-width: 100%;
     max-height: 90px; /* Increased from 75px */
     width: auto; /* Let the width adjust proportionally */
@@ -51,7 +51,21 @@
     padding: 10px;
     cursor: pointer;
 }
-
+.cellProfile6 {
+    border-bottom: 2px dashed #c0c0c0;
+    padding: 1px;
+}
+.profileListButtonsArea {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid red;
+    margin: 5px;
+}
+.profileListIcons img {
+    width: 22px;
+}
 .errorFieldProfile {
     font-size: 15px;
     font-style: italic;
@@ -104,7 +118,6 @@
   top: 5px;
   left: 5px;
 }
-
 
 @media (min-width: 768px) {
   .button-54 {
