@@ -90,7 +90,7 @@ function BtmProfile() {
                 <>
                   <div className='tableProfileArea'>
                     <table className='tableMainCategory'>
-                      <thead>
+                      <thead> 
                         <tr>
                           <th className='columnProfile1' scope="col"></th>
                           <th className='columnProfile2' scope="col">Sludinājumi</th>
@@ -102,19 +102,20 @@ function BtmProfile() {
                       <tbody>
                         {message.map( record => (
                           <tr key={record} className='tableRowsProfile'>
-                            <td className='imgContainerCell'> <img src={record.image_url[0]} alt='a small pic of ad'/></td>
-                            <td className='cellProfile2'>
+                            <td onClick={() => navigate(`/item/${record.id}`)} className='imgContainerCell'> 
+                              <img src={record.image_url[0]} alt='a small pic of ad'/></td>
+                            <td onClick={() => navigate(`/item/${record.id}`)} className='cellProfile2'>
                               {record.title.length > 100 
                                 ? `${record.title.substring(0, 100)}...` 
                                 : record.title}
                             </td>
-                            <td className='cellProfile3'>
+                            <td onClick={() => navigate(`/item/${record.id}`)} className='cellProfile3'>
                               {record.description.length > 200 
                                 ? `${record.description.substring(0, 200)}...` 
                                 : record.description}
                             </td>
-                            <td className='cellProfile4'>{record.price}</td>
-                            <td className='cellProfile5'>{record.city}</td>
+                            <td onClick={() => navigate(`/item/${record.id}`)} className='cellProfile4'>{record.price}</td>
+                            <td onClick={() => navigate(`/item/${record.id}`)} className='cellProfile5'>{record.city}</td>
                           </tr>
                         ))}
                       </tbody>

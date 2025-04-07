@@ -18,7 +18,11 @@
 }
 .tableRowsProfile {
     height: 80px;
-    
+}
+.tableRowsProfile:hover {
+    background-color: #e5e4e4d1;
+    color:#120fcb;
+    font-weight: bolder;
 }
 .imgContainerCell {
     display: flex;
@@ -27,6 +31,7 @@
     padding: 5px;          /* Add some padding */
     height: 100px; /* Increased from 80px to give more space */
     min-width: 120px; /* Add minimum width to prevent squeezing */
+    cursor: pointer;
 }
 
 .tableRowsProfile img {
@@ -44,6 +49,7 @@
 .cellProfile2, .cellProfile3, .cellProfile4, .cellProfile5 {
     border-bottom: 2px dashed #c0c0c0;
     padding: 10px;
+    cursor: pointer;
 }
 
 .errorFieldProfile {

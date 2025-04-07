@@ -19,12 +19,8 @@ function BtmLogin() {
         loginEmail: email, 
         loginPasstext: passtext
       };
-      console.log(loginObject);
-
-
       const res1 = await axios.post("http://localhost:5000/api/login", loginObject);
       setResultArea(res1.data.myMessage);
-
       // Servers sends ok message and token upon successful login,
       // and we save token in localStorage
       if (res1.data.token) {
