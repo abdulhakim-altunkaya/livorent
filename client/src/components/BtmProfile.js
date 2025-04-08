@@ -16,6 +16,7 @@ function BtmProfile() {
   const [userData, setUserData] = useState(null);
   const [errorFrontend, setErrorFrontend] = useState(null); // Add error state
   const [loading, setLoading] = useState(true); // Add loading state
+  const [isSure, setIsSure] = useState(false);
 
   useEffect(() => {
     const getData = async () => {
@@ -51,6 +52,20 @@ function BtmProfile() {
     localStorage.removeItem("token_livorent");
     localStorage.removeItem("visitorNumber");
     navigate("/");
+  }
+
+  const toggleDelete = () => {
+    setIsSure(true);
+  }
+  const cancelDelete = () => {
+    setIsSure(false);
+  }
+  const deleteAd = () => {
+    return;
+  }
+
+  const updateAd = () => {
+    return;
   }
 
   return (
@@ -118,13 +133,15 @@ function BtmProfile() {
                             <td onClick={() => navigate(`/item/${record.id}`)} className='cellProfile4'>{record.price}</td>
                             <td onClick={() => navigate(`/item/${record.id}`)} className='cellProfile5'>{record.city}</td>
                             <td className='cellProfile6'>
-                              <div className='profileListButtonsArea'>
-                                <span>Atjaunināt</span>
-                                <span className='profileListIcons'><img src='/svg_delete.svg' alt='Delete icon'/></span>
+                              <div className='profileListButtonsArea' 
+                                onClick={() => updateAd(record.id)}>
+                                  <span>Atjaunināt</span>
+                                  <span className='profileListIcons'><img src='/svg_update2.svg' alt='Update icon'/></span>
                               </div>
-                              <div className='profileListButtonsArea profileListButtonsAreaLower'>
-                                <span>Dzēst</span>
-                                <span className='profileListIcons'><img src='/svg_update2.svg' alt='Update icon'/></span>
+                              <div className='profileListButtonsArea profileListButtonsAreaLower' 
+                                onClick={() => deleteAd(record.id)}>
+                                  <span>Dzēst</span>
+                                  <span className='profileListIcons'><img src='/svg_delete.svg' alt='Delete icon'/></span>
                               </div>
                             </td>
                           </tr>

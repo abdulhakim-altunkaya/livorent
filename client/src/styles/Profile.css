@@ -54,14 +54,24 @@
 .cellProfile6 {
     border-bottom: 2px dashed #c0c0c0;
     padding: 1px;
+    background-color: white !important;
+    color: black !important;
+    font-weight:initial !important; 
 }
 .profileListButtonsArea {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    border: 2px solid red;
-    margin: 5px;
+    background-color: #beddf8;
+    font-size: 14px;
+    margin: 2px;
+    padding: 5px;
+    cursor: pointer;
+}
+.profileListButtonsArea:hover {
+    font-weight: bolder;
+    background-color: #6fb6f5;
 }
 .profileListIcons img {
     width: 22px;
