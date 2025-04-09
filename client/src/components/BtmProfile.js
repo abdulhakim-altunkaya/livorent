@@ -16,7 +16,7 @@ function BtmProfile() {
   const [userData, setUserData] = useState(null);
   const [errorFrontend, setErrorFrontend] = useState(null); // Add error state
   const [loading, setLoading] = useState(true); // Add loading state
-  const [isSure, setIsSure] = useState(false);
+  const [resultArea, setResultArea] = useState("");
 
   useEffect(() => {
     const getData = async () => {
@@ -54,17 +54,34 @@ function BtmProfile() {
     navigate("/");
   }
 
-  const toggleDelete = () => {
-    setIsSure(true);
-  }
-  const cancelDelete = () => {
-    setIsSure(false);
-  }
-  const deleteAd = () => {
-    return;
-  }
 
-  const updateAd = () => {
+
+  const deleteAd = async (n) => {
+    // This will show a browser confirmation dialog with OK/Cancel buttons
+    const adNumber = Number(n)
+    const userConfirmed = window.confirm(
+      "Jūsu konts tiks dzēsts pēc 6 mēnešu neaktivitātes\n\nVai vēlaties turpināt?"
+    );
+    //userConfirmed means user confirmed delete operation.
+    if (userConfirmed) {
+      try {
+        // Get current state before deletion
+        const currentAds = [...message];
+        // Filter out the deleted item
+        const updatedAds = currentAds.filter(ad => ad.id !== adNumber);
+        // Update state
+        setMessage(updatedAds);
+        await axios.delete(`http://localhost:5000/api/delete/item/${adNumber}`);
+        window.location.reload(); // ← Force page refresh
+      } catch (error) {
+        setResultArea(error.response?.data?.error || "Dzēšanas kļūda"); // Red error toast
+      }
+    } else {
+      return;
+    }
+  };
+
+  const updateAd = (n) => {
     return;
   }
 
@@ -117,7 +134,7 @@ function BtmProfile() {
                       </thead>
                       <tbody>
                         {message.map( record => (
-                          <tr key={record} className='tableRowsProfile'>
+                          <tr key={record.id} className='tableRowsProfile'>
                             <td onClick={() => navigate(`/item/${record.id}`)} className='imgContainerCell'> 
                               <img className='adMainImage' src={record.image_url[0]} alt='a small pic of ad'/></td>
                             <td onClick={() => navigate(`/item/${record.id}`)} className='cellProfile2'>
@@ -135,13 +152,13 @@ function BtmProfile() {
                             <td className='cellProfile6'>
                               <div className='profileListButtonsArea' 
                                 onClick={() => updateAd(record.id)}>
-                                  <span>Atjaunināt</span>
-                                  <span className='profileListIcons'><img src='/svg_update2.svg' alt='Update icon'/></span>
+                                <span>Atjaunināt</span>
+                                <span className='profileListIcons'><img src='/svg_update2.svg' alt='Update icon'/></span>
                               </div>
-                              <div className='profileListButtonsArea profileListButtonsAreaLower' 
+                              <div className='profileListButtonsArea profileListButtonsAreaLower'
                                 onClick={() => deleteAd(record.id)}>
-                                  <span>Dzēst</span>
-                                  <span className='profileListIcons'><img src='/svg_delete.svg' alt='Delete icon'/></span>
+                                <span>Dzēst</span>
+                                <span className='profileListIcons'><img src='/svg_delete.svg' alt='Delete icon'/></span>
                               </div>
                             </td>
                           </tr>

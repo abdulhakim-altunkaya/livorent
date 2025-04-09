@@ -79,13 +79,14 @@ function BtmUpload() {
           });
         } else {
           alert("Lūdzu, augšupielādējiet vismaz 1 un ne vairāk kā 4 attēlus.");  // Latvian: Please upload at least 1 and no more than 4 images.
+          return;
         }
 
       const res1 = await axios.post("http://localhost:5000/serversavead", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      setResultArea(res1.data.myMessage);
-
+      setResultArea(`${res1.data.myMessage} ✅`);  // Emoji U+2705
+      alert("ad saved");
     } catch (error) {
       if (error.response) {
         setResultArea(error.response.data.myMessage);
@@ -99,7 +100,6 @@ function BtmUpload() {
 
   return (
     <>
-
     {
       myNum < 1 ?
       (

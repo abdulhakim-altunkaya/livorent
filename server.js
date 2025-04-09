@@ -386,7 +386,31 @@ app.post("/api/update", async (req, res) => {
     client.release();
   } 
 });
-
+app.delete("/api/delete/item/:itemNumber", async (req, res) => {
+  const { itemNumber } = req.params;
+  let client;
+  if(!itemNumber) {
+    return res.status(404).json({myMessage: "No item number detected"});
+  }
+  try {
+    client = await pool.connect();
+    const result = await client.query(
+      `DELETE FROM livorent_ads WHERE id = $1`,
+      [itemNumber]
+    );
+    res.status(200).json({ message: "Sludinājums veiksmīgi dzēsts" }); 
+    if (result.rowCount > 0) {
+      console.log("Sludinājums veiksmīgi dzēsts"); // "Advertisement deleted successfully"
+    } else {
+      console.log("Sludinājums nav atrasts" ); // "Advertisement not found"
+    }
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({myMessage: "Error at the Backend: database connection error"})
+  } finally {
+    if(client) client.release();
+  }
+});
 //This line must be under all server routes. Otherwise you will have like not being able to fetch comments etc.
 //This code helps with managing routes that are not defined on react frontend. If you dont add, only index 
 //route will be visible.
@@ -442,6 +466,7 @@ check time limits on post routes . They are not 1 minute, if so, convert them to
 ip check to make sure same ip can upload once in 5 minutes and twice in 24 hour 
 also create a signout option to allow a new user to sign in from the same computer. 
 */
+//When deleting an ad, make sure its images are also deleted
 //remove console.log statements from all components and server.js
 //convert all error, success and alert messages to Latvian, also buttons and any other text
 //add a password renewal in case of repetitive wrong login attemps
