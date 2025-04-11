@@ -1,0 +1,38 @@
+
+.updateImgArea {
+    width: 200px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;        /* Vertical center */
+    justify-content: center;    /* Horizontal center */
+    margin-bottom: 3px;
+    border: 2px gray solid;
+    border-radius: 5px;
+}
+.updateImgArea:hover {
+    background-color: #a9cbcb;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.8); /* Black shadow on all sides */
+}
+.updateImgSpan {
+    height: 90px;
+    width: 90px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.updateImgDeleteIconSpan {
+    height: 100px;
+    width: 100px; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.updateImg {
+    width: 90px;
+    height: auto; /* Maintain aspect ratio */
+}
+.updateImgDeleteIcon {
+    width: 25px;
+    height: auto; /* Maintain aspect ratio */
+    cursor: pointer;
+}

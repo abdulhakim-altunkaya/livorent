@@ -411,6 +411,75 @@ app.delete("/api/delete/item/:itemNumber", async (req, res) => {
     if(client) client.release();
   }
 });
+app.post("/api/profile/update/ad", upload.array("images", 4), async (req, res) => {
+  //preventing spam comments
+  const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
+  // Check if IP exists in cache and if last comment was less than 1 minute ago
+  if (ipCache3[ipVisitor] && Date.now() - ipCache3[ipVisitor] < 1000) {
+    return res.status(429).json({myMessage: 'Too many uploads from this visitor'});
+  }
+  ipCache3[ipVisitor] = Date.now();//save visitor ip to ipCache3
+
+  // Check if the IP is in the ignored list
+  if (ignoredIPs.includes(ipVisitor)) {
+    return res.status(429).json({myMessage: 'Visitor is banned'}); 
+  }
+
+  let client;
+  const adData = JSON.parse(req.body.adData);  // ✅ Parse the JSON string
+  const { adTitle, adDescription, adPrice, adCity, adName, adTelephone, adCategory, adVisitorNumber } = adData;
+
+  const visitorData = {
+    ip: ipVisitor,
+    visitDate: new Date().toLocaleDateString('en-GB')
+  };
+
+  //IMAGE UPLOAD
+  const files = req.files;
+  let uploadedImageUrls = [];
+  // Supported image file types
+  const allowedMimeTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+  for (const file of files) {
+    const fileName = `${Date.now()}-${file.originalname}`;
+    const { data, error } = await supabase.storage
+                .from("livo") // Supabase Storage Bucket
+                .upload(fileName, file.buffer, {
+                    contentType: file.mimetype,
+                    cacheControl: "3600",
+                    upsert: false,
+                });
+    if (error) {
+        console.error("Supabase Upload Error:", error);
+        return res.status(500).json({ error: "Error uploading file to storage." });
+    }
+    const imageUrl = `${process.env.SUPABASE_URL}/storage/v1/object/public/livo/${fileName}`;
+    uploadedImageUrls.push(imageUrl);
+  }
+
+  //CATEGORY DATA MANAGEMENT
+  //First digit of each number represent its main category. The number itself is its section category.
+  const stringNum = adCategory.toString(); // Convert number to string
+  const mainCategoryNum = parseInt(stringNum[0], 10); // Convert first character back to number
+  const sectionCategoryNum = parseInt(adCategory); // Convert second character back to number
+
+  try {
+    client = await pool.connect();
+    const result = await client.query(
+      `INSERT INTO livorent_ads 
+      (title, description, price, city, name, telephone, ip, date, image_url, main_group, sub_group, user_id) 
+      values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
+      [adTitle, adDescription, adPrice, adCity, adName, adTelephone, visitorData.ip, 
+        visitorData.visitDate, JSON.stringify(uploadedImageUrls), mainCategoryNum, sectionCategoryNum, adVisitorNumber]
+    );
+    res.status(201).json({myMessage: "Ad saved"});
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({myMessage: error.message})
+  } finally {
+    client.release();
+  } 
+
+});
 //This line must be under all server routes. Otherwise you will have like not being able to fetch comments etc.
 //This code helps with managing routes that are not defined on react frontend. If you dont add, only index 
 //route will be visible.
@@ -466,6 +535,7 @@ check time limits on post routes . They are not 1 minute, if so, convert them to
 ip check to make sure same ip can upload once in 5 minutes and twice in 24 hour 
 also create a signout option to allow a new user to sign in from the same computer. 
 */
+//Currently I can enter into any profile. Prevent that. Registered people should only their profile, not any.
 //When deleting an ad, make sure its images are also deleted
 //remove console.log statements from all components and server.js
 //convert all error, success and alert messages to Latvian, also buttons and any other text

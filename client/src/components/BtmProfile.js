@@ -14,6 +14,7 @@ function BtmProfile() {
   const { visitorNumber } = useParams();
   const [message, setMessage] = useState(null); // Initialize with null to better handle initial state
   const [userData, setUserData] = useState(null);
+  const [itemDataUpdate, setItemDataUpdate] = useState(null);
   const [errorFrontend, setErrorFrontend] = useState(null); // Add error state
   const [loading, setLoading] = useState(true); // Add loading state
   const [resultArea, setResultArea] = useState("");
@@ -82,7 +83,8 @@ function BtmProfile() {
   };
 
   const updateAd = (n) => {
-    return;
+    const adNumber = Number(n)
+    navigate(`/profile/update-ad/${adNumber}`, {state: { userData2: userData } })
   }
 
   return (
@@ -185,3 +187,28 @@ function BtmProfile() {
 }
 
 export default BtmProfile
+
+
+const updateAd = (n) => {
+  const adNumber = Number(n);
+  // Find the full record data from the message array
+  const record = message.find(item => item.id === adNumber);
+  if (record) {
+    // Update Zustand store with the item data (new cachedItemData pattern)
+    useUserStore.getState().setCachedItemData(record);
+    // Navigate with state (unchanged from your original)
+    navigate(`/profile/update-account/${adNumber}`, { state: { itemData: record } });
+  }
+};
+
+
+{message.map( record => (
+  <tr key={record.id} className='tableRowsProfile'>
+    <td onClick={() => navigate(`/item/${record.id}`)} className='imgContainerCell'> 
+      <img className='adMainImage' src={record.image_url[0]} alt='a small pic of ad'/></td>
+    <td className='cellProfile6'>
+      <div className='profileListButtonsArea' 
+        onClick={() => updateAd(record.id)}>
+        <span>Atjaunināt</span>
+        <span className='profileListIcons'><img src='/svg_update2.svg' alt='Update icon'/></span>
+      </div>

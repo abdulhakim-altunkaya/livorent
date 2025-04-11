@@ -1,9 +1,15 @@
 import { create } from 'zustand';
 
 const useUserStore = create((set) => ({
-  cachedUserData: {},          // Stores user data globally
-  setCachedUserData: (data) => set({ cachedUserData: data }),  // Updates cache
-  clearCachedUserData: () => set({ cachedUserData: {} }),      // Clears cache
+  // user data. From BtmProfile to BtmProfileUpdate component
+  cachedUserData: {},
+  setCachedUserData: (data) => set({ cachedUserData: data }),
+  clearCachedUserData: () => set({ cachedUserData: {} }),
+
+  // item data. From BtmProfile to BtmProfileAdUpdate component.
+  cachedItemData: {},          // Stores item data globally
+  setCachedItemData: (data) => set({ cachedItemData: data }),  // Updates item cache
+  clearCachedItemData: () => set({ cachedItemData: {} }),      // Clears item cache
 }));
 
 export default useUserStore;
