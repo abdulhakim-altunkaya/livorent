@@ -1,12 +1,19 @@
+//Highlight the already selectedArea
+//add new images to already existing image array. I think you will do this on the backend. Think more 
+//Also if image is deleted, so it will be deleted also on database
+//Also add a check to make sure total number of images cannot be more than 5
 import React, {useState, useEffect} from "react";
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation  } from "react-router-dom";
 import axios from "axios";
 import "../styles/upload.css";
 import "../styles/ProfileAdUpdate.css";
 import Footer from "./Footer";
 import { getUserId } from './utilsAuth'; 
+import useUserStore from '../store/userStore';
 
 function BtmProfileAdUpdate() {
+  const navigate = useNavigate();
+  const { adNumber } = useParams();
   //we will check if there is token and user id exist in local storage. If there is 
   //we will let the visitor to see upload component. The lines below are for this purpose
   //they will check that by using utilsAuth function. if user id is not bigger than 1, than it means
@@ -14,44 +21,22 @@ function BtmProfileAdUpdate() {
   const userIdData = getUserId(); // This returns an object { userNumber }
   const userId = userIdData.userNumber; // Get the actual number
 
-  const navigate = useNavigate();
+  //we cached item data when item (an ad among the table of ads) was clicked on BtmProfile page. 
+  //then we navigated to this component. Now, instead of making a request to backend and database to fetch
+  //item data we can easily get it from cached item data.
+  const { cachedItemData } = useUserStore.getState();
 
-  const { adNumber } = useParams();
+  const [title, setTitle] = useState(cachedItemData.title);
+  const [description, setDescription] = useState(cachedItemData.description);
+  const [price, setPrice] = useState(cachedItemData.price);
+  const [city, setCity] = useState(cachedItemData.city);
+  const [images, setImages] = useState(cachedItemData.image_url); // New state for image files
+  const [newImages, setNewImages] = useState([])
+  const [selectedCategory, setSelectedCategory] = useState(cachedItemData.sub_group);
 
-  const [message, setMessage] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [errorFrontend, setErrorFrontend] = useState("");
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [price, setPrice] = useState("");
-  const [city, setCity] = useState("");
-  const [images, setImages] = useState([]); // New state for image files
   const [resultArea, setResultArea] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("");
+  
   const visitorNumberFromStorage = Number(localStorage.getItem("visitorNumber"));
-
-  useEffect(() => {
-    const getData = async () => {
-      try {
-        const response = await axios.get(`http://localhost:5000/api/get/item/${adNumber}`);
-        setMessage(response.data);
-        setTitle(message.title);
-        setDescription(message.description);
-        setPrice(message.price);
-        setCity(message.city);
-        setImages(message.image_url);
-        setSelectedCategory(message.sub_group);
-      } catch (error) {
-        setErrorFrontend("Error: item details could not be fetched");
-        console.log(error.message)
-      } finally {
-        setLoading(false);
-      }
-    };
-    getData();
-  }, [adNumber]);
-
-
 
   const saveCategoryNumber = (n) => {
     setSelectedCategory(n);
@@ -63,7 +48,7 @@ function BtmProfileAdUpdate() {
       alert("You can upload a maximum of 4 images.");
       return;
     }
-    setImages(selectedFiles);
+    setNewImages(selectedFiles);
   };
 
   //files names of visitors can crash the database or server. So, we will convert them to 
@@ -95,17 +80,17 @@ function BtmProfileAdUpdate() {
       const formData = new FormData();
       formData.append("adData", JSON.stringify(adObject)); // Send ad data as JSON string
 
-        // ✅ Check if images array has between 1 and 4 images
-        if (images.length >= 1 && images.length <= 4) {
-          images.forEach((image) => {
-            const uniqueFileName = generateUniqueFileName();
-            const renamedFile = new File([image], uniqueFileName, { type: image.type });
-            formData.append("images", renamedFile);
-          });
-        } else {
-          alert("Lūdzu, augšupielādējiet vismaz 1 un ne vairāk kā 4 attēlus.");  // Latvian: Please upload at least 1 and no more than 4 images.
-          return;
-        }
+      // ✅ Check if images array has between 1 and 4 images
+      if (images.length >= 1 && images.length <= 4) {
+        images.forEach((image) => {
+          const uniqueFileName = generateUniqueFileName();
+          const renamedFile = new File([image], uniqueFileName, { type: image.type });
+          formData.append("images", renamedFile);
+        });
+      } else {
+        alert("Lūdzu, augšupielādējiet vismaz 1 un ne vairāk kā 4 attēlus.");  // Latvian: Please upload at least 1 and no more than 4 images.
+        return;
+      }
 
       const res1 = await axios.post("http://localhost:5000/serversavead", formData, {
         headers: { "Content-Type": "multipart/form-data" },
@@ -126,11 +111,6 @@ function BtmProfileAdUpdate() {
   return (
     <>
     {
-      loading ?
-        (<div>loading....</div>)
-      :
-
-      ( 
         userId < 1 ?
         (
           <div className="noUserBtmUpload">Lai pievienotu sludinājumus, jābūt reģistrētam. 
@@ -187,7 +167,7 @@ function BtmProfileAdUpdate() {
                 </div>
               <div>
               <div>
-                {message?.image_url?.map((imageLink, index) => (
+                {images.map((imageLink, index) => (
                   <div className="updateImgArea" key={index}>
                     <span className='updateImgSpan'>
                       <img className='updateImg' src={imageLink} alt='a small pic of ad'/>
@@ -338,7 +318,7 @@ function BtmProfileAdUpdate() {
             <Footer />
           </div>
         )
-      )
+      
     }
     
     </>

@@ -82,10 +82,30 @@ function BtmProfile() {
     }
   };
 
+  //1. We get userData from backend.
+  //2. We also save userData to Zustand Storage as cachedUserData. We will use this later at step 4.
+  //3. When updating profile, we send userData from BtmProfile to BtmUpdateProfile component on the useNavigate hook.
+  //Here actually, instead of sending data on useNavigate hook, we could use the same data on BtmUpdateProfile
+  //component by making a call to the Zustand cachedUserData.  But i didnt do that because I want to know how to use
+  //useNavigate data transfer technique. However, I will use it only here. In other components such as AD UPDATE component
+  //I will use the data in the Zustand storage.
+
+  //4. When we finish updating and return back to the BtmProfile, we check if there is a cachedUserData. If there is 
+  //it is good, because now we do not have to make another request to backend to populate areas on the page.
+  //5. When we want to update an ad, we first find the ad, save it to Zustand storage and then navigate to the 
   const updateAd = (n) => {
-    const adNumber = Number(n)
-    navigate(`/profile/update-ad/${adNumber}`, {state: { userData2: userData } })
-  }
+    const adNumber = Number(n);
+    // Find the full record data from the message array
+    const record = message.find(item => Number(item.id) === adNumber);
+    console.log(adNumber)//displays correct number 19
+    console.log(record);//returns "undefined"
+    if (record) {
+      // Update Zustand store with the item data (new cachedItemData pattern)
+      useUserStore.getState().setCachedItemData(record);
+      // Navigate with state (unchanged from your original)
+      navigate(`/profile/update-ad/${adNumber}`);
+    }
+  };
 
   return (
     <div>
@@ -186,29 +206,4 @@ function BtmProfile() {
   )
 }
 
-export default BtmProfile
-
-
-const updateAd = (n) => {
-  const adNumber = Number(n);
-  // Find the full record data from the message array
-  const record = message.find(item => item.id === adNumber);
-  if (record) {
-    // Update Zustand store with the item data (new cachedItemData pattern)
-    useUserStore.getState().setCachedItemData(record);
-    // Navigate with state (unchanged from your original)
-    navigate(`/profile/update-account/${adNumber}`, { state: { itemData: record } });
-  }
-};
-
-
-{message.map( record => (
-  <tr key={record.id} className='tableRowsProfile'>
-    <td onClick={() => navigate(`/item/${record.id}`)} className='imgContainerCell'> 
-      <img className='adMainImage' src={record.image_url[0]} alt='a small pic of ad'/></td>
-    <td className='cellProfile6'>
-      <div className='profileListButtonsArea' 
-        onClick={() => updateAd(record.id)}>
-        <span>Atjaunināt</span>
-        <span className='profileListIcons'><img src='/svg_update2.svg' alt='Update icon'/></span>
-      </div>
+export default BtmProfile;

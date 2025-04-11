@@ -5,10 +5,9 @@ import "../styles/ProfileUpdate.css";
 import Footer from "./Footer";
 
 
-function BtmProfileUpdate() {
+function BtmProfileUpdate() { 
   const navigate = useNavigate();
   const { visitorNumber } = useParams();
-
 
   const { state } = useLocation(); //this data is coming from BtmProfile component. It contains userData.
   //we used keyword "state" here. You can think this keyword as a variable pointing userData. userData values 
