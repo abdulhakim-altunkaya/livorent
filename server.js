@@ -339,7 +339,7 @@ app.get("/api/get/item/:itemNumber", async (req, res) => {
     if(client) client.release();
   }
 });
-
+ 
 app.post("/api/update", async (req, res) => {
   //preventing spam signups
   const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
@@ -411,7 +411,7 @@ app.delete("/api/delete/item/:itemNumber", async (req, res) => {
     if(client) client.release();
   }
 });
-app.post("/api/profile/update/ad", upload.array("images", 4), async (req, res) => {
+app.patch("/api/profile/update-ad", upload.array("adUpdateImages", 5), async (req, res) => { 
   //preventing spam comments
   const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
   // Check if IP exists in cache and if last comment was less than 1 minute ago
@@ -426,16 +426,31 @@ app.post("/api/profile/update/ad", upload.array("images", 4), async (req, res) =
   }
 
   let client;
-  const adData = JSON.parse(req.body.adData);  // ✅ Parse the JSON string
-  const { adTitle, adDescription, adPrice, adCity, adName, adTelephone, adCategory, adVisitorNumber } = adData;
+  const adData = JSON.parse(req.body.adUpdateData);  // ✅ Parse the JSON string
+  const { adNumber, adTitle, adDescription, adPrice, adCity, adCategory, adVisitorNumber } = adData;
 
   const visitorData = {
     ip: ipVisitor,
-    visitDate: new Date().toLocaleDateString('en-GB')
-  };
+    visitDate: formatDateReverse(new Date())
+  };  
+  function formatDateReverse(date) {
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Month is 0-indexed, so add 1
+    const day = date.getDate().toString().padStart(2, '0');
+    return `${year}/${month}/${day}`;
+  }
+
+  //CATEGORY DATA MANAGEMENT
+  //First digit of each number represent its main category. The number itself is its section category.
+  const stringNum = adCategory.toString(); // Convert number to string
+  const mainCategoryNum = parseInt(stringNum[0], 10); // Convert first character back to number
+  const sectionCategoryNum = parseInt(adCategory); // Convert second character back to number
+
 
   //IMAGE UPLOAD
   const files = req.files;
+  console.log("FILES RECEIVED:", req.files);
+
   let uploadedImageUrls = [];
   // Supported image file types
   const allowedMimeTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
@@ -455,23 +470,53 @@ app.post("/api/profile/update/ad", upload.array("images", 4), async (req, res) =
     const imageUrl = `${process.env.SUPABASE_URL}/storage/v1/object/public/livo/${fileName}`;
     uploadedImageUrls.push(imageUrl);
   }
+  
 
-  //CATEGORY DATA MANAGEMENT
-  //First digit of each number represent its main category. The number itself is its section category.
-  const stringNum = adCategory.toString(); // Convert number to string
-  const mainCategoryNum = parseInt(stringNum[0], 10); // Convert first character back to number
-  const sectionCategoryNum = parseInt(adCategory); // Convert second character back to number
+
+  client = await pool.connect();
+  //Get existing images and later we will mix existing and new images and save allImages to database
+  const existingImages = await client.query(
+    `SELECT image_url FROM livorent_ads WHERE id = $1`,
+    [adNumber]
+  );
+  //we also need to unstringfy the existing list. Later we will combine existing and new list.
+  //And stringify them again before sending it to database.
+  //Note: rows[0] means: existingImages is an object that may contain more than 1 record. 
+  // Just to be sure, we use  rows[0] to get the first record.
+  let existingImageUrls = [];
+  if (existingImages.rows.length > 0 && existingImages.rows[0].image_url) {
+      try {
+          existingImageUrls = typeof existingImages.rows[0].image_url === 'string'
+              ? JSON.parse(existingImages.rows[0].image_url)
+              : existingImages.rows[0].image_url;
+      } catch (e) {
+          console.error("Error parsing image_url:", e);
+          existingImageUrls = []; // Fallback to empty array
+      }
+  }
+  // 2. Combine the existing URLs with the newly uploaded URLs
+  const allImageUrls = [...existingImageUrls, ...uploadedImageUrls];
+
 
   try {
     client = await pool.connect();
     const result = await client.query(
-      `INSERT INTO livorent_ads 
-      (title, description, price, city, name, telephone, ip, date, image_url, main_group, sub_group, user_id) 
-      values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
-      [adTitle, adDescription, adPrice, adCity, adName, adTelephone, visitorData.ip, 
-        visitorData.visitDate, JSON.stringify(uploadedImageUrls), mainCategoryNum, sectionCategoryNum, adVisitorNumber]
+      `UPDATE livorent_ads
+       SET title = $1,
+           description = $2,
+           price = $3,
+           city = $4,
+           update_date = $5,
+           main_group = $6,
+           sub_group = $7,
+           image_url = $8
+       WHERE id = $9`, 
+      [adTitle, adDescription, adPrice, adCity,
+       visitorData.visitDate, mainCategoryNum, 
+       sectionCategoryNum, JSON.stringify(allImageUrls), adNumber]
     );
-    res.status(201).json({myMessage: "Ad saved"});
+    //,
+    res.status(201).json({myMessage: "Ad updated"});
   } catch (error) {
     console.log(error.message);
     res.status(500).json({myMessage: error.message})

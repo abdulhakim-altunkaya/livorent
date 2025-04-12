@@ -1,9 +1,10 @@
 //Highlight the already selectedArea
-//add new images to already existing image array. I think you will do this on the backend. Think more 
-//Also if image is deleted, so it will be deleted also on database
+//return back to the list after update
+//add delete operation
+//make sure only the profile owner can update
 //Also add a check to make sure total number of images cannot be more than 5
-import React, {useState, useEffect} from "react";
-import { useNavigate, useParams, useLocation  } from "react-router-dom";
+import React, {useState} from "react";
+import { useNavigate, useParams} from "react-router-dom";
 import axios from "axios";
 import "../styles/upload.css";
 import "../styles/ProfileAdUpdate.css";
@@ -12,14 +13,19 @@ import { getUserId } from './utilsAuth';
 import useUserStore from '../store/userStore';
 
 function BtmProfileAdUpdate() {
+
   const navigate = useNavigate();
   const { adNumber } = useParams();
+
   //we will check if there is token and user id exist in local storage. If there is 
   //we will let the visitor to see upload component. The lines below are for this purpose
   //they will check that by using utilsAuth function. if user id is not bigger than 1, than it means
   //visitor is not registered and cannot upload.
   const userIdData = getUserId(); // This returns an object { userNumber }
   const userId = userIdData.userNumber; // Get the actual number
+
+  //The same as userId. This one we will send to backend. We can send the userId also, it is the same.
+  const visitorNumberFromStorage = Number(localStorage.getItem("visitorNumber"));
 
   //we cached item data when item (an ad among the table of ads) was clicked on BtmProfile page. 
   //then we navigated to this component. Now, instead of making a request to backend and database to fetch
@@ -30,25 +36,36 @@ function BtmProfileAdUpdate() {
   const [description, setDescription] = useState(cachedItemData.description);
   const [price, setPrice] = useState(cachedItemData.price);
   const [city, setCity] = useState(cachedItemData.city);
-  const [images, setImages] = useState(cachedItemData.image_url); // New state for image files
-  const [newImages, setNewImages] = useState([])
+  const oldImages = cachedItemData.image_url;
+  const [newImages, setNewImages] = useState([]);
+  const [allImages, setAllImages] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(cachedItemData.sub_group);
 
   const [resultArea, setResultArea] = useState("");
   
-  const visitorNumberFromStorage = Number(localStorage.getItem("visitorNumber"));
-
   const saveCategoryNumber = (n) => {
     setSelectedCategory(n);
   }
 
   const handleImageChange = (e) => {
+    //1. selected images arrive, control checks and add them to newImages array
     const selectedFiles = Array.from(e.target.files);
-    if (selectedFiles.length > 4) {
-      alert("You can upload a maximum of 4 images.");
+    if (selectedFiles.length + oldImages.length > 5 || selectedFiles.length + oldImages.length < 1 ) {
+      alert("Lūdzu, augšupielādējiet vismaz 1 un ne vairāk kā 5 attēlus.");
       return;
     }
     setNewImages(selectedFiles);
+
+    // 2. Process newImages (add unique names)
+    const processedNewImages = newImages.map(image => {
+      const uniqueFileName = generateUniqueFileName();
+      const newImg = new File([image], uniqueFileName, { type: image.type });
+      return JSON.stringify(newImg);
+    });
+  
+    // 3. Combine with images 
+    //setAllImages2([...images, ...processedNewImages]);
+    setAllImages(processedNewImages);
   };
 
   //files names of visitors can crash the database or server. So, we will convert them to 
@@ -66,7 +83,8 @@ function BtmProfileAdUpdate() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const adObject = {
+      const adUpdateObject = {
+        adNumber: adNumber,
         adTitle: title, 
         adDescription: description, 
         adPrice: price, 
@@ -74,29 +92,21 @@ function BtmProfileAdUpdate() {
         adCategory: selectedCategory,
         adVisitorNumber: visitorNumberFromStorage,
       };
-      console.log(adObject);
-
+      console.log(adUpdateObject);
 
       const formData = new FormData();
-      formData.append("adData", JSON.stringify(adObject)); // Send ad data as JSON string
+      formData.append("adUpdateData", JSON.stringify(adUpdateObject)); // adUpdateData we will access it from backend
 
-      // ✅ Check if images array has between 1 and 4 images
-      if (images.length >= 1 && images.length <= 4) {
-        images.forEach((image) => {
-          const uniqueFileName = generateUniqueFileName();
-          const renamedFile = new File([image], uniqueFileName, { type: image.type });
-          formData.append("images", renamedFile);
-        });
-      } else {
-        alert("Lūdzu, augšupielādējiet vismaz 1 un ne vairāk kā 4 attēlus.");  // Latvian: Please upload at least 1 and no more than 4 images.
-        return;
-      }
+      // 4. Append all images to FormData. imageRecord is just a name we use here. 
+      allImages.forEach(imageRecord => {
+        formData.append("adUpdateImages", imageRecord);  // adUpdateImages we will access it from backend
+      });
 
-      const res1 = await axios.post("http://localhost:5000/serversavead", formData, {
+      const res1 = await axios.patch("http://localhost:5000/api/profile/update-ad", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       setResultArea(`${res1.data.myMessage} ✅`);  // Emoji U+2705
-      alert("ad saved");
+      alert("ad updated");
     } catch (error) {
       if (error.response) {
         setResultArea(error.response.data.myMessage);
@@ -152,7 +162,7 @@ function BtmProfileAdUpdate() {
             
               <div className="btnUploadArea" >
                 {/* Hide the default file input */}
-                <input type="file" id="inputImages" name="images" accept="image/*" multiple 
+                <input type="file" id="inputImages" name="adUpdateImages" accept="image/*" multiple 
                   onChange={handleImageChange} />
                 <label htmlFor="inputImages" >
                   Upload Images <img src='/svg_add_file.svg' className="svgUploadFile" alt='add file icon'/>
@@ -161,13 +171,13 @@ function BtmProfileAdUpdate() {
               </div>
                 {/* Display selected file names */}
                 <div className="selectedFilesText">
-                    {images.length > 0
-                      ? images.map((file) => file.name).join(", ")
+                    {oldImages.length > 0
+                      ? oldImages.map((file) => file.name).join(", ")
                       : "Nav izvēlēts neviens attēls"}
                 </div>
               <div>
               <div>
-                {images.map((imageLink, index) => (
+                {oldImages.map((imageLink, index) => (
                   <div className="updateImgArea" key={index}>
                     <span className='updateImgSpan'>
                       <img className='updateImg' src={imageLink} alt='a small pic of ad'/>
@@ -310,7 +320,7 @@ function BtmProfileAdUpdate() {
                       </div>
                 </div>
       
-                <button className="button7007" type="submit">Augšupielādēt</button>
+                <button className="button7007" type="submit">Atjaunināt</button>
               </form>
               <div>{resultArea}</div>
             </div>
