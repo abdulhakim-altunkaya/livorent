@@ -38,24 +38,34 @@ function BtmProfileAdUpdate() {
   const [city, setCity] = useState(cachedItemData.city);
   const oldImages = cachedItemData.image_url;
   const [newImages, setNewImages] = useState([]);
+  const [allImages, setAllImages] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(cachedItemData.sub_group);
 
   const [resultArea, setResultArea] = useState("");
   
   const saveCategoryNumber = (n) => {
     setSelectedCategory(n);
-  } 
+  }
 
   const handleImageChange = (e) => {
     //1. selected images arrive, control checks and add them to newImages array
     const selectedFiles = Array.from(e.target.files);
-    if (selectedFiles.length + oldImages.length > 5) {
-      alert("You cannot choose ");
+    if (selectedFiles.length + oldImages.length > 5 || selectedFiles.length + oldImages.length < 1 ) {
+      alert("Lūdzu, augšupielādējiet vismaz 1 un ne vairāk kā 5 attēlus.");
       return;
     }
     setNewImages(selectedFiles); 
-    console.log("new images length: ", selectedFiles.length);
-    console.log("Old images length: ", oldImages.length);
+
+    // 2. Process newImages (add unique names)
+    const processedNewImages = newImages.map(image => {
+      const uniqueFileName = generateUniqueFileName();
+      const newImg = new File([image], uniqueFileName, { type: image.type });
+      return JSON.stringify(newImg);
+    });
+  
+    // 3. Combine with images 
+    //setAllImages2([...images, ...processedNewImages]);
+    setAllImages(processedNewImages);
   };
 
   //files names of visitors can crash the database or server. So, we will convert them to 
@@ -87,17 +97,10 @@ function BtmProfileAdUpdate() {
       const formData = new FormData();
       formData.append("adUpdateData", JSON.stringify(adUpdateObject)); // adUpdateData we will access it from backend
 
-
-      if (newImages.length >= 0 && newImages.length <= 5) {
-        newImages.forEach( (image) => {
-          const uniqueFileName = generateUniqueFileName();
-          const renamedFile = new File([image], uniqueFileName, { type: image.type })
-          formData.append("adUpdateImages", renamedFile);
-        });
-      } else {
-        alert("Lūdzu, augšupielādējiet vismaz 1 un ne vairāk kā 4 attēlus.");  // Latvian: Please upload at least 1 and no more than 4 images.
-        return;
-      }
+      // 4. Append all images to FormData. imageRecord is just a name we use here. 
+      allImages.forEach(imageRecord => {
+        formData.append("adUpdateImages", imageRecord);  // adUpdateImages we will access it from backend
+      });
 
       const res1 = await axios.patch("http://localhost:5000/api/profile/update-ad", formData, {
         headers: { "Content-Type": "multipart/form-data" },
