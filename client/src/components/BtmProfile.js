@@ -97,8 +97,6 @@ function BtmProfile() {
     const adNumber = Number(n);
     // Find the full record data from the message array
     const record = message.find(item => Number(item.id) === adNumber);
-    console.log(adNumber)//displays correct number 19
-    console.log(record);//returns "undefined"
     if (record) {
       // Update Zustand store with the item data (new cachedItemData pattern)
       useUserStore.getState().setCachedItemData(record);

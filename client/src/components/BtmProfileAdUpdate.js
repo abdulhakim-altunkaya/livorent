@@ -3,7 +3,7 @@
 //add delete operation
 //make sure only the profile owner can update
 //Also add a check to make sure total number of images cannot be more than 5
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import { useNavigate, useParams} from "react-router-dom";
 import axios from "axios";
 import "../styles/upload.css";
@@ -32,30 +32,65 @@ function BtmProfileAdUpdate() {
   //item data we can easily get it from cached item data.
   const { cachedItemData } = useUserStore.getState();
 
-  const [title, setTitle] = useState(cachedItemData.title);
-  const [description, setDescription] = useState(cachedItemData.description);
-  const [price, setPrice] = useState(cachedItemData.price);
-  const [city, setCity] = useState(cachedItemData.city);
-  const oldImages = cachedItemData.image_url;
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [price, setPrice] = useState("");
+  const [city, setCity] = useState("");
+  const [oldImages, setOldImages] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [displayImages, setDisplayImages] = useState([]);
   const [newImages, setNewImages] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState(cachedItemData.sub_group);
-
   const [resultArea, setResultArea] = useState("");
-  
+  const [missingData, setMissingData] = useState(false); // 🔑
+
+  useEffect(() => {
+    if (!cachedItemData || !cachedItemData.title) {
+      setMissingData(true);
+      return;
+    }
+    setTitle(cachedItemData.title);
+    setDescription(cachedItemData.description);
+    setPrice(cachedItemData.price);
+    setCity(cachedItemData.city);
+    setOldImages(cachedItemData.image_url);
+    setSelectedCategory(cachedItemData.sub_group);
+  }, [cachedItemData]);
+
+  useEffect(() => {
+    if (missingData) {
+      alert("Data lost because of page refresh. Do not page refresh while updating the ad. Go to profile page again.");
+      navigate("/"); // or wherever your profile page is
+    }
+  }, [missingData, navigate]);
+
+
   const saveCategoryNumber = (n) => {
     setSelectedCategory(n);
   } 
 
   const handleImageChange = (e) => {
-    //1. selected images arrive, control checks and add them to newImages array
+    //1. ADD IMAGES TO NEWIMAGES ARRAY TO MAKE THEM READY FOR DATABASE
+    //selected images arrive, control checks and add them to newImages array
     const selectedFiles = Array.from(e.target.files);
     if (selectedFiles.length + oldImages.length > 5) {
       alert("You cannot choose ");
       return;
     }
-    setNewImages(selectedFiles); 
-    console.log("new images length: ", selectedFiles.length);
-    console.log("Old images length: ", oldImages.length);
+    setNewImages(selectedFiles); // Only tracks newly added files 
+    
+    // 2.DISPLAY THE IMAGES BEFORE UPLOADING
+    // Create preview URLs for each image. Before sending new images to db, I want to display them just like 
+    // old images. Old images have public url links from db thats why it is easy to display them. New images 
+    // dont have public url, so, I will create a url link for each of them. This url links are only for display
+    // purpose, I dont need to send them to database. 
+    const imagePreviews = selectedFiles.map(file => ({
+      file, // Keep the file object for later upload
+      preview: URL.createObjectURL(file) // Create a preview URL
+    }));
+    setDisplayImages(imagePreviews);
+
+
+    
   };
 
   //files names of visitors can crash the database or server. So, we will convert them to 
@@ -115,6 +150,32 @@ function BtmProfileAdUpdate() {
     }
   }
 
+  const deleteImg = async (imageLink) => {
+    try {
+      console.log("delete function clicked", imageLink)
+      // 1. Delete from Supabase
+      await axios.patch("http://localhost:5000/api/profile/delete-image", {imageLink, adNumber});
+      // 2. Update local state (remove the deleted image)
+      setOldImages(oldImages.filter(img => img !== imageLink));
+    } catch (error) {
+      console.log(error.message);
+      setResultArea("Image could not be deleted");
+    }
+  }
+  const deleteImgDisplay = (imageLink) => {
+    try {
+      console.log("delete display image clicked", imageLink)
+      // 2. Update local state (remove the deleted image)
+      setDisplayImages(displayImages.filter(img => img.preview !== imageLink.preview));
+    } catch (error) {
+      console.log(error.message);
+      setResultArea("Image could not be deleted");
+    }
+  }
+
+
+
+
   return (
     <>
     {
@@ -124,7 +185,7 @@ function BtmProfileAdUpdate() {
             <span onClick={() => navigate("/login")}>  Ieiet</span> vai <span
             onClick={() => navigate("/registration")}>reģistrēties</span>.
           </div>
-        )
+        ) 
         :
         (
           <div>
@@ -164,27 +225,49 @@ function BtmProfileAdUpdate() {
                 <label htmlFor="inputImages" >
                   Upload Images <img src='/svg_add_file.svg' className="svgUploadFile" alt='add file icon'/>
                 </label>
-      
               </div>
-                {/* Display selected file names */}
-                <div className="selectedFilesText">
-                    {oldImages.length > 0
-                      ? oldImages.map((file) => file.name).join(", ")
-                      : "Nav izvēlēts neviens attēls"}
+              <div className="selectedFilesText">
+                {newImages.length > 0
+                    ? newImages.map((file) => file.name).join(", ")
+                    : "Nav izvēlēts neviens attēls"}
+              </div>
+              <div className="selectedFilesText">
+                {oldImages.length > 0
+                    ? oldImages.map((url) => {
+                        // Extract filename from URL (last part after '/')
+                          const filename = url.split('/').pop();
+                          return filename;
+                      }).join(", ")
+                    : "Nav izvēlēts neviens attēls"}
+              </div>
+              <div>
+                <br/>
+                <div>
+                  {oldImages.map((imageLink, index) => (
+                    <div className="updateImgArea" key={index}>
+                      <span className='updateImgSpan'>
+                        <img className='updateImg' src={imageLink} alt='a small pic of ad'/>
+                      </span>
+                      <span className="updateImgDeleteIconSpan">
+                        <img src='/svg_delete.svg' className='updateImgDeleteIcon' 
+                        onClick={() => deleteImg(imageLink)} alt='Delete icon'/>
+                      </span>
+                    </div>
+                  ))}
                 </div>
-              <div>
-              <div>
-                {oldImages.map((imageLink, index) => (
-                  <div className="updateImgArea" key={index}>
-                    <span className='updateImgSpan'>
-                      <img className='updateImg' src={imageLink} alt='a small pic of ad'/>
-                    </span>
-                    <span className="updateImgDeleteIconSpan">
-                      <img src='/svg_delete.svg' className='updateImgDeleteIcon' alt='Delete icon'/>
-                    </span>
-                  </div>
-                ))}
-              </div>
+                <div>
+                  {displayImages.map((imageLink, index) => (
+                    <div className="updateImgArea" key={index}>
+                      <span className='updateImgSpan'>
+                        <img className='updateImg' src={imageLink.preview} alt='a small pic of ad'/>
+                      </span>
+                      <span className="updateImgDeleteIconSpan">
+                        <img src='/svg_delete.svg' className='updateImgDeleteIcon' 
+                         onClick={() => deleteImgDisplay(imageLink)} alt='Delete icon'/>
+                      </span>
+                    </div>
+                  ))}
+                </div>
               </div>
                 <div>
                   <div className="btnSelectCategory" >

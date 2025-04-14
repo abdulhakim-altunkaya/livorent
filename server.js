@@ -448,7 +448,7 @@ app.patch("/api/profile/update-ad", upload.array("adUpdateImages", 5), async (re
 
 
   //IMAGE UPLOAD
-  const files = req.files;
+  const files = req.files; 
   console.log("FILES RECEIVED:", req.files);
 
   let uploadedImageUrls = [];
@@ -525,6 +525,16 @@ app.patch("/api/profile/update-ad", upload.array("adUpdateImages", 5), async (re
   } 
 
 });
+app.patch("/api/profile/delete-image", async (req, res) => {
+  const { imageLink, adNumber } = req.body;
+  let client;
+  res.status(200).json({myMessage: "all right"})
+  // 1. Validate adNumber
+  const numberAdNumber = Number(adNumber);
+  console.log("numbered num: ", numberAdNumber);
+  console.log(imageLink)
+});
+
 //This line must be under all server routes. Otherwise you will have like not being able to fetch comments etc.
 //This code helps with managing routes that are not defined on react frontend. If you dont add, only index 
 //route will be visible.
