@@ -3,6 +3,8 @@
 //add delete operation
 //make sure only the profile owner can update
 //Also add a check to make sure total number of images cannot be more than 5
+//DELETE ALL IMAGES AND TRY TO UPLOAD
+//DELETE ALL IMAGES, ADD 1 AND TRY TO UPLOAD
 import React, {useEffect, useState} from "react";
 import { useNavigate, useParams} from "react-router-dom";
 import axios from "axios";
@@ -73,7 +75,11 @@ function BtmProfileAdUpdate() {
     //selected images arrive, control checks and add them to newImages array
     const selectedFiles = Array.from(e.target.files);
     if (selectedFiles.length + oldImages.length > 5) {
-      alert("You cannot choose ");
+      alert("Max 5 images");
+      return;
+    }
+    if (selectedFiles.length + oldImages.length < 1) {
+      alert("Min 1 image");
       return;
     }
     setNewImages(selectedFiles); // Only tracks newly added files 
@@ -88,8 +94,6 @@ function BtmProfileAdUpdate() {
       preview: URL.createObjectURL(file) // Create a preview URL
     }));
     setDisplayImages(imagePreviews);
-
-
     
   };
 
@@ -227,17 +231,8 @@ function BtmProfileAdUpdate() {
                 </label>
               </div>
               <div className="selectedFilesText">
-                {newImages.length > 0
-                    ? newImages.map((file) => file.name).join(", ")
-                    : "Nav izvēlēts neviens attēls"}
-              </div>
-              <div className="selectedFilesText">
-                {oldImages.length > 0
-                    ? oldImages.map((url) => {
-                        // Extract filename from URL (last part after '/')
-                          const filename = url.split('/').pop();
-                          return filename;
-                      }).join(", ")
+                {newImages.length > 0 || oldImages.length > 0 
+                    ? <></>
                     : "Nav izvēlēts neviens attēls"}
               </div>
               <div>
