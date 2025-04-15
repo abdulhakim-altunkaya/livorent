@@ -528,11 +528,35 @@ app.patch("/api/profile/update-ad", upload.array("adUpdateImages", 5), async (re
 app.patch("/api/profile/delete-image", async (req, res) => {
   const { imageLink, adNumber } = req.body;
   let client;
-  res.status(200).json({myMessage: "all right"})
-  // 1. Validate adNumber
-  const numberAdNumber = Number(adNumber);
-  console.log("numbered num: ", numberAdNumber);
-  console.log(imageLink)
+
+  const adNumber2 = Number(adNumber);
+  if(!adNumber2) {
+    return res.status(404).json({myMessage: "Ad number is missing"});
+  }
+  try {
+    client = await pool.connect();
+    const result = await client.query(
+      `SELECT * FROM livorent_ads WHERE id = $1`,
+      [adNumber2]
+    );
+    if (result.rows.length > 0) {
+      const existingImageList = result.rows[0].image_url;
+      console.log(existingImageList);
+      // Filter out the matching imageLink
+      const updatedImageList = existingImageList.filter(
+        existingImg => existingImg !== imageLink
+      );
+      console.log(updatedImageList)
+      res.status(200)
+    } else {
+      return res.status(404).json({ myMessage: "Item details not found although item id is correct"})
+    }
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({myMessage: "Error at the Backend: Couldnt fetch item details"})
+  } finally {
+    if(client) client.release();
+  }
 });
 
 //This line must be under all server routes. Otherwise you will have like not being able to fetch comments etc.

@@ -94,7 +94,6 @@ function BtmProfileAdUpdate() {
       preview: URL.createObjectURL(file) // Create a preview URL
     }));
     setDisplayImages(imagePreviews);
-    
   };
 
   //files names of visitors can crash the database or server. So, we will convert them to 
@@ -126,7 +125,6 @@ function BtmProfileAdUpdate() {
       const formData = new FormData();
       formData.append("adUpdateData", JSON.stringify(adUpdateObject)); // adUpdateData we will access it from backend
 
-
       if (newImages.length >= 0 && newImages.length <= 5) {
         newImages.forEach( (image) => {
           const uniqueFileName = generateUniqueFileName();
@@ -134,7 +132,7 @@ function BtmProfileAdUpdate() {
           formData.append("adUpdateImages", renamedFile);
         });
       } else {
-        alert("Lūdzu, augšupielādējiet vismaz 1 un ne vairāk kā 4 attēlus.");  // Latvian: Please upload at least 1 and no more than 4 images.
+        alert("Lūdzu, augšupielādējiet vismaz 1 un ne vairāk kā 5 attēlus.");  // Latvian: Please upload at least 1 and no more than 4 images.
         return;
       }
 
