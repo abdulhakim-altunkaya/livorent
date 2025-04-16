@@ -424,11 +424,12 @@ app.patch("/api/profile/update-ad", upload.array("adUpdateImages", 5), async (re
   if (ignoredIPs.includes(ipVisitor)) {
     return res.status(429).json({myMessage: 'Visitor is banned'}); 
   }
-
+ 
   let client;
   const adData = JSON.parse(req.body.adUpdateData);  // ✅ Parse the JSON string
-  const { adNumber, adTitle, adDescription, adPrice, adCity, adCategory, adVisitorNumber } = adData;
-
+  const { adNumber, adTitle, adDescription, adPrice, adCity, 
+    adCategory, adVisitorNumber, adOldImages, adRemovedImages } = adData;
+  const adNumber2 = Number(adNumber);
   const visitorData = {
     ip: ipVisitor,
     visitDate: formatDateReverse(new Date())
@@ -446,57 +447,55 @@ app.patch("/api/profile/update-ad", upload.array("adUpdateImages", 5), async (re
   const mainCategoryNum = parseInt(stringNum[0], 10); // Convert first character back to number
   const sectionCategoryNum = parseInt(adCategory); // Convert second character back to number
 
-
+  // 1. DELETE REMOVED IMAGES FROM STORAGE
+  
+  console.log("these images will be removed, check them: ", adRemovedImages)
+  if (adRemovedImages && adRemovedImages.length > 0) {
+    const filePathsToDelete = adRemovedImages.map(url => url.split("/livo/")[1]);
+    //supabase returns data and error after remove method is called. data will contain data if deletion is ok.
+    //error will contain error if deletion fails.
+    console.log(filePathsToDelete);
+    /*
+    check if spaces at the beginning and at the end are causing error
+    check if missing image type is causing error. If so, you can add it. like "1744834152595-PTJGL00094.jpeg"
+    [ '1744834152595-PTJGL00094', '1744834151211-OAYFG55766' ]
+    ['folder/avatar1.png']
+    */
+    const { data, error } = await supabase.storage.from("livo").remove(filePathsToDelete);
+    if (error) {
+      console.error("Deletion failed:", error);
+    } else {
+      console.log("Successfully deleted files:", data);
+    }
+  }
   //IMAGE UPLOAD
   const files = req.files; 
-  console.log("FILES RECEIVED:", req.files);
 
   let uploadedImageUrls = [];
   // Supported image file types
   const allowedMimeTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
-  for (const file of files) {
-    const fileName = `${Date.now()}-${file.originalname}`;
-    const { data, error } = await supabase.storage
-                .from("livo") // Supabase Storage Bucket
-                .upload(fileName, file.buffer, {
-                    contentType: file.mimetype,
-                    cacheControl: "3600",
-                    upsert: false,
-                });
-    if (error) {
-        console.error("Supabase Upload Error:", error);
-        return res.status(500).json({ error: "Error uploading file to storage." });
+  if (files.length > 0) {
+    for (const file of files) {
+      const fileName = `${Date.now()}-${file.originalname}`;
+      const { data, error } = await supabase.storage
+                  .from("livo") // Supabase Storage Bucket
+                  .upload(fileName, file.buffer, {
+                      contentType: file.mimetype,
+                      cacheControl: "3600",
+                      upsert: false,
+                  });
+      if (error) {
+          console.error("Supabase Upload Error:", error);
+          return res.status(500).json({ error: "Error uploading file to storage." });
+      }
+      const imageUrl = `${process.env.SUPABASE_URL}/storage/v1/object/public/livo/${fileName}`;
+      uploadedImageUrls.push(imageUrl);
     }
-    const imageUrl = `${process.env.SUPABASE_URL}/storage/v1/object/public/livo/${fileName}`;
-    uploadedImageUrls.push(imageUrl);
   }
-  
-
 
   client = await pool.connect();
-  //Get existing images and later we will mix existing and new images and save allImages to database
-  const existingImages = await client.query(
-    `SELECT image_url FROM livorent_ads WHERE id = $1`,
-    [adNumber]
-  );
-  //we also need to unstringfy the existing list. Later we will combine existing and new list.
-  //And stringify them again before sending it to database.
-  //Note: rows[0] means: existingImages is an object that may contain more than 1 record. 
-  // Just to be sure, we use  rows[0] to get the first record.
-  let existingImageUrls = [];
-  if (existingImages.rows.length > 0 && existingImages.rows[0].image_url) {
-      try {
-          existingImageUrls = typeof existingImages.rows[0].image_url === 'string'
-              ? JSON.parse(existingImages.rows[0].image_url)
-              : existingImages.rows[0].image_url;
-      } catch (e) {
-          console.error("Error parsing image_url:", e);
-          existingImageUrls = []; // Fallback to empty array
-      }
-  }
-  // 2. Combine the existing URLs with the newly uploaded URLs
-  const allImageUrls = [...existingImageUrls, ...uploadedImageUrls];
 
+  const allImageUrls = [...adOldImages, ...uploadedImageUrls];
 
   try {
     client = await pool.connect();
@@ -513,7 +512,7 @@ app.patch("/api/profile/update-ad", upload.array("adUpdateImages", 5), async (re
        WHERE id = $9`, 
       [adTitle, adDescription, adPrice, adCity,
        visitorData.visitDate, mainCategoryNum, 
-       sectionCategoryNum, JSON.stringify(allImageUrls), adNumber]
+       sectionCategoryNum, JSON.stringify(allImageUrls), adNumber2]
     );
     //,
     res.status(201).json({myMessage: "Ad updated"});
@@ -525,6 +524,7 @@ app.patch("/api/profile/update-ad", upload.array("adUpdateImages", 5), async (re
   } 
 
 });
+/*
 app.patch("/api/profile/delete-image", async (req, res) => {
   const { imageLink, adNumber } = req.body;
   let client;
@@ -541,13 +541,13 @@ app.patch("/api/profile/delete-image", async (req, res) => {
     );
     if (result.rows.length > 0) {
       const existingImageList = result.rows[0].image_url;
-      console.log(existingImageList);
+
       // Filter out the matching imageLink
       const updatedImageList = existingImageList.filter(
         existingImg => existingImg !== imageLink
       );
-      console.log(updatedImageList)
-      res.status(200)
+
+      res.status(200).json({myMessage: "Image uploaded"});
     } else {
       return res.status(404).json({ myMessage: "Item details not found although item id is correct"})
     }
@@ -558,7 +558,7 @@ app.patch("/api/profile/delete-image", async (req, res) => {
     if(client) client.release();
   }
 });
-
+*/
 //This line must be under all server routes. Otherwise you will have like not being able to fetch comments etc.
 //This code helps with managing routes that are not defined on react frontend. If you dont add, only index 
 //route will be visible.
@@ -613,6 +613,7 @@ password forget remind
 check time limits on post routes . They are not 1 minute, if so, convert them to 1 minute
 ip check to make sure same ip can upload once in 5 minutes and twice in 24 hour 
 also create a signout option to allow a new user to sign in from the same computer. 
+//make sure only the profile owner can update
 */
 //Currently I can enter into any profile. Prevent that. Registered people should only their profile, not any.
 //When deleting an ad, make sure its images are also deleted

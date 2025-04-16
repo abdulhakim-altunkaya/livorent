@@ -1,7 +1,5 @@
-//Highlight the already selectedArea
 //return back to the list after update
-//add delete operation
-//make sure only the profile owner can update
+//Can I delete images from supabase storage also?
 //Also add a check to make sure total number of images cannot be more than 5
 //DELETE ALL IMAGES AND TRY TO UPLOAD
 //DELETE ALL IMAGES, ADD 1 AND TRY TO UPLOAD
@@ -44,6 +42,7 @@ function BtmProfileAdUpdate() {
   const [newImages, setNewImages] = useState([]);
   const [resultArea, setResultArea] = useState("");
   const [missingData, setMissingData] = useState(false); // 🔑
+  const [removedImages, setRemovedImages] = useState([]);
 
   useEffect(() => {
     if (!cachedItemData || !cachedItemData.title) {
@@ -119,8 +118,9 @@ function BtmProfileAdUpdate() {
         adCity: city, 
         adCategory: selectedCategory,
         adVisitorNumber: visitorNumberFromStorage,
+        adOldImages: oldImages,
+        adRemovedImages: removedImages,
       };
-      console.log(adUpdateObject);
 
       const formData = new FormData();
       formData.append("adUpdateData", JSON.stringify(adUpdateObject)); // adUpdateData we will access it from backend
@@ -148,15 +148,17 @@ function BtmProfileAdUpdate() {
       } else {
         setResultArea("An error happened while saving the news");
         console.log(error.message);
-      }
+      } 
     }
   }
 
   const deleteImg = async (imageLink) => {
     try {
       console.log("delete function clicked", imageLink)
+      setRemovedImages(prev => [...prev, imageLink]);
+
       // 1. Delete from Supabase
-      await axios.patch("http://localhost:5000/api/profile/delete-image", {imageLink, adNumber});
+      //await axios.patch("http://localhost:5000/api/profile/delete-image", {imageLink, adNumber});
       // 2. Update local state (remove the deleted image)
       setOldImages(oldImages.filter(img => img !== imageLink));
     } catch (error) {
