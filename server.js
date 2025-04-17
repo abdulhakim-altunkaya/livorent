@@ -448,13 +448,12 @@ app.patch("/api/profile/update-ad", upload.array("adUpdateImages", 5), async (re
   const sectionCategoryNum = parseInt(adCategory); // Convert second character back to number
 
   // 1. DELETE REMOVED IMAGES FROM STORAGE
-  
-  console.log("these images will be removed, check them: ", adRemovedImages)
+  console.log("full path of images before function: ", adRemovedImages)
   if (adRemovedImages && adRemovedImages.length > 0) {
     const filePathsToDelete = adRemovedImages.map(url => url.split("/livo/")[1]);
     //supabase returns data and error after remove method is called. data will contain data if deletion is ok.
     //error will contain error if deletion fails.
-    console.log(filePathsToDelete);
+    console.log("filepaths of images before deletion: ", filePathsToDelete);
     /*
     check if spaces at the beginning and at the end are causing error
     check if missing image type is causing error. If so, you can add it. like "1744834152595-PTJGL00094.jpeg"
@@ -462,15 +461,17 @@ app.patch("/api/profile/update-ad", upload.array("adUpdateImages", 5), async (re
     ['folder/avatar1.png']
     */
     const { data, error } = await supabase.storage.from("livo").remove(filePathsToDelete);
+    console.log(error);
+    console.log(data)
     if (error) {
       console.error("Deletion failed:", error);
     } else {
       console.log("Successfully deleted files:", data);
     }
   }
-  //IMAGE UPLOAD
-  const files = req.files; 
 
+  //UPLOAD IMAGES TO SUPABASE STORAGE
+  const files = req.files; 
   let uploadedImageUrls = [];
   // Supported image file types
   const allowedMimeTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
@@ -492,7 +493,7 @@ app.patch("/api/profile/update-ad", upload.array("adUpdateImages", 5), async (re
       uploadedImageUrls.push(imageUrl);
     }
   }
-
+  //WRITE DATA TO SUPABASE DATABASE
   client = await pool.connect();
 
   const allImageUrls = [...adOldImages, ...uploadedImageUrls];

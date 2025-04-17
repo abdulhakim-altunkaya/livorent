@@ -1,7 +1,6 @@
 //return back to the list after update
 //Can I delete images from supabase storage also?
 //Also add a check to make sure total number of images cannot be more than 5
-//DELETE ALL IMAGES AND TRY TO UPLOAD
 //DELETE ALL IMAGES, ADD 1 AND TRY TO UPLOAD
 import React, {useEffect, useState} from "react";
 import { useNavigate, useParams} from "react-router-dom";
@@ -121,7 +120,10 @@ function BtmProfileAdUpdate() {
         adOldImages: oldImages,
         adRemovedImages: removedImages,
       };
-
+      if (newImages.length + oldImages.length < 1) {
+        alert("Lūdzu, augšupielādējiet vismaz 1 un ne vairāk kā 5 attēlus.");  // Latvian: Please upload at least 1 and no more than 4 images.
+        return;
+      }
       const formData = new FormData();
       formData.append("adUpdateData", JSON.stringify(adUpdateObject)); // adUpdateData we will access it from backend
 
