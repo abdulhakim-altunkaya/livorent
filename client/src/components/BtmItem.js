@@ -143,6 +143,9 @@ function BtmItem() {
   const goSection = () => {
     navigate(`/section/${sectionNum}`)
   }
+  const goSeller = () => {
+    navigate()
+  }
 
   return ( 
     <div>
@@ -208,7 +211,9 @@ function BtmItem() {
                       <span className='phoneNumber' onClick={() => setShowFullPhone(!showFullPhone)}>
                         {formatPhoneNumber(message?.telephone)}</span>
                     </div>
-                    <div><span className='grayText'>Vārds:</span><span>    {formatName(message?.name)}</span></div>
+                    <div>
+                      <span className='grayText'>Vārds:</span>
+                      <span onClick={goSeller}>    {formatName(message?.name)}</span></div>
                     <br/> <br/>
                     <div className='smallText'><span>Datums:</span><span>    {message.date}</span></div>
                     <div className='smallText'><span>Unikālo apmeklējumu skaits:</span><span></span></div>

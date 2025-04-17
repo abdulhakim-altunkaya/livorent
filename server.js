@@ -586,20 +586,9 @@ app.listen(PORT, () => {
 /*Also add this otherwise only index route will be visible when you deploy app to production
 add "::1", to the ignored ip list
 
-/*       title-text
-      description-text
-      price (per day, per hour, per week or per month)-number with two decimals
-      telephone-numbers without decimals
-      name-text 
-      City-text
 
-      keep it longer weeks? numbers without decimals
-      Make title bolder? True or false
-      move it to the top? True or false
-
-      location ip 
-      date */
-  /*    
+  /* 
+Delete images from storage too   
 change 1000 to 3600000 in the time limit of serversavevisitor endpoint
 change 1000 to 60000 in the serversavecomment endpoint
 change 1000 to 60000 in the serversavecommentreply endpoint
@@ -616,6 +605,7 @@ ip check to make sure same ip can upload once in 5 minutes and twice in 24 hour
 also create a signout option to allow a new user to sign in from the same computer. 
 //make sure only the profile owner can update
 */
+//Add a like and comment system
 //Currently I can enter into any profile. Prevent that. Registered people should only their profile, not any.
 //When deleting an ad, make sure its images are also deleted
 //remove console.log statements from all components and server.js

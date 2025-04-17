@@ -1,7 +1,4 @@
-//return back to the list after update
-//Can I delete images from supabase storage also?
-//Also add a check to make sure total number of images cannot be more than 5
-//DELETE ALL IMAGES, ADD 1 AND TRY TO UPLOAD
+
 import React, {useEffect, useState} from "react";
 import { useNavigate, useParams} from "react-router-dom";
 import axios from "axios";
@@ -120,7 +117,7 @@ function BtmProfileAdUpdate() {
         adOldImages: oldImages,
         adRemovedImages: removedImages,
       };
-      if (newImages.length + oldImages.length < 1) {
+      if (newImages.length + oldImages.length < 1 || newImages.length + oldImages.length > 5) {
         alert("Lūdzu, augšupielādējiet vismaz 1 un ne vairāk kā 5 attēlus.");  // Latvian: Please upload at least 1 and no more than 4 images.
         return;
       }
@@ -143,6 +140,7 @@ function BtmProfileAdUpdate() {
       });
       setResultArea(`${res1.data.myMessage} ✅`);  // Emoji U+2705
       alert("ad updated");
+      navigate(`/profile/${adUpdateObject.adVisitorNumber}`)
     } catch (error) {
       if (error.response) {
         setResultArea(error.response.data.myMessage);
