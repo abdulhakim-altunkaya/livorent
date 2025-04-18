@@ -29,6 +29,7 @@ function BtmItem() {
       try {
         const response = await axios.get(`http://localhost:5000/api/get/item/${itemNumber}`);
         setMessage(response.data);
+
       } catch (error) {
         setErrorFrontend("Error: item details could not be fetched");
         console.log(error.message)
@@ -140,11 +141,13 @@ function BtmItem() {
       return;
     }
   }
-  const goSection = () => {
+  const goSection = () => { 
     navigate(`/section/${sectionNum}`)
   }
   const goSeller = () => {
-    navigate()
+    if (message?.user_id > 0) {
+      navigate(`/seller/${Number(message.user_id)}`)
+    }
   }
 
   return ( 
@@ -213,7 +216,7 @@ function BtmItem() {
                     </div>
                     <div>
                       <span className='grayText'>Vārds:</span>
-                      <span onClick={goSeller}>    {formatName(message?.name)}</span></div>
+                      <span className='itemCategoryLinks' onClick={goSeller}>    {formatName(message?.name)}</span></div>
                     <br/> <br/>
                     <div className='smallText'><span>Datums:</span><span>    {message.date}</span></div>
                     <div className='smallText'><span>Unikālo apmeklējumu skaits:</span><span></span></div>

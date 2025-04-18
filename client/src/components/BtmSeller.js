@@ -9,12 +9,11 @@ function BtmSeller() {
   const navigate = useNavigate()
   //we will check zustand store to see if there is any user data in it. If there is
   //then no need to make repetitive requests to backend and database about user information
-  const { cachedUserData } = useUserStore.getState();
+  const { cachedUserData } = useUserStore.getState(); 
 
-  const { visitorNumber } = useParams();
+  const { sellerNumber } = useParams();
   const [message, setMessage] = useState(null); // Initialize with null to better handle initial state
   const [userData, setUserData] = useState(null);
-  const [itemDataUpdate, setItemDataUpdate] = useState(null);
   const [errorFrontend, setErrorFrontend] = useState(null); // Add error state
   const [loading, setLoading] = useState(true); // Add loading state
   const [resultArea, setResultArea] = useState("");
@@ -22,13 +21,13 @@ function BtmSeller() {
   useEffect(() => {
     const getData = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/get/adsbyuser/${visitorNumber}`);
+        const response = await axios.get(`http://localhost:5000/api/get/adsbyuser/${sellerNumber}`);
         setMessage(response.data);     
-        if (cachedUserData?.id === visitorNumber) {
+        if (cachedUserData?.id === sellerNumber) {
           setUserData(cachedUserData);
           console.log("cached data displayed")
         } else {
-          const responseUser = await axios.get(`http://localhost:5000/api/get/userdata/${visitorNumber}`);
+          const responseUser = await axios.get(`http://localhost:5000/api/get/userdata/${sellerNumber}`);
           setUserData(responseUser.data);
           useUserStore.getState().setCachedUserData(responseUser.data);  // Zustand cache
         }
@@ -42,104 +41,25 @@ function BtmSeller() {
       }
     };
     getData();
-  }, [visitorNumber, cachedUserData]);
-
-  const deleteAccount = () => {
-    alert("Accounts which are inactive for 6 months will be deleted together with their ads if any");
-    return;
-  }
-
-  const signoutAccount = () => {
-    localStorage.removeItem("token_livorent");
-    localStorage.removeItem("visitorNumber");
-    navigate("/");
-  }
-
-
-
-  const deleteAd = async (n) => {
-    // This will show a browser confirmation dialog with OK/Cancel buttons
-    const adNumber = Number(n)
-    const userConfirmed = window.confirm(
-      "Jūsu konts tiks dzēsts pēc 6 mēnešu neaktivitātes\n\nVai vēlaties turpināt?"
-    );
-    //userConfirmed means user confirmed delete operation.
-    if (userConfirmed) {
-      try {
-        // Get current state before deletion
-        const currentAds = [...message];
-        // Filter out the deleted item
-        const updatedAds = currentAds.filter(ad => ad.id !== adNumber);
-        // Update state
-        setMessage(updatedAds);
-        await axios.delete(`http://localhost:5000/api/delete/item/${adNumber}`);
-        window.location.reload(); // ← Force page refresh
-      } catch (error) {
-        setResultArea(error.response?.data?.error || "Dzēšanas kļūda"); // Red error toast
-      }
-    } else {
-      return;
-    }
-  };
-
-  //1. We get userData from backend.
-  //2. We also save userData to Zustand Storage as cachedUserData. We will use this later at step 4.
-  //3. When updating profile, we send userData from BtmProfile to BtmUpdateProfile component on the useNavigate hook.
-  //Here actually, instead of sending data on useNavigate hook, we could use the same data on BtmUpdateProfile
-  //component by making a call to the Zustand cachedUserData.  But i didnt do that because I want to know how to use
-  //useNavigate data transfer technique. However, I will use it only here. In other components such as AD UPDATE component
-  //I will use the data in the Zustand storage.
-
-  //4. When we finish updating and return back to the BtmProfile, we check if there is a cachedUserData. If there is 
-  //it is good, because now we do not have to make another request to backend to populate areas on the page.
-  //5. When we want to update an ad, we first find the ad, save it to Zustand storage and then navigate to the 
-/*   const updateAd = (n) => {
-    const adNumber = Number(n);
-    // Find the full record data from the message array
-    const record = message.find(item => Number(item.id) === adNumber);
-    if (record) {
-      // Update Zustand store with the item data (new cachedItemData pattern)
-      useUserStore.getState().setCachedItemData(record);
-      // Navigate with state (unchanged from your original)
-      navigate(`/profile/update-ad/${adNumber}`);
-    }
-  }; */
+  }, [sellerNumber, cachedUserData]);
 
   return (
     <div>
-      { loading ? 
-        ( <div>lietotāja informācijas ielāde</div> )
-          :
-        ( 
-        <div className='userInfoArea'>
-          <div className='welcomeMessageProfile'>laipni lūdzam </div> 
-
-          <div><strong>Name:</strong> {userData.name}</div>
-          <div><strong>E-mail:</strong> {userData.email}</div>
-          <div><strong>Telephone:</strong> {userData.telephone}</div>
-          <div className='lastDivProfile'><strong>Member since:</strong> {userData.date}</div>
-
-          <div className='profileButtonsArea'>
-            <span><button className='button-54' onClick={signoutAccount}>Sign out</button></span>
-            <span><button className='button-54'
-              onClick={() => navigate(`/profile/update-account/${visitorNumber}`, {state: { userData: userData } }
-              )}>
-              Update Account</button>
-            </span>
-            <span><button className='button-54' onClick={deleteAccount}>Delete Account</button></span>
-          </div>
-        </div>
-        )
-      }
       <div>
         { loading ? 
             <div aria-live="polite">Loading...</div> 
           : errorFrontend ? ( // Check for error first
-            <p className='errorFieldProfile'>{errorFrontend}</p>
+            <p className='errorFieldProfile'>{errorFrontend}</p> 
           ) :
             <>
               {message && message.length > 0  ? (
                 <>
+                  <div className='userInfoArea'>
+                    <div className='welcomeMessageProfile'>laipni lūdzam </div> 
+                    <div><strong>Name:</strong> {userData.name}</div>
+                    <div className='lastDivProfile'><strong>Member since:</strong> {userData.date}</div>
+                  </div>
+
                   <div className='tableProfileArea'>
                     <table className='tableMainCategory'>
                       <thead> 
@@ -169,18 +89,6 @@ function BtmSeller() {
                             </td>
                             <td onClick={() => navigate(`/item/${record.id}`)} className='cellProfile4'>{record.price}</td>
                             <td onClick={() => navigate(`/item/${record.id}`)} className='cellProfile5'>{record.city}</td>
-{/*                             <td className='cellProfile6'>
-                              <div className='profileListButtonsArea' 
-                                onClick={() => updateAd(record.id)}>
-                                <span>Atjaunināt</span>
-                                <span className='profileListIcons'><img src='/svg_update2.svg' alt='Update icon'/></span>
-                              </div>
-                              <div className='profileListButtonsArea profileListButtonsAreaLower'
-                                onClick={() => deleteAd(record.id)}>
-                                <span>Dzēst</span>
-                                <span className='profileListIcons'><img src='/svg_delete.svg' alt='Delete icon'/></span>
-                              </div>
-                            </td> */}
                           </tr>
                         ))}
                       </tbody>
