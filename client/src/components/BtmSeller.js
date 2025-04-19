@@ -1,4 +1,7 @@
-import React, { useState, useEffect } from 'react';
+//Add a point system for each seller
+//Make sure only logged in users can leave a like
+
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import "../styles/Profile.css";
 import Footer from "./Footer.js";
@@ -11,12 +14,15 @@ function BtmSeller() {
   //then no need to make repetitive requests to backend and database about user information
   const { cachedUserData } = useUserStore.getState(); 
 
+  const debounceTimer = useRef(null);//we will use this to force wait time on like clicks
+
   const { sellerNumber } = useParams();
   const [message, setMessage] = useState(null); // Initialize with null to better handle initial state
   const [userData, setUserData] = useState(null);
   const [errorFrontend, setErrorFrontend] = useState(null); // Add error state
   const [loading, setLoading] = useState(true); // Add loading state
   const [resultArea, setResultArea] = useState("");
+  const [isLiked, setIsLiked] = useState(false);
 
   useEffect(() => {
     const getData = async () => {
@@ -43,6 +49,30 @@ function BtmSeller() {
     getData();
   }, [sellerNumber, cachedUserData]);
 
+  const handleLike = () => {
+    console.log('Like before 10 seconds and before function run:', isLiked);
+    setIsLiked(!isLiked);
+    // Clear previous timeout if it exists
+    if (debounceTimer.current) {
+      clearTimeout(debounceTimer.current);
+    }
+    console.log('Like before 10 seconds and after function run:', isLiked);
+    // Set a new debounce timer
+    debounceTimer.current = setTimeout(() => {
+      saveLike(!isLiked); // note: !isLiked because state hasn't updated yet
+    }, 10000); // delay in milliseconds (10s here)
+
+  }
+  const saveLike = async (likeState) => {
+    try {
+      console.log('Like after 10 seconds:', likeState);
+      /* const response = await axios.post('http://localhost:5000/api/like', {liked: likeState}); */
+      // console.log('Like after 10 seconds:', response.data);
+    } catch (error) {
+      console.error('Error saving like:', error);
+    }
+  };
+
   return (
     <div>
       <div>
@@ -58,6 +88,14 @@ function BtmSeller() {
                     <div className='welcomeMessageProfile'>laipni lūdzam </div> 
                     <div><strong>Name:</strong> {userData.name}</div>
                     <div className='lastDivProfile'><strong>Member since:</strong> {userData.date}</div>
+                    <div>
+                      {
+                        isLiked ?
+                          <img className='heartIcon' onClick={handleLike} src='/svg_heart_filled.svg' alt='empty heart'/>
+                        :
+                          <img className='heartIcon' onClick={handleLike} src='/svg_heart.svg' alt='empty heart'/>
+                      }
+                      </div>
                   </div>
 
                   <div className='tableProfileArea'>

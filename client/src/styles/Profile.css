@@ -128,6 +128,10 @@
   top: 5px;
   left: 5px;
 }
+.heartIcon {
+    width: 35px;
+    cursor: pointer;
+}
 
 @media (min-width: 768px) {
   .button-54 {

@@ -6,7 +6,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import useUserStore from '../store/userStore';
 
 function BtmProfile() {
-  const navigate = useNavigate()
+  const navigate = useNavigate() 
   //we will check zustand store to see if there is any user data in it. If there is
   //then no need to make repetitive requests to backend and database about user information
   const { cachedUserData } = useUserStore.getState();
