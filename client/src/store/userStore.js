@@ -6,6 +6,11 @@ const useUserStore = create((set) => ({
   setCachedUserData: (data) => set({ cachedUserData: data }),
   clearCachedUserData: () => set({ cachedUserData: {} }),
 
+  // seller data. From BtmItem to BtmSeller component
+  cachedSellerData: {},
+  setCachedSellerData: (data) => set({ cachedSellerData: data }),
+  clearCachedSellerData: () => set({ cachedSellerData: {} }),
+
   // item data. From BtmProfile to BtmProfileAdUpdate component.
   cachedItemData: {},          // Stores item data globally
   setCachedItemData: (data) => set({ cachedItemData: data }),  // Updates item cache

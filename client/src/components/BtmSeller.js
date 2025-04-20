@@ -12,16 +12,22 @@ function BtmSeller() {
   const navigate = useNavigate()
   //we will check zustand store to see if there is any user data in it. If there is
   //then no need to make repetitive requests to backend and database about user information
-  const { cachedUserData } = useUserStore.getState(); 
+  const { cachedSellerData } = useUserStore.getState(); 
+
+  //we will check zustand store to see if there is any user data in it. If there is
+  //then no need to make repetitive requests to backend.
+  //We will use cachedUserData to let the visitor to leave a like. Only registered people can like.
+  const { cachedUserData } = useUserStore.getState();
 
   const debounceTimer = useRef(null);//we will use this to force wait time on like clicks
 
   const { sellerNumber } = useParams();
   const [message, setMessage] = useState(null); // Initialize with null to better handle initial state
-  const [userData, setUserData] = useState(null);
+  const [sellerData, setSellerData] = useState(null);
   const [errorFrontend, setErrorFrontend] = useState(null); // Add error state
   const [loading, setLoading] = useState(true); // Add loading state
   const [resultArea, setResultArea] = useState("");
+  const [isLikeAllowed, setIsLikeAllowed] = useState(true);
   const [isLiked, setIsLiked] = useState(false);
 
   useEffect(() => {
@@ -29,27 +35,36 @@ function BtmSeller() {
       try {
         const response = await axios.get(`http://localhost:5000/api/get/adsbyuser/${sellerNumber}`);
         setMessage(response.data);     
-        if (cachedUserData?.id === sellerNumber) {
-          setUserData(cachedUserData);
+        //sometimes the visitor might want to visit the same seller over and over again. 
+        //To help backend receive less api calls, we can save the visited seller info in Zustand
+        //Thus, if the visitor visits the same seller again, the seller info will come from Zustand not from DB.
+        if (cachedSellerData?.id === sellerNumber) {
+          setSellerData(cachedSellerData);
           console.log("cached data displayed")
         } else {
           const responseUser = await axios.get(`http://localhost:5000/api/get/userdata/${sellerNumber}`);
-          setUserData(responseUser.data);
-          useUserStore.getState().setCachedUserData(responseUser.data);  // Zustand cache
-        }
+          setSellerData(responseUser.data);
+          useUserStore.getState().setCachedSellerData(responseUser.data);
+        } 
 
       } catch (error) {
         setErrorFrontend("Error: ads could not be fetched");
         console.log(error.message);
-        setUserData({}); // Ensure userData is never null
+        setSellerData({}); // Ensure sellerData is never null
       } finally {
         setLoading(false);
       }
     };
     getData();
-  }, [sellerNumber, cachedUserData]);
+  }, [sellerNumber]);
 
   const handleLike = () => {
+    // Check if visitor is logged in
+    if (!cachedUserData || !cachedUserData.id) {
+      alert("To leave a like, you need to login");
+      setIsLikeAllowed(!isLikeAllowed)
+      return;
+    }
     const newLikeState = !isLiked; // this is the actual updated state
     setIsLiked(newLikeState);
     // Clear previous timeout if it exists
@@ -64,7 +79,11 @@ function BtmSeller() {
   const saveLike = async (likeState) => {
     try {
       console.log('Like after 10 seconds:', likeState);
-      const response = await axios.post('http://localhost:5000/api/like', {liked: likeState}); 
+      const response = await axios.post('http://localhost:5000/api/like', {
+        liked: likeState,
+        sellerId: cachedSellerData?.id,
+        userId: cachedUserData?.id,
+      });
       console.log('Like after 10 seconds:', response.data.myMessage);
     } catch (error) {
       console.error('Error saving like:', error);
@@ -85,8 +104,8 @@ function BtmSeller() {
                 <>
                   <div className='userInfoArea'>
                     <div className='welcomeMessageProfile'>laipni lūdzam </div> 
-                    <div><strong>Name:</strong> {userData.name}</div>
-                    <div className='lastDivProfile'><strong>Member since:</strong> {userData.date}</div>
+                    <div><strong>Name:</strong> {sellerData.name}</div>
+                    <div className='lastDivProfile'><strong>Member since:</strong> {sellerData.date}</div>
                     <div>
                       {
                         isLiked ?
@@ -94,6 +113,17 @@ function BtmSeller() {
                         :
                           <img className='heartIcon' onClick={handleLike} src='/svg_heart.svg' alt='empty heart'/>
                       }
+                      {
+                        isLikeAllowed ?
+                         <></>
+                        :
+                        <div className="noUserBtmUpload">
+                          Lai atzīmētu ar "patīk", jābūt reģistrētam.
+                          <span onClick={() => navigate("/login")}> Ieiet</span> vai 
+                          <span onClick={() => navigate("/registration")}> reģistrēties</span>.
+                        </div>
+                      }
+
                       </div>
                   </div>
 

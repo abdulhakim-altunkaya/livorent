@@ -52,6 +52,7 @@ function BtmProfile() {
   const signoutAccount = () => {
     localStorage.removeItem("token_livorent");
     localStorage.removeItem("visitorNumber");
+    useUserStore.getState().setCachedUserData(null);
     navigate("/");
   }
 

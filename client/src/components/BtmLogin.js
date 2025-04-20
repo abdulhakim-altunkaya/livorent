@@ -14,7 +14,7 @@ function BtmLogin() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    try {
+    try { 
       const loginObject = {
         loginEmail: email, 
         loginPasstext: passtext
@@ -27,6 +27,7 @@ function BtmLogin() {
         localStorage.setItem("token_livorent", res1.data.token); // Save the token 
         localStorage.setItem("visitorNumber", Number(res1.data.visitorNumber)); //save the user id
         navigate(`/profile/${res1.data.visitorNumber}`); // Include visitorNumber in the URL
+        
       }
 
     } catch (error) {
