@@ -13,7 +13,7 @@ const useragent = require("useragent");
 const cors = require("cors");
 app.use(cors()); //frontend and backend will run on different ports when in development. We need this to overcome 
 //issues arising because of this.
-app.use(express.json()); //we need this to send data from frontend to backend in req.body
+app.use(express.json()); //we need this to read the data is coming from frontend to backend in req.body
 
 //UNCOMMENT WHEN IN PRODUCTION
 //app.use(express.static(path.join(__dirname, "client/build")));
@@ -525,41 +525,43 @@ app.patch("/api/profile/update-ad", upload.array("adUpdateImages", 5), async (re
   } 
 
 });
-/*
-app.patch("/api/profile/delete-image", async (req, res) => {
-  const { imageLink, adNumber } = req.body;
-  let client;
-
-  const adNumber2 = Number(adNumber);
-  if(!adNumber2) {
-    return res.status(404).json({myMessage: "Ad number is missing"});
+app.post("/api/like", async (req, res) => {
+  //preventing spam likes
+  const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
+  // Check if IP exists in cache and if last signup was less than 1 minute ago
+  if (ipCache4[ipVisitor] && Date.now() - ipCache4[ipVisitor] < 1000) {
+    return res.status(429).json({myMessage: 'Too many attempts from this visitor'});
   }
+  ipCache4[ipVisitor] = Date.now();//save visitor ip to ipCache4
+
+  // Check if the IP is in the ignored list
+  if (ignoredIPs.includes(ipVisitor)) {
+    return res.status(429).json({myMessage: 'Visitor is banned'}); 
+  }
+
+  let client;
+  const { liked } = req.body;
+  
   try {
     client = await pool.connect();
-    const result = await client.query(
-      `SELECT * FROM livorent_ads WHERE id = $1`,
-      [adNumber2]
+    const { rows: updatedUser } = await client.query(
+      `UPDATE livorent_users SET name = $1, telephone = $2, email = $3, passtext = $4 WHERE id = $5 
+      RETURNING id`,
+      [updateLoad.name1, updateLoad.telephone1, updateLoad.email1, hashedPassword, updateLoad.id1]
     );
-    if (result.rows.length > 0) {
-      const existingImageList = result.rows[0].image_url;
-
-      // Filter out the matching imageLink
-      const updatedImageList = existingImageList.filter(
-        existingImg => existingImg !== imageLink
-      );
-
-      res.status(200).json({myMessage: "Image uploaded"});
-    } else {
-      return res.status(404).json({ myMessage: "Item details not found although item id is correct"})
-    }
+    const result = await client.query(
+      `SELECT * FROM livorent_ads WHERE main_group = $1
+      ORDER BY id DESC LIMIT 10`, [idcategory]
+    );
+    res.status(201).json({ myMessage: 'Profile updated', visitorNumber:updatedUser[0].id, token });
   } catch (error) {
     console.log(error.message);
-    res.status(500).json({myMessage: "Error at the Backend: Couldnt fetch item details"})
+    res.status(500).json({myMessage: "Error while updating the profile"})
   } finally {
-    if(client) client.release();
-  }
+    client.release();
+  } 
 });
-*/
+
 //This line must be under all server routes. Otherwise you will have like not being able to fetch comments etc.
 //This code helps with managing routes that are not defined on react frontend. If you dont add, only index 
 //route will be visible.
@@ -779,3 +781,38 @@ app.get("/servergetcomments", async (req, res) => {
   }
 });
 
+/*
+app.patch("/api/profile/delete-image", async (req, res) => {
+  const { imageLink, adNumber } = req.body;
+  let client;
+
+  const adNumber2 = Number(adNumber);
+  if(!adNumber2) {
+    return res.status(404).json({myMessage: "Ad number is missing"});
+  }
+  try {
+    client = await pool.connect();
+    const result = await client.query(
+      `SELECT * FROM livorent_ads WHERE id = $1`,
+      [adNumber2]
+    );
+    if (result.rows.length > 0) {
+      const existingImageList = result.rows[0].image_url;
+
+      // Filter out the matching imageLink
+      const updatedImageList = existingImageList.filter(
+        existingImg => existingImg !== imageLink
+      );
+
+      res.status(200).json({myMessage: "Image uploaded"});
+    } else {
+      return res.status(404).json({ myMessage: "Item details not found although item id is correct"})
+    }
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({myMessage: "Error at the Backend: Couldnt fetch item details"})
+  } finally {
+    if(client) client.release();
+  }
+});
+*/

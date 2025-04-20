@@ -50,28 +50,27 @@ function BtmSeller() {
   }, [sellerNumber, cachedUserData]);
 
   const handleLike = () => {
-    console.log('Like before 10 seconds and before function run:', isLiked);
-    setIsLiked(!isLiked);
+    const newLikeState = !isLiked; // this is the actual updated state
+    setIsLiked(newLikeState);
     // Clear previous timeout if it exists
     if (debounceTimer.current) {
       clearTimeout(debounceTimer.current);
     }
-    console.log('Like before 10 seconds and after function run:', isLiked);
     // Set a new debounce timer
     debounceTimer.current = setTimeout(() => {
-      saveLike(!isLiked); // note: !isLiked because state hasn't updated yet
+      saveLike(newLikeState);
     }, 10000); // delay in milliseconds (10s here)
-
-  }
+  };
   const saveLike = async (likeState) => {
     try {
       console.log('Like after 10 seconds:', likeState);
-      /* const response = await axios.post('http://localhost:5000/api/like', {liked: likeState}); */
-      // console.log('Like after 10 seconds:', response.data);
+      const response = await axios.post('http://localhost:5000/api/like', {liked: likeState}); 
+      console.log('Like after 10 seconds:', response.data.myMessage);
     } catch (error) {
       console.error('Error saving like:', error);
     }
   };
+  
 
   return (
     <div>
