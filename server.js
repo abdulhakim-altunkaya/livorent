@@ -546,13 +546,25 @@ app.post("/api/like/sellers", async (req, res) => {
 
   try {
     client = await pool.connect();
-
-    // 1. CHECK if user exists
+    console.log(likeStatus)
+    // 1. We check if user exists
+    // 2. Then we check like exists
+    // 3. Then we save like or remove depending like/unlike info coming from frontend.
+    //Everytime we save a like to liked_sellers, we need to make sure we are saving an array not a number.
+    //And we cannot save an array directly in postgresql, we need to stringfy it.
     const result = await client.query(`SELECT * FROM livorent_likes_users WHERE user_id = $1`, [userId2]);
     if (result.rows.length > 0) {
-      console.log(result.rows[0])
+      const existingUser = result.rows[0];
+      const existingLike = existingUser.liked_sellers.includes(likedId2);
+      console.log("Repeating like error", existingLike);
     } else {
-      console.log("no user found")
+      if (likeStatus === false) {
+        return res.status(200).json({myMessage: "First like cannot be an unlike"});
+      }
+      const newArray = JSON.stringify([likedId2])
+      const result = await client.query(`INSERT INTO livorent_likes_users (user_id, liked_sellers)
+        VALUES ($1, $2)`, [userId2, newArray]);
+      res.status(201).json({myMessage: "first like registered"});
     }
 /*     // 2. If user EXISTS → UPDATE
     if (checkResult.rows.length > 0) {
@@ -570,17 +582,7 @@ app.post("/api/like/sellers", async (req, res) => {
       const result = await client.query(updateQuery, [updatedLikedSellers, userId2]);
       return result.rows[0];
     } 
-
-    // 3. If user DOES NOT EXIST → INSERT
-    else {
-      const insertQuery = `
-        INSERT INTO livorent_likes_users (user_id, liked_sellers)
-        VALUES ($1, $2)
-        RETURNING *;
-      `;
-      const result = await client.query(insertQuery, [userId2, [likedId2]]);
-      return result.rows[0];
-    } */
+ */
    res.json({myMessage: "test"});
   } catch (error) {
     console.error("Database error:", error);

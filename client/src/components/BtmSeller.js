@@ -1,5 +1,6 @@
 //Add a point system for each seller
 //Make sure only logged in users can leave a like
+//improve isLikeAllowed logic
 
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
