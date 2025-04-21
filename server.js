@@ -525,7 +525,7 @@ app.patch("/api/profile/update-ad", upload.array("adUpdateImages", 5), async (re
   } 
 
 });
-app.post("/api/like", async (req, res) => {
+app.post("/api/like/sellers", async (req, res) => {
   //preventing spam likes
   const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
   // Check if IP exists in cache and if last signup was less than 1 minute ago
@@ -540,26 +540,55 @@ app.post("/api/like", async (req, res) => {
   }
 
   let client;
-  const { liked } = req.body;
-  
+  const { likeStatus, likedId, userId } = req.body;
+  const likedId2 = Number(likedId);
+  const userId2 = Number(userId);
+
   try {
     client = await pool.connect();
-    const { rows: updatedUser } = await client.query(
-      `UPDATE livorent_users SET name = $1, telephone = $2, email = $3, passtext = $4 WHERE id = $5 
-      RETURNING id`,
-      [updateLoad.name1, updateLoad.telephone1, updateLoad.email1, hashedPassword, updateLoad.id1]
-    );
-    const result = await client.query(
-      `SELECT * FROM livorent_ads WHERE main_group = $1
-      ORDER BY id DESC LIMIT 10`, [idcategory]
-    );
-    res.status(201).json({ myMessage: 'Profile updated', visitorNumber:updatedUser[0].id, token });
+
+    // 1. CHECK if user exists
+    const result = await client.query(`SELECT * FROM livorent_likes_users WHERE user_id = $1`, [userId2]);
+    if (result.rows.length > 0) {
+      console.log(result.rows[0])
+    } else {
+      console.log("no user found")
+    }
+/*     // 2. If user EXISTS → UPDATE
+    if (checkResult.rows.length > 0) {
+      const currentLikedSellers = checkResult.rows[0].liked_sellers || [];
+      const updatedLikedSellers = currentLikedSellers.includes(likedId2)
+        ? currentLikedSellers.filter(id => id !== likedId2) // Remove if exists
+        : [...currentLikedSellers, likedId2]; // Add if new
+
+      const updateQuery = `
+        UPDATE livorent_likes_users
+        SET liked_sellers = $1
+        WHERE user_id = $2
+        RETURNING *;
+      `;
+      const result = await client.query(updateQuery, [updatedLikedSellers, userId2]);
+      return result.rows[0];
+    } 
+
+    // 3. If user DOES NOT EXIST → INSERT
+    else {
+      const insertQuery = `
+        INSERT INTO livorent_likes_users (user_id, liked_sellers)
+        VALUES ($1, $2)
+        RETURNING *;
+      `;
+      const result = await client.query(insertQuery, [userId2, [likedId2]]);
+      return result.rows[0];
+    } */
+   res.json({myMessage: "test"});
   } catch (error) {
-    console.log(error.message);
-    res.status(500).json({myMessage: "Error while updating the profile"})
+    console.error("Database error:", error);
+    throw error;
   } finally {
-    client.release();
-  } 
+    if (client) client.release();
+  }
+
 });
 
 //This line must be under all server routes. Otherwise you will have like not being able to fetch comments etc.

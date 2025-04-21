@@ -79,10 +79,11 @@ function BtmSeller() {
   const saveLike = async (likeState) => {
     try {
       console.log('Like after 10 seconds:', likeState);
-      const response = await axios.post('http://localhost:5000/api/like', {
-        liked: likeState,
-        sellerId: cachedSellerData?.id,
+      const response = await axios.post('http://localhost:5000/api/like/sellers', {
+        likeStatus: likeState,
+        likedId: cachedSellerData?.id,//in BtmItem component this will be cachedItemData.id
         userId: cachedUserData?.id,
+        likeType: 1, //in BtmItem component this will be 2
       });
       console.log('Like after 10 seconds:', response.data.myMessage);
     } catch (error) {
