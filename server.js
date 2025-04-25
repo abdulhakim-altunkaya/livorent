@@ -546,17 +546,75 @@ app.post("/api/like/sellers", async (req, res) => {
 
   try {
     client = await pool.connect();
-    console.log(likeStatus)
     // 1. We check if user exists
     // 2. Then we check like exists
     // 3. Then we save like or remove depending like/unlike info coming from frontend.
     //Everytime we save a like to liked_sellers, we need to make sure we are saving an array not a number.
     //And we cannot save an array directly in postgresql, we need to stringfy it.
     const result = await client.query(`SELECT * FROM livorent_likes_users WHERE user_id = $1`, [userId2]);
-    if (result.rows.length > 0) {
-      const existingUser = result.rows[0];
-      const existingLike = existingUser.liked_sellers.includes(likedId2);
-      console.log("Repeating like error", existingLike);
+    const existingUser = result.rows[0];
+    const existingLike = JSON.parse(existingUser.liked_sellers).includes(likedId2);
+
+    if (likeStatus === false && !existingUser) {
+      console.log("No user. No like. Nothing to do.");
+      return res.json({myMessage: "No user. No like. Nothing to do."})
+    }
+
+    if (likeStatus === true && !existingUser) {
+      const newArray = JSON.stringify([likedId2]);
+      const result = await client.query(`INSERT INTO livorent_likes_users (user_id, liked_sellers)
+        VALUES ($1, $2)`, [userId2, newArray]);
+      console.log("No user. First like. Create a profile Go to create a profile");
+      return res.json({myMessage: "No user. Go to create a profile "})
+    }
+
+    if (likeStatus === false && existingUser) {
+      console.log("User exists. Check if the unliked seller is in the liked array.");
+      console.log("If yes remove seller. If no nothing to do.");
+      return res.json({myMessage: "User exists. Check if unliked seller is in liked array."})
+    }
+
+    if (likeStatus === true && existingUser) {
+      console.log("User exists. Check if the liked seller is in the liked array.");
+      console.log("If yes, nothing to do. If no add seller to the liked array.");
+      return res.json({myMessage: "User exists. Check if liked seller is in liked array."})
+    }
+    
+/*     if (result.rows.length > 0) {
+            // Parse liked_sellers to array safely
+            let likedSellersArray;
+            try {
+              likedSellersArray = JSON.parse(existingUser.liked_sellers || "[]");
+              if (!Array.isArray(likedSellersArray)) likedSellersArray = [];
+            } catch (e) {
+              console.error("Failed to parse liked_sellers:", existingUser.liked_sellers);
+              likedSellersArray = [];
+            }
+      
+            const existingLike = likedSellersArray.includes(likedId2);
+      if (existingLike === true && likeStatus === true) {
+        return res.status(200).json({myMessage: "You have already liked this seller"});
+      } else if (existingLike === true && likeStatus === false) {
+        const newArray = existingUser.liked_sellers.filter(sellerNum => sellerNum !== likedId2);
+        const newArray2 = JSON.stringify(newArray);
+        const result = await client.query(`      
+          UPDATE livorent_likes_users SET liked_sellers = $2 WHERE user_id = $1`,
+          [userId2, newArray2]);
+        return res.status(201).json({myMessage: "like removed"});
+      } else if(existingLike === false && likeStatus === true) {
+        const existingArray = existingUser.liked_sellers;
+        const newArray = existingArray.push(likedId2);
+        const newArray2 = JSON.stringify(newArray);
+        const result = await client.query(`      
+          UPDATE livorent_likes_users SET liked_sellers = $2 WHERE user_id = $1`,
+          [userId2, newArray2]);
+        return res.status(201).json({myMessage: "like added"});
+      } else if (existingLike === false && likeStatus === false) {
+        return res.status(200).json({myMessage: "To unlike you first need to like"});
+      } else {
+        return res.status(404).json({myMessage: "User found, but probably error with the liked_sellers array"})
+      }
+
     } else {
       if (likeStatus === false) {
         return res.status(200).json({myMessage: "First like cannot be an unlike"});
@@ -564,32 +622,15 @@ app.post("/api/like/sellers", async (req, res) => {
       const newArray = JSON.stringify([likedId2])
       const result = await client.query(`INSERT INTO livorent_likes_users (user_id, liked_sellers)
         VALUES ($1, $2)`, [userId2, newArray]);
-      res.status(201).json({myMessage: "first like registered"});
+      return res.status(201).json({myMessage: "first like registered"});
     }
-/*     // 2. If user EXISTS → UPDATE
-    if (checkResult.rows.length > 0) {
-      const currentLikedSellers = checkResult.rows[0].liked_sellers || [];
-      const updatedLikedSellers = currentLikedSellers.includes(likedId2)
-        ? currentLikedSellers.filter(id => id !== likedId2) // Remove if exists
-        : [...currentLikedSellers, likedId2]; // Add if new
-
-      const updateQuery = `
-        UPDATE livorent_likes_users
-        SET liked_sellers = $1
-        WHERE user_id = $2
-        RETURNING *;
-      `;
-      const result = await client.query(updateQuery, [updatedLikedSellers, userId2]);
-      return result.rows[0];
-    } 
- */
-   res.json({myMessage: "test"});
+      */
   } catch (error) {
     console.error("Database error:", error);
-    throw error;
+    return res.status(404).json({myMessage: "Something went wrong while getting basic user data"})
   } finally {
     if (client) client.release();
-  }
+  } 
 
 });
 
