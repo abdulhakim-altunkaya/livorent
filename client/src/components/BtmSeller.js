@@ -80,6 +80,10 @@ function BtmSeller() {
   const saveLike = async (likeState) => {
     try {
       console.log('Like after 10 seconds:', likeState);
+      if (cachedSellerData?.id === cachedUserData?.id) {
+        console.log("No self like");
+        return;
+      }
       const response = await axios.post('http://localhost:5000/api/like/sellers', {
         likeStatus: likeState,
         likedId: cachedSellerData?.id,//in BtmItem component this will be cachedItemData.id

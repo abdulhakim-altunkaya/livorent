@@ -36,6 +36,13 @@ function BtmUpload() {
       alert("You can upload a maximum of 4 images.");
       return;
     }
+    // ✅ Check individual file size (max 4MB)
+    for (const file of selectedFiles) {
+      if (file.size > 4 * 1024 * 1024) {
+        alert(`Katrs attēls nedrīkst pārsniegt 4 MB: '${file.name}'`);
+        return;
+      }
+    }
     setImages(selectedFiles);
   };
 
