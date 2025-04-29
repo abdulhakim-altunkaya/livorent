@@ -182,13 +182,19 @@ function BtmItem() {
   };
   const saveLike = async (likeState) => {
     try {
-      console.log('Like after 10 seconds:', likeState);
       const response = await axios.post('http://localhost:5000/api/like/items', {
         likeStatus: likeState,
         likedId: message.id, 
         userId: cachedUserData?.id,
       });
-      console.log('Like after 10 seconds:', response.data.myMessage);
+      await new Promise(resolve => setTimeout(resolve, 1100));
+      const response2 = await axios.post('http://localhost:5000/api/like/item-to-users', {
+        likeStatus: likeState,
+        likedId: message?.id,
+        userId: cachedUserData?.id
+      });
+      console.log('LIKE LOGIC 1:', response.data.myMessage);
+      console.log('LIKE LOGIC 2:', response2.data.myMessage);
     } catch (error) {
       console.error('Error saving like:', error);
     }

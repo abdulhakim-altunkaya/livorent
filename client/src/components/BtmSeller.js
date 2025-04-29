@@ -59,6 +59,19 @@ function BtmSeller() {
     getData();
   }, [sellerNumber]);
 
+  useEffect(() => {
+    const getData2 = async () => {
+      try {
+        const response = await axios.get(`http://localhost:5000/api/like/get-likes-count/${sellerNumber}`);
+        console.log(response.data.totalLikes);  
+      } catch (error) {
+        console.log(error.message);
+      }
+    }
+    getData2();
+  }, [sellerNumber])
+  
+
   const handleLike = () => {
     // Check if visitor is logged in
     if (!cachedUserData || !cachedUserData.id) {
@@ -75,22 +88,28 @@ function BtmSeller() {
     // Set a new debounce timer
     debounceTimer.current = setTimeout(() => {
       saveLike(newLikeState);
-    }, 10000); // delay in milliseconds (10s here)
+    }, 7000); // delay in milliseconds (7s here)
   };
   const saveLike = async (likeState) => {
     try {
       console.log('Like after 10 seconds:', likeState);
       if (cachedSellerData?.id === cachedUserData?.id) {
         console.log("No self like");
-        return;
+        return; 
       }
       const response = await axios.post('http://localhost:5000/api/like/sellers', {
         likeStatus: likeState,
         likedId: cachedSellerData?.id,//in BtmItem component this will be cachedItemData.id
-        userId: cachedUserData?.id,
-        likeType: 1, //in BtmItem component this will be 2
+        userId: cachedUserData?.id
       });
-      console.log('Like after 10 seconds:', response.data.myMessage);
+      await new Promise(resolve => setTimeout(resolve, 1100));
+      const response2 = await axios.post('http://localhost:5000/api/like/seller-to-users', {
+        likeStatus: likeState,
+        likedId: sellerData?.id,
+        userId: cachedUserData?.id
+      });
+      console.log('LIKE LOGIC 1:', response.data.myMessage);
+      console.log('LIKE LOGIC 2:', response2.data.myMessage);
     } catch (error) {
       console.error('Error saving like:', error);
     }
