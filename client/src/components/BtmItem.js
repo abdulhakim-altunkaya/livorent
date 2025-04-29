@@ -1,14 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from "react-router-dom";
 import "../styles/Item.css"
 import Footer from "./Footer.js";
 import { detectSection, detectCategory } from './utilsCategories';
+import useUserStore from '../store/userStore';
 
 function BtmItem() {
   const navigate = useNavigate();
 
   const { itemNumber } = useParams();
+  
+  //we will check zustand store to see if there is any user data in it. If there is
+  //then no need to make repetitive requests to backend.
+  //We will use cachedUserData to let the visitor to leave a like. Only registered people can like.
+  const { cachedUserData } = useUserStore.getState();
+
+  const debounceTimer = useRef(null);//we will use this to force wait time on like clicks
+
   const [message, setMessage] = useState(null);
   const [errorFrontend, setErrorFrontend] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -23,6 +32,9 @@ function BtmItem() {
   //states for returning back main category or section pages
   const [mainCategoryNum, setMainCategoryNum] = useState(0);
   const [sectionNum, setSectionNum] = useState(0);
+  //states for like logic
+  const [isLikeAllowed, setIsLikeAllowed] = useState(true);
+  const [isLiked, setIsLiked] = useState(false);
 
   useEffect(() => {
     const getData = async () => {
@@ -150,6 +162,38 @@ function BtmItem() {
     }
   }
 
+  const handleLike = () => {
+    // Check if visitor is logged in
+    if (!cachedUserData || !cachedUserData.id) {
+      alert("To leave a like, you need to login");
+      setIsLikeAllowed(!isLikeAllowed)
+      return;
+    }
+    const newLikeState = !isLiked;
+    setIsLiked(newLikeState);
+    // Clear previous timeout if it exists
+    if (debounceTimer.current) {
+      clearTimeout(debounceTimer.current);
+    }
+    // Set a new debounce timer
+    debounceTimer.current = setTimeout(() => {
+      saveLike(newLikeState);
+    }, 10000); // delay in milliseconds (10s here)
+  };
+  const saveLike = async (likeState) => {
+    try {
+      console.log('Like after 10 seconds:', likeState);
+      const response = await axios.post('http://localhost:5000/api/like/items', {
+        likeStatus: likeState,
+        likedId: message.id, 
+        userId: cachedUserData?.id,
+      });
+      console.log('Like after 10 seconds:', response.data.myMessage);
+    } catch (error) {
+      console.error('Error saving like:', error);
+    }
+  };
+
   return ( 
     <div>
       <div className='itemMainContainer'>
@@ -217,7 +261,25 @@ function BtmItem() {
                     <div>
                       <span className='grayText'>Vārds:</span>
                       <span className='itemCategoryLinks' onClick={goSeller}>    {formatName(message?.name)}</span></div>
-                    <br/> <br/>
+                    <br/>
+                    <div>
+                      {
+                        isLiked ?
+                          <img className='heartIcon' onClick={handleLike} src='/svg_heart_filled.svg' alt='full heart'/>
+                        :
+                          <img className='heartIcon' onClick={handleLike} src='/svg_heart.svg' alt='empty heart'/>
+                      }
+                      {
+                        isLikeAllowed ?
+                         <></>
+                        :
+                        <div className="noUserBtmUpload">
+                          Lai atzīmētu ar "patīk", jābūt reģistrētam.
+                          <span onClick={() => navigate("/login")}> Ieiet</span> vai 
+                          <span onClick={() => navigate("/registration")}> reģistrēties</span>.
+                        </div>
+                      }
+                    </div>
                     <div className='smallText'><span>Datums:</span><span>    {message.date}</span></div>
                     <div className='smallText'><span>Unikālo apmeklējumu skaits:</span><span></span></div>
                     
