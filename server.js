@@ -957,17 +957,28 @@ app.post("/api/like/item-to-users", async (req, res) => {
   } 
 });
 
-
-
 app.get("/api/like/get-seller-likes-count/:idSeller1", async (req, res) => {
 
   const { idSeller1 } = req.params;
   let client;
   const sellerId = Number(idSeller1);
+  if(!idSeller1) {
+    return res.status(404).json({myMessage: "Like count could not be fetched"});
+  }
 
   try {
     client = await pool.connect();
-    const result = await client.query(`SELECT * FROM livorent_likes_ads_sellers WHERE seller_id = $1`, [sellerId]);
+    const result = await client.query(
+      `SELECT * FROM livorent_likes_ads_sellers WHERE seller_id = $1`,
+      [sellerId]
+    );
+    if (result.rows.length < 1) {
+      return res.status(404).json(0);
+    }
+    if (result.rows[0].voted_clients === null) {
+      return res.status(404).json(0);
+    }
+    res.status(200).json(result.rows[0].voted_clients.length); // Return the first matching item's like count
   } catch (error) {
     console.error("Database error:", error);
     return res.status(404).json({myMessage: "Something went wrong while getting count data"})

@@ -30,6 +30,7 @@ function BtmSeller() {
   const [resultArea, setResultArea] = useState("");
   const [isLikeAllowed, setIsLikeAllowed] = useState(true);
   const [isLiked, setIsLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState("");
 
   useEffect(() => {
     const getData = async () => {
@@ -62,8 +63,11 @@ function BtmSeller() {
   useEffect(() => {
     const getData2 = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/like/get-likes-count/${sellerNumber}`);
-        console.log(response.data.totalLikes);  
+        const response = await axios.get(`http://localhost:5000/api/like/get-seller-likes-count/${sellerNumber}`);
+        const likeNum = Number(response.data);
+        if (likeNum > 0) {
+          setLikeCount(likeNum); 
+        }
       } catch (error) {
         console.log(error.message);
       }
@@ -80,6 +84,11 @@ function BtmSeller() {
       return;
     }
     const newLikeState = !isLiked; // this is the actual updated state
+    if (newLikeState === true) {
+      setLikeCount(likeCount+1);
+    } else if (newLikeState === false) {
+      setLikeCount(likeCount-1);
+    }
     setIsLiked(newLikeState);
     // Clear previous timeout if it exists
     if (debounceTimer.current) {
@@ -88,9 +97,10 @@ function BtmSeller() {
     // Set a new debounce timer
     debounceTimer.current = setTimeout(() => {
       saveLike(newLikeState);
-    }, 7000); // delay in milliseconds (7s here)
+    }, 5000); // delay in milliseconds (5s here)
   };
   const saveLike = async (likeState) => {
+
     try {
       console.log('Like after 10 seconds:', likeState);
       if (cachedSellerData?.id === cachedUserData?.id) {
@@ -134,13 +144,19 @@ function BtmSeller() {
                     <div>
                       {
                         isLiked ?
-                          <img className='heartIcon' onClick={handleLike} src='/svg_heart_filled.svg' alt='empty heart'/>
+                          <div className='likeArea'>
+                            <img className='heartIcon' onClick={handleLike} src='/svg_heart_filled.svg' alt='empty heart'/> 
+                            <span>{likeCount}</span>              
+                          </div>
                         :
-                          <img className='heartIcon' onClick={handleLike} src='/svg_heart.svg' alt='empty heart'/>
+                          <div className='likeArea'>
+                            <img className='heartIcon' onClick={handleLike} src='/svg_heart.svg' alt='empty heart'/> 
+                            <span>{likeCount}</span>              
+                          </div>
                       }
                       {
                         isLikeAllowed ?
-                         <></>
+                          <></>
                         :
                         <div className="noUserBtmUpload">
                           Lai atzīmētu ar "patīk", jābūt reģistrētam.

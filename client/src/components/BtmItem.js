@@ -178,7 +178,7 @@ function BtmItem() {
     // Set a new debounce timer
     debounceTimer.current = setTimeout(() => {
       saveLike(newLikeState);
-    }, 10000); // delay in milliseconds (10s here)
+    }, 5000); // delay in milliseconds (5s here)
   };
   const saveLike = async (likeState) => {
     try {

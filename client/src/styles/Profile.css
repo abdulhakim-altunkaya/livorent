@@ -132,6 +132,11 @@
     width: 35px;
     cursor: pointer;
 }
+.likeArea {
+    display: flex;
+    align-items: center; /* vertical alignment */
+    gap: 8px; /* horizontal spacing between items */
+}
 
 @media (min-width: 768px) {
   .button-54 {
