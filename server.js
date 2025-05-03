@@ -960,10 +960,17 @@ app.post("/api/like/item-to-users", async (req, res) => {
 app.get("/api/like/get-seller-likes-count/:idSeller1", async (req, res) => {
 
   const { idSeller1 } = req.params;
-  let client;
   const sellerId = Number(idSeller1);
+  const visitor = req.query.visitor;
+  const visitor2 = Number(visitor);
+
+  let client;
+  
   if(!idSeller1) {
-    return res.status(404).json({myMessage: "Like count could not be fetched"});
+    return res.status(404).json({myMessage: "no seller id detected on endpoint route"});
+  }
+  if (sellerId < 1) {
+    return res.status(404).json({myMessage: "seller id is wrong"});
   }
 
   try {
@@ -978,7 +985,14 @@ app.get("/api/like/get-seller-likes-count/:idSeller1", async (req, res) => {
     if (result.rows[0].voted_clients === null) {
       return res.status(404).json(0);
     }
-    res.status(200).json(result.rows[0].voted_clients.length); // Return the first matching item's like count
+    if (result.rows[0].voted_clients.includes(visitor2)) {
+      // Visitor already liked
+      return res.status(200).json({
+        responseLikeStatus: true,
+        responseLikeCount: result.rows[0].voted_clients.length
+      });
+    }
+    return res.status(200).json(result.rows[0].voted_clients.length); // Return the first matching item's like count
   } catch (error) {
     console.error("Database error:", error);
     return res.status(404).json({myMessage: "Something went wrong while getting count data"})

@@ -42,13 +42,12 @@ function BtmSeller() {
         //Thus, if the visitor visits the same seller again, the seller info will come from Zustand not from DB.
         if (cachedSellerData?.id === sellerNumber) {
           setSellerData(cachedSellerData);
-          console.log("cached data displayed")
+          console.log("cached data displayed");
         } else {
           const responseUser = await axios.get(`http://localhost:5000/api/get/userdata/${sellerNumber}`);
           setSellerData(responseUser.data);
           useUserStore.getState().setCachedSellerData(responseUser.data);
         } 
-
       } catch (error) {
         setErrorFrontend("Error: ads could not be fetched");
         console.log(error.message);
@@ -62,12 +61,30 @@ function BtmSeller() {
 
   useEffect(() => {
     const getData2 = async () => {
+      //we will get the total number of likes and if user has liked before or not. If liked, heart will be filled.
+      //we will send seller id in req.params and visitor id in req.params
+      //we cannot use req.body because req.body can only be used with axios.post requests
+      //backend will check with a for loop if the visitor has liked the seller.
+      //in other words, for loop will loop through voted_clients array to see if visitor id is there or not.
+      if (!cachedUserData || !cachedUserData.id) {
+        setIsLiked(false);//if no cached user data, it means there is no login. It means visitor is not registered. 
+      }
       try {
-        const response = await axios.get(`http://localhost:5000/api/like/get-seller-likes-count/${sellerNumber}`);
-        const likeNum = Number(response.data);
+        const response = await axios.get(`http://localhost:5000/api/like/get-seller-likes-count/${sellerNumber}`, {
+          params: { visitor: cachedUserData.id }
+        });
+        const likeNum = Number(response.data.responseLikeCount);
+        const likeSta = response.data.responseLikeStatus;
+
         if (likeNum > 0) {
           setLikeCount(likeNum); 
         }
+        if (likeSta === true) {
+          setIsLiked(true)
+        } else {
+          setIsLiked(false);
+        }
+
       } catch (error) {
         console.log(error.message);
       }
