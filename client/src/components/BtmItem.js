@@ -35,6 +35,7 @@ function BtmItem() {
   //states for like logic
   const [isLikeAllowed, setIsLikeAllowed] = useState(true);
   const [isLiked, setIsLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState("");
 
   useEffect(() => {
     const getData = async () => {
@@ -135,6 +136,42 @@ function BtmItem() {
     }
   }, [message, loading]);
 
+  useEffect(() => {
+    const getData2 = async () => {
+      //we will get the total number of likes and if user has liked before or not. If liked, heart will be filled.
+      //we will send item id in req.params and visitor id in req.query
+      //we cannot use req.body because req.body can only be used with axios.post requests
+      //backend will check if the visitor has liked the item.
+      //If visitor has liked, it will return a TRUE and like count value.
+      if (!cachedUserData || !cachedUserData.id) {
+        setIsLiked(false); // not logged in
+      }
+      const visitorId = cachedUserData?.id || 0;//we are sending at least a 0 to prevent crashes if no login
+
+      try {
+        const response = await axios.get(`http://localhost:5000/api/like/get-item-likes-count/${itemNumber}`, {
+          params: { visitor: visitorId } 
+        });
+        const likeNum = Number(response.data.responseLikeCount);
+        console.log("Just checking if like number is correct:", likeNum);
+        const likeSta = response.data.responseLikeStatus;
+
+        if (likeNum > 0) {
+          setLikeCount(likeNum); 
+        }
+        if (likeSta === true) {
+          setIsLiked(true)
+        } else {
+          setIsLiked(false);
+        }
+
+      } catch (error) {
+        console.log(error.message);
+      }
+    }
+    getData2();
+  }, [itemNumber]);
+
   //Also, back navigation links to return to main category or section pages
   const goMain = () => {
     if (mainCategoryNum === 1) {
@@ -161,7 +198,7 @@ function BtmItem() {
       navigate(`/seller/${Number(message.user_id)}`)
     }
   }
-
+ 
   const handleLike = () => {
     // Check if visitor is logged in
     if (!cachedUserData || !cachedUserData.id) {
@@ -169,7 +206,12 @@ function BtmItem() {
       setIsLikeAllowed(!isLikeAllowed)
       return;
     }
-    const newLikeState = !isLiked;
+    const newLikeState = !isLiked; // this is the actual updated state
+    if (newLikeState === true) {
+      setLikeCount(likeCount+1);
+    } else if (newLikeState === false) {
+      setLikeCount(likeCount-1);
+    }
     setIsLiked(newLikeState);
     // Clear previous timeout if it exists
     if (debounceTimer.current) {
@@ -271,10 +313,17 @@ function BtmItem() {
                     <div>
                       {
                         isLiked ?
-                          <img className='heartIcon' onClick={handleLike} src='/svg_heart_filled.svg' alt='full heart'/>
+                          <div className='likeArea'>
+                            <img className='heartIcon' onClick={handleLike} src='/svg_heart_filled.svg' alt='full heart'/> 
+                            <span>{likeCount}</span>              
+                          </div>
                         :
-                          <img className='heartIcon' onClick={handleLike} src='/svg_heart.svg' alt='empty heart'/>
+                          <div className='likeArea'>
+                            <img className='heartIcon' onClick={handleLike} src='/svg_heart.svg' alt='empty heart'/> 
+                            <span>{likeCount}</span>              
+                          </div>
                       }
+
                       {
                         isLikeAllowed ?
                          <></>

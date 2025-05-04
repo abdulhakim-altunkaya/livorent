@@ -956,7 +956,6 @@ app.post("/api/like/item-to-users", async (req, res) => {
     if (client) client.release();
   } 
 });
-
 app.get("/api/like/get-seller-likes-count/:idSeller1", async (req, res) => {
 
   const { idSeller1 } = req.params;
@@ -980,27 +979,101 @@ app.get("/api/like/get-seller-likes-count/:idSeller1", async (req, res) => {
       [sellerId]
     );
     if (result.rows.length < 1) {
-      return res.status(404).json(0);
+      return res.status(404).json({
+        //Frontend is expecting these reply fields. So even if backend reply is negative,
+        //it should still contain these false and 0 values to prevent errors on the frontend.
+        responseLikeStatus: false,
+        responseLikeCount: 0
+      });
     }
     if (result.rows[0].voted_clients === null) {
-      return res.status(404).json(0);
+      return res.status(404).json({
+        //Frontend is expecting these reply fields. So even if backend reply is negative,
+        //it should still contain these false and 0 values to prevent errors on the frontend.
+        responseLikeStatus: false,
+        responseLikeCount: 0
+      });
     }
     if (result.rows[0].voted_clients.includes(visitor2)) {
-      // Visitor already liked
+      //If visitor has already liked, we will return a true and liker count data.
+      //TRUE means visitor has already liked and the heart on frontend should be filled.
       return res.status(200).json({
         responseLikeStatus: true,
         responseLikeCount: result.rows[0].voted_clients.length
       });
     }
-    return res.status(200).json(result.rows[0].voted_clients.length); // Return the first matching item's like count
+    return res.status(200).json({
+      //If visitor has not liked yet, we will return a false and liker count data.
+      //FALSE means visitor has not liked yet and the heart on frontend should be empty.
+      responseLikeStatus: false,
+      responseLikeCount: result.rows[0].voted_clients.length
+    });
   } catch (error) {
     console.error("Database error:", error);
-    return res.status(404).json({myMessage: "Something went wrong while getting count data"})
+    return res.status(404).json({myMessage: "Something went wrong while getting like data"})
   } finally {
     if (client) client.release();
   } 
 })
+app.get("/api/like/get-item-likes-count/:idItem1", async (req, res) => {
 
+  const { idItem1 } = req.params;
+  const idItem = Number(idItem1);
+  const visitor = req.query.visitor;
+  const visitor2 = Number(visitor);
+
+  let client;
+  
+  if(!idItem1) {
+    return res.status(404).json({myMessage: "no ad id detected on endpoint route"});
+  }
+  if (idItem < 1) {
+    return res.status(404).json({myMessage: "ad id is wrong"});
+  }
+
+  try {
+    client = await pool.connect();
+    const result = await client.query(
+      `SELECT * FROM livorent_likes_ads_sellers WHERE ad_id = $1`,
+      [idItem]
+    );
+    if (result.rows.length < 1) {
+      return res.status(404).json({
+        //Frontend is expecting these reply fields. So even if backend reply is negative,
+        //it should still contain these false and 0 values to prevent errors on the frontend.
+        responseLikeStatus: false,
+        responseLikeCount: 0
+      });
+    }
+    if (result.rows[0].voted_clients === null) {
+      return res.status(404).json({
+        //Frontend is expecting these reply fields. So even if backend reply is negative,
+        //it should still contain these false and 0 values to prevent errors on the frontend.
+        responseLikeStatus: false,
+        responseLikeCount: 0
+      });
+    }
+    if (result.rows[0].voted_clients.includes(visitor2)) {
+      //If visitor has already liked, we will return a true and liker count data.
+      //TRUE means visitor has already liked and the heart on frontend should be filled.
+      return res.status(200).json({
+        responseLikeStatus: true,
+        responseLikeCount: result.rows[0].voted_clients.length
+      });
+    }
+    return res.status(200).json({
+        //If visitor has not liked yet, it will a return a FALSE and liker count value.
+        //FALSE means visitor has not liked yet and the heart on frontend should be empty.
+        responseLikeStatus: false,
+        responseLikeCount: result.rows[0].voted_clients.length
+    }); 
+  } catch (error) {
+    console.error("Database error:", error);
+    return res.status(404).json({myMessage: "Something went wrong while getting like data"})
+  } finally {
+    if (client) client.release();
+  } 
+})
 //This line must be under all server routes. Otherwise you will have like not being able to fetch comments etc.
 //This code helps with managing routes that are not defined on react frontend. If you dont add, only index 
 //route will be visible.

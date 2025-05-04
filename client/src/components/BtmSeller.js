@@ -62,16 +62,18 @@ function BtmSeller() {
   useEffect(() => {
     const getData2 = async () => {
       //we will get the total number of likes and if user has liked before or not. If liked, heart will be filled.
-      //we will send seller id in req.params and visitor id in req.params
+      //we will send seller id in req.params and visitor id in req.query
       //we cannot use req.body because req.body can only be used with axios.post requests
-      //backend will check with a for loop if the visitor has liked the seller.
-      //in other words, for loop will loop through voted_clients array to see if visitor id is there or not.
+      //backend will check if the visitor has liked the seller.
+      //If visitor has liked, it will return a TRUE and like count value.
       if (!cachedUserData || !cachedUserData.id) {
-        setIsLiked(false);//if no cached user data, it means there is no login. It means visitor is not registered. 
+        setIsLiked(false); // not logged in
       }
+      const visitorId = cachedUserData?.id || 0; //we are sending at least a 0 to prevent crashes if no login
+
       try {
         const response = await axios.get(`http://localhost:5000/api/like/get-seller-likes-count/${sellerNumber}`, {
-          params: { visitor: cachedUserData.id }
+          params: { visitor: visitorId }
         });
         const likeNum = Number(response.data.responseLikeCount);
         const likeSta = response.data.responseLikeStatus;
@@ -90,7 +92,7 @@ function BtmSeller() {
       }
     }
     getData2();
-  }, [sellerNumber])
+  }, [sellerNumber]);
   
 
   const handleLike = () => {
@@ -162,7 +164,7 @@ function BtmSeller() {
                       {
                         isLiked ?
                           <div className='likeArea'>
-                            <img className='heartIcon' onClick={handleLike} src='/svg_heart_filled.svg' alt='empty heart'/> 
+                            <img className='heartIcon' onClick={handleLike} src='/svg_heart_filled.svg' alt='full heart'/> 
                             <span>{likeCount}</span>              
                           </div>
                         :
