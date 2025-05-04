@@ -9,7 +9,7 @@ export const getUserId = () => {
     if (!token || !visitorNumber) {
       return { 
         userNumber : 0
-      };
+      }; 
     }
   
     // 3. Return ONLY what you know exists

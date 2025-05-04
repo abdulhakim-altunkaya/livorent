@@ -28,7 +28,7 @@ function BtmProfile() {
           setUserData(cachedUserData);
           console.log("cached data displayed")
         } else {
-          const responseUser = await axios.get(`http://localhost:5000/api/get/userdata/${visitorNumber}`);
+          const responseUser = await axios.get(`http://localhost:5000/api/get/userdata/${visitorNumber}`); 
           setUserData(responseUser.data);
           useUserStore.getState().setCachedUserData(responseUser.data);  // Zustand cache
         }

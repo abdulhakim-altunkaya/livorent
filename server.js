@@ -1082,24 +1082,24 @@ app.get("/api/like/get-item-likes-count/:idItem1", async (req, res) => {
     res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
 }); */
 
+/* //Then go to server.js file and make sure you serve static files from build directory:
+app.use(express.static(path.join(__dirname, 'client/build'))); */
+
 /*
 UNCOMMENT THIS IN SERVER.JS: app.use(express.static(path.join(__dirname, 'client/build'))); 
 */
+//remove "build" from gitignore before production deployment
+//create "build" folder-- npm run build in client folder
+//You may remove cors before production
+//Fix server api routes before production, remove "localhost" part
+//add environment variables
+//add "::1", to the ignored ip list
 
 
 const PORT = process.env.PORT ||5000;
 app.listen(PORT, () => {
   console.log("Port is open on " + PORT);
 })
-
-//remove "build" from gitignore before production deployment
-//create "build" folder-- npm run build in client folder
-//You may remove cors before production
-//Fix server api routes before production, remove "localhost" part
-//add environment variables
-/*Also add this otherwise only index route will be visible when you deploy app to production
-add "::1", to the ignored ip list
-
 
   /* 
   In like logic, we will display all liked sellers or items to the user on profile page.
@@ -1112,26 +1112,21 @@ change 1000 to 3600000 in the time limit of serversavevisitor endpoint
 change 1000 to 60000 in the serversavecomment endpoint
 change 1000 to 60000 in the serversavecommentreply endpoint
 change all xxxxx things in the footer component 
-create a component for company set up
 Add limits for contact form inputs and textarea
-add how to become a citizen section, reference immigrant invest
 add two more comment section to each part
-add car rental page with pictures
 before creating a new profile, a check on emails to make sure user does exist
-password forget remind
 check time limits on post routes . They are not 1 minute, if so, convert them to 1 minute
 ip check to make sure same ip can upload once in 5 minutes and twice in 24 hour 
-also create a signout option to allow a new user to sign in from the same computer. 
-//make sure only the profile owner can update
 */
-//Add a like and comment system
-//Currently I can enter into any profile. Prevent that. Registered people should only their profile, not any.
-//When deleting an ad, make sure its images are also deleted
+//Add comment system
+//Add search logic
+//Add password renewal logic
+//add security check for repetitive wrong login attemps
+//Currently I can enter into any profile. Prevent that. Registered people should only see their profile, not any.
+//make sure only the profile owner can update
 //remove console.log statements from all components and server.js
 //convert all error, success and alert messages to Latvian, also buttons and any other text
-//add a password renewal in case of repetitive wrong login attemps
-//update and delete functionality on user page for the ads he added
-//integrate a comment section and a visit counter to each advertisement
+//Add visit counter to each ad page
 //Only last 10 records will be uploaded to the main pages. How to add a button to add another 10 when user clicks?
 //And another 10 if user clicks again and so on?
 //upload component has hard coded css style. Maybe I can remove it?
@@ -1146,8 +1141,7 @@ also create a signout option to allow a new user to sign in from the same comput
 // Also add a password update section in cases forgetting
 // convert all alerts and backend messages to Latvian, you can components and server file line by line
 //Add a loading circle when uploading an ad and waiting for reply if ad is saved
-/* //Then go to server.js file and make sure you serve static files from build directory:
-app.use(express.static(path.join(__dirname, 'client/build'))); */
+
 
 app.post("/api/save-message", async (req, res) => {
   const messageObject = req.body;
@@ -1297,39 +1291,3 @@ app.get("/servergetcomments", async (req, res) => {
     if(client) client.release();
   }
 });
-
-/*
-app.patch("/api/profile/delete-image", async (req, res) => {
-  const { imageLink, adNumber } = req.body;
-  let client;
-
-  const adNumber2 = Number(adNumber);
-  if(!adNumber2) {
-    return res.status(404).json({myMessage: "Ad number is missing"});
-  }
-  try {
-    client = await pool.connect();
-    const result = await client.query(
-      `SELECT * FROM livorent_ads WHERE id = $1`,
-      [adNumber2]
-    );
-    if (result.rows.length > 0) {
-      const existingImageList = result.rows[0].image_url;
-
-      // Filter out the matching imageLink
-      const updatedImageList = existingImageList.filter(
-        existingImg => existingImg !== imageLink
-      );
-
-      res.status(200).json({myMessage: "Image uploaded"});
-    } else {
-      return res.status(404).json({ myMessage: "Item details not found although item id is correct"})
-    }
-  } catch (error) {
-    console.log(error.message);
-    res.status(500).json({myMessage: "Error at the Backend: Couldnt fetch item details"})
-  } finally {
-    if(client) client.release();
-  }
-});
-*/
