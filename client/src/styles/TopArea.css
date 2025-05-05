@@ -7,6 +7,7 @@
   justify-content: space-between;
   align-items: center;
   box-shadow: 0 4px 6px -2px rgba(0, 0, 0, 0.2); /* Bottom shadow */
+  user-select: none;
 }
 .TopNavbarArea span, .topAreaLoginArea {
   cursor: pointer;
@@ -17,7 +18,7 @@
   justify-content: center; /* Center text horizontally */
 }
 .topAreaNavSpans{
-  font-size: 20px;
+  font-size: 20px; 
   font-weight: bold;
 }
 .TopNavbarArea span:hover {
@@ -63,4 +64,28 @@
 .profileIcon {
   width: 33px;
   color: #FBEAEB;
+}
+.searchArea:hover{
+  background-color: #cde8c6 !important;
+}
+#searchAreaInput {
+  width: 250px;
+  height: 35px;
+  padding: 5px 8px;
+  border-radius: 7px;
+  border: 1px solid black;
+  outline: none;
+  font-family: "Monda", 'Trebuchet MS', sans-serif;
+}
+#searchAreaInput:hover {
+  box-shadow: 0 0 8px 4px rgba(0, 0, 0, 0.25); /* Darker, thicker shadow */
+  transition: box-shadow 0.2s ease; /* Smooth transition */
+}
+#searchIcon {
+  width: 31px;
+  margin-left: -40px;
+}
+#searchIcon:hover {
+  transform: scale(1.1); /* Slightly enlarge icon */
+  transition: transform 0.2s ease, filter 0.2s ease; /* Smooth transition */
 }

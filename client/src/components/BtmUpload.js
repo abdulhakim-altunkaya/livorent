@@ -313,7 +313,7 @@ function BtmUpload() {
             </form>
             <div>{resultArea}</div>
           </div>
-          <br /><br /><br /><br /><br /><br /><br /><br />
+          <br /><br /><br /><br /><br /><br /><br /><br /> 
           <Footer />
         </div>
       )

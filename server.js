@@ -1119,8 +1119,10 @@ check time limits on post routes . They are not 1 minute, if so, convert them to
 ip check to make sure same ip can upload once in 5 minutes and twice in 24 hour 
 */
 //Add comment system
-//Add search logic
+//Add search logic, make search flexible
 //Add password renewal logic
+//connect cache to homepage. Currently cachedUserData can only be filled once login clicked. 
+//Change it to homepage display.
 //add security check for repetitive wrong login attemps
 //Currently I can enter into any profile. Prevent that. Registered people should only see their profile, not any.
 //make sure only the profile owner can update
@@ -1137,11 +1139,8 @@ ip check to make sure same ip can upload once in 5 minutes and twice in 24 hour
 //too long texts and it will overflow list. Also limit the number of inputs. People should not upload
 //many images and information inputs
 //before signingup a new user, make sure the email does not exist already.
-// fix "encountered the same children witht he same key" error when displaying the table of ads, it happens in all components
-// Also add a password update section in cases forgetting
-// convert all alerts and backend messages to Latvian, you can components and server file line by line
 //Add a loading circle when uploading an ad and waiting for reply if ad is saved
-
+//Add small screen style
 
 app.post("/api/save-message", async (req, res) => {
   const messageObject = req.body;

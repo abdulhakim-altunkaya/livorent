@@ -65,6 +65,7 @@
     border-radius: 10px;
     margin-top: 40px;
     overflow-y: auto;
+    overflow-x: hidden;
     scrollbar-width: auto;
     box-sizing: border-box;
   }

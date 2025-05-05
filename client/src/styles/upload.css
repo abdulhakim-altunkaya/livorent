@@ -1,5 +1,5 @@
 /* Media query for big screens */
-@media (min-width: 781px) {
+@media (min-width: 781px) { 
 
     .adFormArea{
         height: 100%;
