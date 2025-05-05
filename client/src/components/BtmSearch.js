@@ -12,7 +12,7 @@ function BtmSearch() {
 
   return (
     <div>
-      <div className="searchArea">
+      <div className="searchDiv">
         <div>
           <h1>Meklēšana</h1>
           <div>

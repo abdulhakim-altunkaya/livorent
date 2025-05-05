@@ -1,5 +1,7 @@
 /* Media query for big screens */
 @media (min-width: 781px) {
 
-
+    .searchDiv {
+        margin-left: 20px;
+    }
 }
