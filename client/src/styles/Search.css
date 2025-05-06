@@ -2,6 +2,14 @@
 @media (min-width: 781px) {
 
     .searchDiv {
+        font-size: 20px;
         margin-left: 20px;
+        margin-bottom: 50px;
+        margin-top: 50px;
+    }
+    .targetWord {
+        font-weight: bolder;
+        padding: 4px 14px;
+        border-radius: 3px;
     }
 }

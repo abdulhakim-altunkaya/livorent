@@ -1076,15 +1076,23 @@ app.get("/api/like/get-item-likes-count/:idItem1", async (req, res) => {
 })
 app.get("/api/search", async (req, res) => {
 
-  const searchText = req.query.searchInput;
+  const searchText = req.query.myQuery;
 
   let client;
   
   if(!searchText) {
-    return res.status(200).json({myMessage: "no search text detected"});
+    return res.status(200).json({
+      responseStatus: false, //false mean search failed, it brought zero result.
+      responseMessage: "search text is missing",
+      responseResult: []
+    });
   }
   if (searchText.trim().length < 3) {
-    return res.status(400).json({myMessage: "search text is too short"});
+    return res.status(400).json({
+      responseStatus: false, //false mean search failed, it brought zero result.
+      responseMessage: "search text is too small",
+      responseResult: []
+    });
   }
 
   try {
@@ -1098,22 +1106,24 @@ app.get("/api/search", async (req, res) => {
       return res.status(400).json({
         //Frontend is expecting these reply fields. So even if backend reply is negative,
         //it should still contain these false and 0 values to prevent errors on the frontend.
-        responseSearchStatus: false, //false mean search failed, it brought zero result.
-        responseSearchMessage: "search result is 0",
-        responseSearchResult: []
+        responseStatus: false, //false mean search failed, it brought zero result.
+        responseMessage: "search result is 0",
+        responseResult: []
       });
     }
     return res.status(200).json({
       //If visitor has not liked yet, we will return a false and liker count data.
       //FALSE means visitor has not liked yet and the heart on frontend should be empty.
-      responseSearchStatus: true, //true mean search succeeded.
-      responseSearchResult: result.rows
+      responseStatus: true, //true mean search succeeded.
+      responseMessage: "",
+      responseResult: result.rows
     });
   } catch (error) {
     console.error("Database error:", error);
     return res.status(500).json({
-      responseSearchStatus: false,
-      responseSearchResult: []
+      responseStatus: false,
+      responseMessage: "",
+      responseResult: []
     })
   } finally {
     if (client) client.release();
