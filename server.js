@@ -1074,61 +1074,37 @@ app.get("/api/like/get-item-likes-count/:idItem1", async (req, res) => {
     if (client) client.release();
   } 
 })
-app.get("/api/search", async (req, res) => {
-
-  const searchText = req.query.myQuery;
+app.get('/api/verify-token', async (req, res) => {
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) {
+    return res.status(401).json({ error: 'No token provided' });
+  }
 
   let client;
-  
-  if(!searchText) {
-    return res.status(200).json({
-      responseStatus: false, //false mean search failed, it brought zero result.
-      responseMessage: "search text is missing",
-      responseResult: []
-    });
-  }
-  if (searchText.trim().length < 3) {
-    return res.status(400).json({
-      responseStatus: false, //false mean search failed, it brought zero result.
-      responseMessage: "search text is too small",
-      responseResult: []
-    });
-  }
-
   try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || JWT_SEC);
+    const requestedId = decoded.userId;
+
     client = await pool.connect();
     const result = await client.query(
-      `SELECT * FROM livorent_ads WHERE title ILIKE $1 OR description ILIKE $1 ORDER BY id DESC LIMIT 20`,
-      [`%${searchText.trim()}%`]
-    );//we will limit result by 20 records. No need to bring all records. Also, newest one comes first. 
+      'SELECT * FROM livorent_users WHERE id = $1',
+      [requestedId]
+    );
 
-    if (result.rows.length < 1) {
-      return res.status(400).json({
-        //Frontend is expecting these reply fields. So even if backend reply is negative,
-        //it should still contain these false and 0 values to prevent errors on the frontend.
-        responseStatus: false, //false mean search failed, it brought zero result.
-        responseMessage: "search result is 0",
-        responseResult: []
-      });
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
     }
-    return res.status(200).json({
-      //If visitor has not liked yet, we will return a false and liker count data.
-      //FALSE means visitor has not liked yet and the heart on frontend should be empty.
-      responseStatus: true, //true mean search succeeded.
-      responseMessage: "",
-      responseResult: result.rows
-    });
-  } catch (error) {
-    console.error("Database error:", error);
-    return res.status(500).json({
-      responseStatus: false,
-      responseMessage: "",
-      responseResult: []
-    })
+
+    const userData = result.rows[0];
+    return res.status(200).json({ userId: requestedId, userData });
+  } catch (err) {
+    console.error('Token verification failed:', err);
+    return res.status(403).json({ error: 'Invalid token' });
   } finally {
     if (client) client.release();
-  } 
-})
+  }
+});
+
 //This line must be under all server routes. Otherwise you will have like not being able to fetch comments etc.
 //This code helps with managing routes that are not defined on react frontend. If you dont add, only index 
 //route will be visible.
@@ -1174,7 +1150,7 @@ check time limits on post routes . They are not 1 minute, if so, convert them to
 ip check to make sure same ip can upload once in 5 minutes and twice in 24 hour 
 */
 //Add comment system
-//Add search logic, add limits on search input length
+//Add search logic, add limits on search input length, search text should match to the word. 
 //Add password renewal logic
 //connect cache to homepage. Currently cachedUserData can only be filled once login clicked. 
 //Change it to homepage display.

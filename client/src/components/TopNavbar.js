@@ -1,13 +1,32 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getUserId } from './utilsAuth';
+import { setUserData } from './utilsAuth';
 import "../styles/Search.css"; 
 
-function TopNavbar() {
-  const userIdData = getUserId(); // This returns an object { userNumber }
-  const myNum = userIdData.userNumber; // Get the actual number
-  
+function TopNavbar() { 
   const navigate = useNavigate();
+
+  const [myNum, setMyNum] = useState(0);
+  const [userAllData, setUserAllData] = useState(null);
+
+  useEffect(() => {
+    const userIdData = getUserId(); // This returns an object { userNumber }
+    if (userIdData.userNumber > 0) { 
+      setMyNum(userIdData.userNumber); // Get the actual number
+      const fetchUserData = async () => {
+        const userData = await setUserData();
+        setUserAllData(userData);
+      };
+      fetchUserData();
+    }
+  }, []);
+  //keep below useEffect so that the code wont break in case answer from db takes time.
+  useEffect(() => {
+    if (userAllData) {
+      console.log("Authenticated user Data:", userAllData.userNumber);
+    }
+  }, [userAllData]);
 
   const [searchText, setSearchText] = useState("");
   const [isSearchLocked, setSearchLocked] = useState(false);//prevent spam search attempts
@@ -16,7 +35,7 @@ function TopNavbar() {
     if (searchText2.length < 3 || !/[a-zA-Z0-9]/.test(searchText2)) {//search inputs such as ? ! etc wont be accepted.
       alert("Lūdzu, ievadiet vismaz 3 derīgas rakstzīmes (burti vai cipari).");
       return; //search inputs must be at least 3 characters.
-    }
+    } 
     if (isSearchLocked) {
       return;
     };

@@ -4,6 +4,7 @@ import "../styles/Profile.css";
 import Footer from "./Footer.js";
 import { useParams, useNavigate } from "react-router-dom";
 import useUserStore from '../store/userStore';
+import { jwtDecode } from 'jwt-decode';
 
 function BtmProfile() {
   const navigate = useNavigate() 
@@ -20,6 +21,28 @@ function BtmProfile() {
   const [resultArea, setResultArea] = useState("");
 
   useEffect(() => {
+    //Check 1: Only people with token can open profile pages.
+    const token = localStorage.getItem("token_livorent");
+    if (!token) {
+      navigate("/login"); // Redirect if no token
+      return;
+    }
+
+    //Check 2: People with token cannot open any profile but only their profile.
+    try {
+      const decoded = jwtDecode(token);
+      const tokenUserId = decoded.userId;
+
+      if (String(tokenUserId) !== String(visitorNumber)) {
+        navigate("/login"); 
+        return;
+      }
+    } catch (err) {
+      console.error("Invalid token:", err);
+      navigate("/login");
+      return;
+    }
+
     const getData = async () => {
       try {
         const response = await axios.get(`http://localhost:5000/api/get/adsbyuser/${visitorNumber}`);
@@ -28,9 +51,8 @@ function BtmProfile() {
           setUserData(cachedUserData);
           console.log("cached data displayed")
         } else {
-          const responseUser = await axios.get(`http://localhost:5000/api/get/userdata/${visitorNumber}`); 
-          setUserData(responseUser.data);
-          useUserStore.getState().setCachedUserData(responseUser.data);  // Zustand cache
+          setUserData(null); // or show loading state
+          console.warn("User data not in cache – possible timing issue or invalid visitorNumber");
         }
 
       } catch (error) {
