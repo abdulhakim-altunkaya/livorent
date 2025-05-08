@@ -59,7 +59,7 @@ function TopNavbar() {
               handleSearch();
             }
           }}/>
-        <img id='searchIcon' src='/svg_search.svg' alt='search icon'/>
+        <img id='searchIcon' onClick={handleSearch} src='/svg_search.svg' alt='search icon'/>
       </span>
 
       <span className='topAreaNavSpans' onClick={() => navigate("/")}>Kontakti</span>

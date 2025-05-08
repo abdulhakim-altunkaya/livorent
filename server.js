@@ -1073,7 +1073,63 @@ app.get("/api/like/get-item-likes-count/:idItem1", async (req, res) => {
   } finally {
     if (client) client.release();
   } 
-})
+});
+app.get("/api/search", async (req, res) => {
+
+  const searchText = req.query.myQuery;
+
+  let client;
+  
+  if(!searchText) {
+    return res.status(200).json({
+      responseStatus: false, //false mean search failed, it brought zero result.
+      responseMessage: "search text is missing",
+      responseResult: []
+    });
+  }
+  if (searchText.trim().length < 3) {
+    return res.status(200).json({ //we are saying 200 here because I want below values to display 
+      //If I say 400, only the catch error statement will display.
+      responseStatus: false, //false mean search failed, it brought zero result.
+      responseMessage: "search text is too small",
+      responseResult: []
+    });
+  }
+
+  try {
+    client = await pool.connect();
+    const result = await client.query(
+      `SELECT * FROM livorent_ads WHERE title ILIKE $1 OR description ILIKE $1 ORDER BY id DESC LIMIT 20`,
+      [`%${searchText.trim()}%`]
+    );//we will limit result by 20 records. No need to bring all records. Also, newest one comes first. 
+
+    if (result.rows.length < 1) {
+      return res.status(200).json({
+        //Frontend is expecting these reply fields. So even if backend reply is negative,
+        //it should still contain these false and 0 values to prevent errors on the frontend.
+        responseStatus: false, //false mean search failed, it brought zero result.
+        responseMessage: "No ad with that word",
+        responseResult: []
+      });
+    }
+    return res.status(200).json({
+      //If visitor has not liked yet, we will return a false and liker count data.
+      //FALSE means visitor has not liked yet and the heart on frontend should be empty.
+      responseStatus: true, //true mean search succeeded.
+      responseMessage: "",
+      responseResult: result.rows
+    });
+  } catch (error) {
+    console.error("Database error:", error);
+    return res.status(500).json({
+      responseStatus: false,
+      responseMessage: "",
+      responseResult: []
+    })
+  } finally {
+    if (client) client.release();
+  } 
+});
 app.get('/api/verify-token', async (req, res) => {
   const token = req.headers.authorization?.split(' ')[1];
   if (!token) {
