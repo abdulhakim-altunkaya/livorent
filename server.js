@@ -17,9 +17,22 @@ app.use(express.json()); //we need this to read the data is coming from frontend
 
 //UNCOMMENT WHEN IN PRODUCTION
 //app.use(express.static(path.join(__dirname, "client/build")));
-app.get("/serversendhello", (req, res) => {
-  res.status(200).json({myMessage: "Hello from Backend"});
-})
+
+//
+function authMiddleware(req, res, next) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) return res.status(401).json({ message: "No token provided" });
+
+  const token = authHeader.split(" ")[1];
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.myDecodedUser = decoded;
+    next();
+  } catch (err) {
+    return res.status(401).json({ message: "Invalid token" });
+  }
+}
+
 
 // List of IPs to ignore (server centers, ad bots, my ip etc) 
 const ignoredIPs = ["66.249.68.5", "66.249.68.4", "66.249.88.2", "66.249.89.2", "66.249.65.32", "66.249.88.3", 
@@ -1150,7 +1163,6 @@ app.get('/api/verify-token', async (req, res) => {
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'User not found' });
     }
-
     const userData = result.rows[0];
     return res.status(200).json({ userId: requestedId, userData });
   } catch (err) {

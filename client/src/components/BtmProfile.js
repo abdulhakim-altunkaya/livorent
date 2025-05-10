@@ -11,7 +11,7 @@ function BtmProfile() {
   //we will check zustand store to see if there is any user data in it. If there is
   //then no need to make repetitive requests to backend and database about user information
   const { cachedUserData } = useUserStore.getState();
-
+  
   const { visitorNumber } = useParams();
   const [message, setMessage] = useState(null); // Initialize with null to better handle initial state
   const [userData, setUserData] = useState(null);
@@ -20,8 +20,11 @@ function BtmProfile() {
   const [loading, setLoading] = useState(true); // Add loading state
   const [resultArea, setResultArea] = useState("");
 
+
+
+
   useEffect(() => {
-    //Check 1: Only people with token can open profile pages.
+    //Check 1: Only people with token can open profile pages. 
     const token = localStorage.getItem("token_livorent");
     if (!token) {
       navigate("/login"); // Redirect if no token
@@ -46,8 +49,9 @@ function BtmProfile() {
     const getData = async () => {
       try {
         const response = await axios.get(`http://localhost:5000/api/get/adsbyuser/${visitorNumber}`);
-        setMessage(response.data);     
-        if (cachedUserData?.id === visitorNumber) {
+        setMessage(response.data);  
+           
+        if (Number(cachedUserData?.id) === Number(visitorNumber)) {
           setUserData(cachedUserData);
           console.log("cached data displayed")
         } else {
@@ -127,6 +131,10 @@ function BtmProfile() {
       navigate(`/profile/update-ad/${adNumber}`);
     }
   };
+
+  if (loading || !userData) {
+    return <div>Loading user profile...</div>;
+  }
 
   return (
     <div>
