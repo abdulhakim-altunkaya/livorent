@@ -30,7 +30,7 @@ function BtmProfile() {
       navigate("/login"); // Redirect if no token
       return;
     }
-
+ 
     //Check 2: People with token cannot open any profile but only their profile.
     try {
       const decoded = jwtDecode(token);
@@ -50,9 +50,9 @@ function BtmProfile() {
       try {
         const response = await axios.get(`http://localhost:5000/api/get/adsbyuser/${visitorNumber}`);
         setMessage(response.data);  
-           
+        setUserData(cachedUserData);
         if (Number(cachedUserData?.id) === Number(visitorNumber)) {
-          setUserData(cachedUserData);
+          
           console.log("cached data displayed")
         } else {
           setUserData(null); // or show loading state
@@ -79,7 +79,8 @@ function BtmProfile() {
     localStorage.removeItem("token_livorent");
     localStorage.removeItem("visitorNumber");
     useUserStore.getState().setCachedUserData(null);
-    navigate("/");
+    //navigate("/");//we dont use navigate because zustand old user number will persist after navigate.
+    window.location.href = "/";//we use navigate that zustand old user number will reset to zero.
   }
 
 
