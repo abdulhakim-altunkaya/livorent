@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../styles/Login.css";
 import Footer from "./Footer";
+import useUserStore from '../store/userStore'; // Adjust path accordingly
 
 function BtmLogin() {
   const navigate = useNavigate();
@@ -20,13 +21,20 @@ function BtmLogin() {
         loginPasstext: passtext
       };
       const res1 = await axios.post("http://localhost:5000/api/login", loginObject);
-      setResultArea(res1.data.myMessage);
+
       // Servers sends ok message and token upon successful login,
       // and we save token in localStorage
       if (res1.data.token) {
         localStorage.setItem("token_livorent", res1.data.token); // Save the token 
         localStorage.setItem("visitorNumber", Number(res1.data.visitorNumber)); //save the user id
-        navigate(`/profile/${res1.data.visitorNumber}`); // Include visitorNumber in the URL
+        // set also the cache
+        useUserStore.getState().setCachedUserData(res1.data.myMessage);
+        setResultArea(res1.data.myMessage);
+        // Small delay before navigation to allow store update
+        setTimeout(() => {
+          navigate(`/profile/${res1.data.visitorNumber}`);
+        }, 50); // Even 10–50ms can help
+        
       }
 
     } catch (error) {

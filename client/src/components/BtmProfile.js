@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import "../styles/Profile.css";
 import Footer from "./Footer.js";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import useUserStore from '../store/userStore';
 import { jwtDecode } from 'jwt-decode';
 
@@ -20,8 +20,8 @@ function BtmProfile() {
   const [loading, setLoading] = useState(true); // Add loading state
   const [resultArea, setResultArea] = useState("");
 
-
-
+  const location = useLocation();
+  const passedUserData = location.state?.userData;
 
   useEffect(() => {
     //Check 1: Only people with token can open profile pages. 
@@ -50,9 +50,8 @@ function BtmProfile() {
       try {
         const response = await axios.get(`http://localhost:5000/api/get/adsbyuser/${visitorNumber}`);
         setMessage(response.data);  
-        setUserData(cachedUserData);
         if (Number(cachedUserData?.id) === Number(visitorNumber)) {
-          
+          setUserData(cachedUserData);
           console.log("cached data displayed")
         } else {
           setUserData(null); // or show loading state
