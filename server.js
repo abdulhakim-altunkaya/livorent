@@ -1155,7 +1155,7 @@ app.get('/api/verify-token', async (req, res) => {
     const requestedId = decoded.userId;
 
     client = await pool.connect();
-    const result = await client.query(
+    const result = await client.query( 
       'SELECT * FROM livorent_users WHERE id = $1',
       [requestedId]
     );
@@ -1218,6 +1218,9 @@ check time limits on post routes . They are not 1 minute, if so, convert them to
 ip check to make sure same ip can upload once in 5 minutes and twice in 24 hour 
 */
 //Add comment system
+//Make zustand cachedUserData persist across page refreshes by saving it into the localstorage.
+//this means you will have zustand user data, token from backend and user id from backend in localstorage.
+//Make sure after signouts you delete these 3 dataset from localstorage to improve security. 
 //Add search logic, add limits on search input length, search text should match to the word. 
 //Add password renewal logic
 //connect cache to homepage. Currently cachedUserData can only be filled once login clicked. 

@@ -15,7 +15,7 @@ export const getUserId = () => {
         userNumber : 0
       }; 
     }
-  
+     
     // 3. Return ONLY what you know exists
     return {
       userNumber: Number(visitorNumber) // Convert to number if needed

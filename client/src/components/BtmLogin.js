@@ -31,8 +31,12 @@ function BtmLogin() {
         useUserStore.getState().setCachedUserData(res1.data.myMessage);
         setResultArea(res1.data.myMessage);
         // Small delay before navigation to allow store update
+        // We will send user data in useNavigate state to quickly display profile component.
+        // Later when people visit profile component, it will get data from zustand cache, not from useNavigate.
         setTimeout(() => {
-          navigate(`/profile/${res1.data.visitorNumber}`);
+
+        // navigate(`/profile/${res1.data.visitorNumber}`); */
+          window.location.href = `/profile/${res1.data.visitorNumber}`;
         }, 50); // Even 10–50ms can help
         
       }

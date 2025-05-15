@@ -5,12 +5,12 @@ import { setUserData } from './utilsAuth';
 import "../styles/Search.css"; 
 
 function TopNavbar() { 
-  const navigate = useNavigate();
+  const navigate = useNavigate(); 
 
   const [myNum, setMyNum] = useState(0);
   const [userAllData, setUserAllData] = useState(null);
 
-  useEffect(() => {
+  useEffect(() => { 
     const userIdData = getUserId(); // This returns an object { userNumber }
     if (userIdData.userNumber > 0) { 
       setMyNum(userIdData.userNumber); // Get the actual number

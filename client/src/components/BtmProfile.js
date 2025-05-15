@@ -20,9 +20,6 @@ function BtmProfile() {
   const [loading, setLoading] = useState(true); // Add loading state
   const [resultArea, setResultArea] = useState("");
 
-  const location = useLocation();
-  const passedUserData = location.state?.userData;
-
   useEffect(() => {
     //Check 1: Only people with token can open profile pages. 
     const token = localStorage.getItem("token_livorent");
@@ -56,6 +53,16 @@ function BtmProfile() {
         } else {
           setUserData(null); // or show loading state
           console.warn("User data not in cache – possible timing issue or invalid visitorNumber");
+          // Safely reload once
+          // we need to refresh profile page after coming from login.
+          // Adding simple page refresh causes infinite loop.
+          // To prevent it, we are refreshing the page with localstorage variable.
+          if (!localStorage.getItem("hasRefreshedOnce")) {
+            localStorage.setItem("hasRefreshedOnce", "true");
+            window.location.reload();
+          } else {
+            console.warn("Already refreshed once, not refreshing again.");
+          }
         }
 
       } catch (error) {
@@ -68,6 +75,9 @@ function BtmProfile() {
     };
     getData();
   }, [visitorNumber, cachedUserData]);
+
+  
+
 
   const deleteAccount = () => {
     alert("Accounts which are inactive for 6 months will be deleted together with their ads if any");
