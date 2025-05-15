@@ -17,6 +17,9 @@ function TopNavbar() {
       const fetchUserData = async () => {
         const userData = await setUserData();
         setUserAllData(userData);
+        if (userData.userNumber < 1) {
+          setMyNum(0);
+        }
       };
       fetchUserData();
     }

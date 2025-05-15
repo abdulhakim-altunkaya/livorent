@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../styles/Login.css";
@@ -12,8 +12,36 @@ function BtmLogin() {
   const [passtext, setPasstext] = useState("");
   const [resultArea, setResultArea] = useState("");
 
+  /*If someone is already logged in (i.e., token and user data exist), 
+  redirect them to their profile instead of showing the login form. */
+  useEffect(() => {
+    const token = localStorage.getItem("token_livorent");
+    const visitorNumber = localStorage.getItem("visitorNumber");
+    const cachedUser = useUserStore.getState().cachedUserData;
+    // If user appears to be logged in, redirect them
+    if (token && visitorNumber && cachedUser?.id === Number(visitorNumber)) {
+      window.location.href = `/profile/${visitorNumber}`;
+    }
+  }, []);
+
+  /*Before login, make sure invalid or outdated data doesn’t cause issues */
+  useEffect(() => {
+    const token = localStorage.getItem("token_livorent");
+    const visitorNumber = Number(localStorage.getItem("visitorNumber"));
+    // If the token is present but visitorNumber is missing or invalid, clean it
+    if (token && (!visitorNumber || isNaN(visitorNumber))) {
+      localStorage.removeItem("token_livorent");
+      localStorage.removeItem("visitorNumber");
+    }
+  }, []);
+ 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!email || !passtext) {
+      setResultArea("Please enter both email and password.");
+      return;
+    }
 
     try { 
       const loginObject = {

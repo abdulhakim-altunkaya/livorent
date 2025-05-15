@@ -43,6 +43,11 @@ function BtmProfile() {
       return;
     }
 
+    // Clear refresh flag when component mounts
+    if (localStorage.getItem("hasRefreshedOnce")) {
+      localStorage.removeItem("hasRefreshedOnce");
+    }
+
     const getData = async () => {
       try {
         const response = await axios.get(`http://localhost:5000/api/get/adsbyuser/${visitorNumber}`);
