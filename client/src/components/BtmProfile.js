@@ -43,18 +43,21 @@ function BtmProfile() {
       return;
     }
 
-    // Clear refresh flag when component mounts
-    if (localStorage.getItem("hasRefreshedOnce")) {
-      localStorage.removeItem("hasRefreshedOnce");
-    }
+
 
     const getData = async () => {
       try {
         const response = await axios.get(`http://localhost:5000/api/get/adsbyuser/${visitorNumber}`);
         setMessage(response.data);  
         if (Number(cachedUserData?.id) === Number(visitorNumber)) {
+
           setUserData(cachedUserData);
-          console.log("cached data displayed")
+          console.log("cached data displayed");
+          // Clear refresh flag when component mounts
+          if (localStorage.getItem("hasRefreshedOnce")) {
+            localStorage.removeItem("hasRefreshedOnce");
+          }
+
         } else {
           setUserData(null); // or show loading state
           console.warn("User data not in cache – possible timing issue or invalid visitorNumber");
@@ -63,8 +66,9 @@ function BtmProfile() {
           // Adding simple page refresh causes infinite loop.
           // To prevent it, we are refreshing the page with localstorage variable.
           if (!localStorage.getItem("hasRefreshedOnce")) {
+            console.warn("First attempt – will refresh now to sync cache");
             localStorage.setItem("hasRefreshedOnce", "true");
-            window.location.reload();
+            window.location.reload(); // ✅ **Trigger reload just once**
           } else {
             console.warn("Already refreshed once, not refreshing again.");
           }
