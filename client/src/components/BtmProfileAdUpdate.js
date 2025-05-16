@@ -7,6 +7,7 @@ import "../styles/ProfileAdUpdate.css";
 import Footer from "./Footer";
 import { getUserId } from './utilsAuth'; 
 import useUserStore from '../store/userStore';
+import { jwtDecode } from 'jwt-decode';
 
 function BtmProfileAdUpdate() {
 
@@ -39,6 +40,29 @@ function BtmProfileAdUpdate() {
   const [resultArea, setResultArea] = useState("");
   const [missingData, setMissingData] = useState(false); // 🔑
   const [removedImages, setRemovedImages] = useState([]);
+
+  useEffect(() => {
+      //Check 1: Only people with token can open ad update page. 
+      const token = localStorage.getItem("token_livorent");
+      if (!token) {
+        navigate("/login"); // Redirect if no token
+        return;
+      }
+      //Check 2: People with inconsistent id numbers will be directed to login.
+      try {
+        const decoded = jwtDecode(token);
+        const tokenUserId = decoded.userId;
+  
+        if (String(tokenUserId) !== String(visitorNumberFromStorage)) {
+          navigate("/login"); 
+          return;
+        }
+      } catch (err) {
+        console.error("Invalid token:", err);
+        navigate("/login");
+        return;
+      }
+  }, [])
 
   useEffect(() => {
     if (!cachedItemData || !cachedItemData.title) {

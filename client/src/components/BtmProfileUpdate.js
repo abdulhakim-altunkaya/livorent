@@ -1,9 +1,10 @@
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 import { useNavigate, useParams, useLocation  } from "react-router-dom";
 import axios from "axios";
 import "../styles/ProfileUpdate.css";
 import Footer from "./Footer";
-
+import useUserStore from '../store/userStore';
+import { jwtDecode } from 'jwt-decode';
 
 function BtmProfileUpdate() { 
   const navigate = useNavigate();
@@ -19,6 +20,28 @@ function BtmProfileUpdate() {
   const [email, setEmail] = useState(userData.email);
   const [passtext, setPasstext] = useState("");
   const [resultArea, setResultArea] = useState("");
+
+  useEffect(() => {
+      //Check 1: Only people with token can open ad update page. 
+      const token = localStorage.getItem("token_livorent");
+      if (!token) {
+        navigate("/login"); // Redirect if no token
+        return;
+      }
+      //Check 2: People with inconsistent id numbers will be directed to login.
+      try {
+        const decoded = jwtDecode(token);
+        const tokenUserId = decoded.userId;
+        if (String(tokenUserId) !== String(visitorNumber)) {
+          navigate("/login"); 
+          return;
+        }
+      } catch (err) {
+        console.error("Invalid token:", err);
+        navigate("/login");
+        return;
+      }
+  }, [])
 
   const handleSubmit = async (e) => {
     e.preventDefault();

@@ -1,8 +1,9 @@
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../styles/Login.css";
 import Footer from "./Footer";
+import useUserStore from '../store/userStore'; // Adjust path accordingly
 
 function BtmRegister() {
   const navigate = useNavigate();
@@ -13,6 +14,30 @@ function BtmRegister() {
   const [passtext, setPasstext] = useState("");
   const [resultArea, setResultArea] = useState("");
   const [passtextControl, setPasstextControl] = useState("");
+
+  useEffect(() => {
+    const token = localStorage.getItem("token_livorent");
+    const visitorNumberRaw = localStorage.getItem("visitorNumber");
+    const visitorNumber = Number(visitorNumberRaw);
+    const cachedUser = useUserStore.getState().cachedUserData;
+
+    // ✅ Before registration: Clean up inconsistent or broken state
+    /*Before registration, make sure invalid or outdated data doesn’t cause issues */
+    if (token && (!visitorNumberRaw || isNaN(visitorNumber))) {
+      console.warn("Cleaning up invalid visitorNumber/token pair...");
+      localStorage.removeItem("token_livorent");
+      localStorage.removeItem("visitorNumber");
+      return;
+    }
+
+    // ✅ Already registered and logged in: Redirect to profile
+    /*If someone is already logged in (i.e., token and user data exist), 
+    redirect them to their profile instead of showing the registation for form. */
+    if (token && visitorNumber && cachedUser?.id === visitorNumber) {
+      console.log("User already logged in – redirecting to profile");
+      window.location.href = `/profile/${visitorNumber}`;
+    }
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -39,7 +64,15 @@ function BtmRegister() {
       if (res1.data.token) {
         localStorage.setItem("token_livorent", res1.data.token); // Save the token 
         localStorage.setItem("visitorNumber", Number(res1.data.visitorNumber)); //save the user id
-        navigate(`/profile/${res1.data.visitorNumber}`); // Include visitorNumber in the URL
+        // set also the cache
+        useUserStore.getState().setCachedUserData(res1.data.myMessage);
+        // Small delay before navigation to allow store update
+        // Later when people visit profile component, it will get data from zustand cache.
+        setTimeout(() => {
+          // navigate(`/profile/${res1.data.visitorNumber}`); navigate does not refresh page
+          // we need to refresh page to reflect state update on profile*/
+          window.location.href = `/profile/${res1.data.visitorNumber}`;
+        }, 50); // Even 10–50ms can help
       }
 
     } catch (error) {

@@ -15,7 +15,6 @@ function BtmProfile() {
   const { visitorNumber } = useParams();
   const [message, setMessage] = useState(null); // Initialize with null to better handle initial state
   const [userData, setUserData] = useState(null);
-  const [itemDataUpdate, setItemDataUpdate] = useState(null);
   const [errorFrontend, setErrorFrontend] = useState(null); // Add error state
   const [loading, setLoading] = useState(true); // Add loading state
   const [resultArea, setResultArea] = useState("");
@@ -26,7 +25,7 @@ function BtmProfile() {
     if (!token) {
       navigate("/login"); // Redirect if no token
       return;
-    }
+    } 
  
     //Check 2: People with token cannot open any profile but only their profile.
     try {

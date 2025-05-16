@@ -5,35 +5,38 @@ import "../styles/Login.css";
 import Footer from "./Footer";
 import useUserStore from '../store/userStore'; // Adjust path accordingly
 
-function BtmLogin() {
+function BtmLogin() { 
   const navigate = useNavigate();
   
   const [email, setEmail] = useState("");
   const [passtext, setPasstext] = useState("");
   const [resultArea, setResultArea] = useState("");
 
-  /*If someone is already logged in (i.e., token and user data exist), 
-  redirect them to their profile instead of showing the login form. */
+  
   useEffect(() => {
     const token = localStorage.getItem("token_livorent");
-    const visitorNumber = localStorage.getItem("visitorNumber");
+    const visitorNumberRaw = localStorage.getItem("visitorNumber");
+    const visitorNumber = Number(visitorNumberRaw);
     const cachedUser = useUserStore.getState().cachedUserData;
-    // If user appears to be logged in, redirect them
-    if (token && visitorNumber && cachedUser?.id === Number(visitorNumber)) {
+
+    // ✅ Before login: Clean up inconsistent or broken state
+    /*Before login, make sure invalid or outdated data doesn’t cause issues */
+    if (token && (!visitorNumberRaw || isNaN(visitorNumber))) {
+      console.warn("Cleaning up invalid visitorNumber/token pair...");
+      localStorage.removeItem("token_livorent");
+      localStorage.removeItem("visitorNumber");
+      return;
+    }
+
+    // ✅ Already logged in: Redirect to profile
+    /*If someone is already logged in (i.e., token and user data exist), 
+    redirect them to their profile instead of showing the login form. */
+    if (token && visitorNumber && cachedUser?.id === visitorNumber) {
+      console.log("User already logged in – redirecting to profile");
       window.location.href = `/profile/${visitorNumber}`;
     }
   }, []);
 
-  /*Before login, make sure invalid or outdated data doesn’t cause issues */
-  useEffect(() => {
-    const token = localStorage.getItem("token_livorent");
-    const visitorNumber = Number(localStorage.getItem("visitorNumber"));
-    // If the token is present but visitorNumber is missing or invalid, clean it
-    if (token && (!visitorNumber || isNaN(visitorNumber))) {
-      localStorage.removeItem("token_livorent");
-      localStorage.removeItem("visitorNumber");
-    }
-  }, []);
  
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -59,11 +62,10 @@ function BtmLogin() {
         useUserStore.getState().setCachedUserData(res1.data.myMessage);
         setResultArea(res1.data.myMessage);
         // Small delay before navigation to allow store update
-        // We will send user data in useNavigate state to quickly display profile component.
-        // Later when people visit profile component, it will get data from zustand cache, not from useNavigate.
+        // Later when people visit profile component, it will get data from zustand cache.
         setTimeout(() => {
-
-        // navigate(`/profile/${res1.data.visitorNumber}`); */
+          // navigate(`/profile/${res1.data.visitorNumber}`); navigate does not refresh page
+          // we need to refresh page to reflect state update on profile*/
           window.location.href = `/profile/${res1.data.visitorNumber}`;
         }, 50); // Even 10–50ms can help
         

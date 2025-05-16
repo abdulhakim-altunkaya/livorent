@@ -1216,7 +1216,7 @@ add two more comment section to each part
 before creating a new profile, a check on emails to make sure user does exist
 check time limits on post routes . They are not 1 minute, if so, convert them to 1 minute
 ip check to make sure same ip can upload once in 5 minutes and twice in 24 hour 
-*/
+
 //Add comment system
 //Make zustand cachedUserData persist across page refreshes by saving it into the localstorage.
 //this means you will have zustand user data, token from backend and user id from backend in localstorage.
@@ -1243,6 +1243,16 @@ ip check to make sure same ip can upload once in 5 minutes and twice in 24 hour
 //before signingup a new user, make sure the email does not exist already.
 //Add a loading circle when uploading an ad and waiting for reply if ad is saved
 //Add small screen style
+Add token and id number checks:
+BtmUploadAdUpdate
+BtmUploadProfileUpdate
+server endpoinnt profile
+server endpoint upload
+server endpoint ad update
+server endpoint profile update
+server endpoinnt login
+server endpoint register
+*/
 
 app.post("/api/save-message", async (req, res) => {
   const messageObject = req.body;

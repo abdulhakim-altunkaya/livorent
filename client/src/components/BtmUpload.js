@@ -1,9 +1,11 @@
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 import { useNavigate } from 'react-router-dom';
 import axios from "axios";
 import "../styles/upload.css";
 import Footer from "./Footer";
 import { getUserId } from './utilsAuth'; 
+import useUserStore from '../store/userStore';
+import { jwtDecode } from 'jwt-decode';
 
 function BtmUpload() {
   //we will check if there is token and user id exist in local storage. If there is 
@@ -25,6 +27,30 @@ function BtmUpload() {
   const [resultArea, setResultArea] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const visitorNumberFromStorage = Number(localStorage.getItem("visitorNumber"));
+
+  useEffect(() => {
+      //Check 1: Only people with token can open upload page. 
+      const token = localStorage.getItem("token_livorent");
+      if (!token) {
+        navigate("/login"); // Redirect if no token
+        return;
+      }
+      //Check 2: People with inconsistent id numbers will be directed to login.
+      try {
+        const decoded = jwtDecode(token);
+        const tokenUserId = decoded.userId;
+  
+        if (String(tokenUserId) !== String(visitorNumberFromStorage)) {
+          navigate("/login"); 
+          return;
+        }
+      } catch (err) {
+        console.error("Invalid token:", err);
+        navigate("/login");
+        return;
+      }
+  }, [])
+  
 
   const saveCategoryNumber = (n) => {
     setSelectedCategory(n);
