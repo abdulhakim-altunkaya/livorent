@@ -32,6 +32,8 @@ function BtmSeller() {
   const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState("");
 
+  const token = localStorage.getItem("token_livorent");
+
   useEffect(() => {
     const getData = async () => {
       try {
@@ -126,17 +128,25 @@ function BtmSeller() {
         console.log("No self like");
         return; 
       }
-      const response = await axios.post('http://localhost:5000/api/like/sellers', {
-        likeStatus: likeState,
+      const response = await axios.post('http://localhost:5000/api/like/sellers', 
+        {likeStatus: likeState,
         likedId: cachedSellerData?.id,//in BtmItem component this will be cachedItemData.id
         userId: cachedUserData?.id
-      });
+        },
+        {headers: {
+          Authorization: `Bearer ${token}`
+        }}
+      );
       await new Promise(resolve => setTimeout(resolve, 1100));
-      const response2 = await axios.post('http://localhost:5000/api/like/seller-to-users', {
-        likeStatus: likeState,
-        likedId: sellerData?.id,
-        userId: cachedUserData?.id
-      });
+      const response2 = await axios.post('http://localhost:5000/api/like/seller-to-users', 
+      {likeStatus: likeState,
+      likedId: sellerData?.id,
+      userId: cachedUserData?.id
+      },
+      {headers: {
+        Authorization: `Bearer ${token}`
+      }}
+      );
       console.log('LIKE LOGIC 1:', response.data.myMessage);
       console.log('LIKE LOGIC 2:', response2.data.myMessage);
     } catch (error) {

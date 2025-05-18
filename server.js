@@ -18,20 +18,20 @@ app.use(express.json()); //we need this to read the data is coming from frontend
 //UNCOMMENT WHEN IN PRODUCTION
 //app.use(express.static(path.join(__dirname, "client/build")));
 
-//
-function authMiddleware(req, res, next) {
-  const authHeader = req.headers.authorization;
-  if (!authHeader) return res.status(401).json({ message: "No token provided" });
+// 🔐 Middleware: Token verification
+const authenticateToken = (req, res, next) => {
+  const token = req.headers.authorization?.split(" ")[1];
+  if (!token) return res.status(401).json({ error: "No token provided" });
 
-  const token = authHeader.split(" ")[1];
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.myDecodedUser = decoded;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || JWT_SEC);
+    req.user = decoded;
     next();
   } catch (err) {
-    return res.status(401).json({ message: "Invalid token" });
+    console.error("Token verification failed:", err);
+    return res.status(403).json({ error: "Invalid token" });
   }
-}
+};
 
 
 // List of IPs to ignore (server centers, ad bots, my ip etc) 
@@ -399,7 +399,7 @@ app.post("/api/update", async (req, res) => {
     client.release();
   } 
 });
-app.delete("/api/delete/item/:itemNumber", async (req, res) => {
+app.delete("/api/delete/item/:itemNumber", authenticateToken, async (req, res) => {
   const { itemNumber } = req.params;
   let client;
   if(!itemNumber) {
@@ -424,7 +424,7 @@ app.delete("/api/delete/item/:itemNumber", async (req, res) => {
     if(client) client.release();
   }
 });
-app.patch("/api/profile/update-ad", upload.array("adUpdateImages", 5), async (req, res) => { 
+app.patch("/api/profile/update-ad", authenticateToken, upload.array("adUpdateImages", 5), async (req, res) => { 
   //preventing spam comments
   const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
   // Check if IP exists in cache and if last comment was less than 1 minute ago
@@ -538,7 +538,7 @@ app.patch("/api/profile/update-ad", upload.array("adUpdateImages", 5), async (re
   } 
 
 });
-app.post("/api/like/sellers", async (req, res) => {
+app.post("/api/like/sellers", authenticateToken, async (req, res) => {
   //preventing spam likes
   const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
   // Check if IP exists in cache and if last signup was less than 0.5 seconds ago
@@ -1143,12 +1143,13 @@ app.get("/api/search", async (req, res) => {
     if (client) client.release();
   } 
 });
+
 app.get('/api/verify-token', async (req, res) => {
   const token = req.headers.authorization?.split(' ')[1];
   if (!token) {
     return res.status(401).json({ error: 'No token provided' });
   }
-
+ 
   let client;
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET || JWT_SEC);
@@ -1219,8 +1220,6 @@ ip check to make sure same ip can upload once in 5 minutes and twice in 24 hour
 
 //Add comment system
 //Make zustand cachedUserData persist across page refreshes by saving it into the localstorage.
-//this means you will have zustand user data, token from backend and user id from backend in localstorage.
-//Make sure after signouts you delete these 3 dataset from localstorage to improve security. 
 //Add search logic, add limits on search input length, search text should match to the word. 
 //Add password renewal logic
 //connect cache to homepage. Currently cachedUserData can only be filled once login clicked. 
@@ -1243,9 +1242,8 @@ ip check to make sure same ip can upload once in 5 minutes and twice in 24 hour
 //before signingup a new user, make sure the email does not exist already.
 //Add a loading circle when uploading an ad and waiting for reply if ad is saved
 //Add small screen style
+
 Add token and id number checks:
-BtmUploadAdUpdate
-BtmUploadProfileUpdate
 server endpoinnt profile
 server endpoint upload
 server endpoint ad update

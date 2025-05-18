@@ -18,10 +18,10 @@ function BtmProfile() {
   const [errorFrontend, setErrorFrontend] = useState(null); // Add error state
   const [loading, setLoading] = useState(true); // Add loading state
   const [resultArea, setResultArea] = useState("");
+  const token = localStorage.getItem("token_livorent");
 
   useEffect(() => {
     //Check 1: Only people with token can open profile pages. 
-    const token = localStorage.getItem("token_livorent");
     if (!token) {
       navigate("/login"); // Redirect if no token
       return;
@@ -117,7 +117,11 @@ function BtmProfile() {
         const updatedAds = currentAds.filter(ad => ad.id !== adNumber);
         // Update state
         setMessage(updatedAds);
-        await axios.delete(`http://localhost:5000/api/delete/item/${adNumber}`);
+        await axios.delete(`http://localhost:5000/api/delete/item/${adNumber}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         window.location.reload(); // ← Force page refresh
       } catch (error) {
         setResultArea(error.response?.data?.error || "Dzēšanas kļūda"); // Red error toast

@@ -40,10 +40,10 @@ function BtmProfileAdUpdate() {
   const [resultArea, setResultArea] = useState("");
   const [missingData, setMissingData] = useState(false); // 🔑
   const [removedImages, setRemovedImages] = useState([]);
+  const token = localStorage.getItem("token_livorent");
 
   useEffect(() => {
       //Check 1: Only people with token can open ad update page. 
-      const token = localStorage.getItem("token_livorent");
       if (!token) {
         navigate("/login"); // Redirect if no token
         return;
@@ -158,9 +158,11 @@ function BtmProfileAdUpdate() {
         alert("Lūdzu, augšupielādējiet vismaz 1 un ne vairāk kā 5 attēlus.");  // Latvian: Please upload at least 1 and no more than 4 images.
         return;
       }
-
       const res1 = await axios.patch("http://localhost:5000/api/profile/update-ad", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`, // ✅ Add the token here
+        },
       });
       setResultArea(`${res1.data.myMessage} ✅`);  // Emoji U+2705
       alert("ad updated");
