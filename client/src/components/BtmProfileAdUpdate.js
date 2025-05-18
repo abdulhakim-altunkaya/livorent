@@ -40,7 +40,7 @@ function BtmProfileAdUpdate() {
   const [resultArea, setResultArea] = useState("");
   const [missingData, setMissingData] = useState(false); // 🔑
   const [removedImages, setRemovedImages] = useState([]);
-  const token = localStorage.getItem("token_livorent");
+  const token = localStorage.getItem("token_livorent"); 
 
   useEffect(() => {
       //Check 1: Only people with token can open ad update page. 

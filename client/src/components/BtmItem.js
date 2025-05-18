@@ -36,6 +36,8 @@ function BtmItem() {
   const [isLikeAllowed, setIsLikeAllowed] = useState(true);
   const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState("");
+  //we need this to authenticate token on protected endpoints
+  const token = localStorage.getItem("token_livorent");
 
   useEffect(() => {
     const getData = async () => {
@@ -224,17 +226,19 @@ function BtmItem() {
   };
   const saveLike = async (likeState) => {
     try {
-      const response = await axios.post('http://localhost:5000/api/like/items', {
-        likeStatus: likeState,
+      const response = await axios.post('http://localhost:5000/api/like/items', 
+        {likeStatus: likeState,
         likedId: message.id, 
-        userId: cachedUserData?.id,
-      });
+        userId: cachedUserData?.id},
+       {headers: {Authorization: `Bearer ${token}`}}
+      );
       await new Promise(resolve => setTimeout(resolve, 1100));
-      const response2 = await axios.post('http://localhost:5000/api/like/item-to-users', {
-        likeStatus: likeState,
-        likedId: message?.id,
-        userId: cachedUserData?.id
-      });
+      const response2 = await axios.post('http://localhost:5000/api/like/item-to-users', 
+        {likeStatus: likeState,
+          likedId: message?.id,
+          userId: cachedUserData?.id}, 
+        {headers: {Authorization: `Bearer ${token}`}}
+      );
       console.log('LIKE LOGIC 1:', response.data.myMessage);
       console.log('LIKE LOGIC 2:', response2.data.myMessage);
     } catch (error) {

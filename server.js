@@ -1242,7 +1242,7 @@ ip check to make sure same ip can upload once in 5 minutes and twice in 24 hour
 //before signingup a new user, make sure the email does not exist already.
 //Add a loading circle when uploading an ad and waiting for reply if ad is saved
 //Add small screen style
-
+Make sure people cannot register with same email address and direct them login page.
 Add token and id number checks:
 server endpoinnt profile
 server endpoint upload

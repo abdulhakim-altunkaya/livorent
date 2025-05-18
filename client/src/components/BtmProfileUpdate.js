@@ -20,10 +20,10 @@ function BtmProfileUpdate() {
   const [email, setEmail] = useState(userData.email);
   const [passtext, setPasstext] = useState("");
   const [resultArea, setResultArea] = useState("");
-
+  const token = localStorage.getItem("token_livorent");
+  
   useEffect(() => {
       //Check 1: Only people with token can open ad update page. 
-      const token = localStorage.getItem("token_livorent");
       if (!token) {
         navigate("/login"); // Redirect if no token
         return;
@@ -55,7 +55,9 @@ function BtmProfileUpdate() {
         updatePasstext: passtext
       }; 
 
-      const res1 = await axios.post("http://localhost:5000/api/update", updateObject);
+      const res1 = await axios.post("http://localhost:5000/api/update", updateObject, 
+        {headers: {Authorization: `Bearer ${token}`}}
+      );
       setResultArea(res1.data.myMessage);
       // Servers sends ok message and token upon successful update,
       // and we save token in localStorage

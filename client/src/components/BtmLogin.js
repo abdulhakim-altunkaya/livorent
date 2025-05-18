@@ -11,10 +11,10 @@ function BtmLogin() {
   const [email, setEmail] = useState("");
   const [passtext, setPasstext] = useState("");
   const [resultArea, setResultArea] = useState("");
-
+  const token = localStorage.getItem("token_livorent");
   
   useEffect(() => {
-    const token = localStorage.getItem("token_livorent");
+    
     const visitorNumberRaw = localStorage.getItem("visitorNumber");
     const visitorNumber = Number(visitorNumberRaw);
     const cachedUser = useUserStore.getState().cachedUserData;
@@ -51,7 +51,11 @@ function BtmLogin() {
         loginEmail: email, 
         loginPasstext: passtext
       };
-      const res1 = await axios.post("http://localhost:5000/api/login", loginObject);
+      const res1 = await axios.post("http://localhost:5000/api/login", loginObject, {
+        headers: {
+          Authorization: `Bearer ${token}` // Optional for login
+        }
+      });
 
       // Servers sends ok message and token upon successful login,
       // and we save token in localStorage

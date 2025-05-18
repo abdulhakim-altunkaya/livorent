@@ -119,7 +119,7 @@ function BtmProfile() {
         setMessage(updatedAds);
         await axios.delete(`http://localhost:5000/api/delete/item/${adNumber}`, {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${token}`, 
           },
         });
         window.location.reload(); // ← Force page refresh
