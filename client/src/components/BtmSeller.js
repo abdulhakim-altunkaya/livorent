@@ -31,7 +31,6 @@ function BtmSeller() {
   const [isLikeAllowed, setIsLikeAllowed] = useState(true);
   const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState("");
-
   const token = localStorage.getItem("token_livorent");
 
   useEffect(() => {

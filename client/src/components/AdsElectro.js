@@ -18,7 +18,7 @@ function AdsElectro() {
         const response = await axios.get(`http://localhost:5000/api/get/adsbycategory/2`);
         setMessage(response.data);
       } catch (error) {
-        setErrorFrontend("Error: ads could not be fetched");
+        setErrorFrontend("Error: ads could not be fetched. Check internet connection");
         console.log(error.message)
       } finally {
         setLoading(false);

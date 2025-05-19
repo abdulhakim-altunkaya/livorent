@@ -45,7 +45,7 @@ const ignoredIPs = ["66.249.68.5", "66.249.68.4", "66.249.88.2", "66.249.89.2", 
 //A temporary cache to save ip addresses and it will prevent spam comments and replies for 1 minute.
 //I can do that by checking each ip with database ip addresses but then it will be too many requests to db
 const ipCache3 = {}
-app.post("/serversavead", upload.array("images", 4), async (req, res) => {
+app.post("/api/post/serversavead", upload.array("images", 4), async (req, res) => {
   //preventing spam comments
   const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
   // Check if IP exists in cache and if last comment was less than 1 minute ago
@@ -153,6 +153,18 @@ app.post("/api/register", async (req, res) => {
     const hashedPassword = await bcrypt.hash(registerLoad.passtext1, SALT_ROUNDS);
 
     client = await pool.connect();
+
+    //CHECK: existing emails mean user already registered
+    const { rowCount } = await client.query(
+      `SELECT 1 FROM livorent_users WHERE email = $1`,
+      [registerLoad.email1]
+    );
+    if (rowCount > 0) {
+      return res.status(409).json(
+        { myMessage: "E-pasta adrese jau tiek izmantota. Lūdzu, izvēlieties citu vai piesakieties savā profilā."}
+      );
+    }
+
     const { rows: newUser } = await client.query(
       `INSERT INTO livorent_users (name, telephone, email, passtext, ip, date) 
       VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`,
@@ -353,7 +365,7 @@ app.get("/api/get/item/:itemNumber", async (req, res) => {
   }
 });
  
-app.post("/api/update", async (req, res) => {
+app.post("/api/update", authenticateToken, async (req, res) => {
   //preventing spam signups
   const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
   // Check if IP exists in cache and if last signup was less than 1 minute ago
@@ -647,7 +659,7 @@ app.post("/api/like/sellers", authenticateToken, async (req, res) => {
     if (client) client.release();
   } 
 });
-app.post("/api/like/items", async (req, res) => {
+app.post("/api/like/items", authenticateToken, async (req, res) => {
   //preventing spam likes
   const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
   // Check if IP exists in cache and if last signup was less than 1 minute ago
@@ -756,7 +768,7 @@ app.post("/api/like/items", async (req, res) => {
     if (client) client.release();
   } 
 });
-app.post("/api/like/seller-to-users", async (req, res) => {
+app.post("/api/like/seller-to-users", authenticateToken, async (req, res) => {
   //preventing spam likes
   const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
   // Check if IP exists in cache and if last signup was less than 1 minute ago
@@ -863,7 +875,7 @@ app.post("/api/like/seller-to-users", async (req, res) => {
     if (client) client.release();
   } 
 });
-app.post("/api/like/item-to-users", async (req, res) => {
+app.post("/api/like/item-to-users", authenticateToken, async (req, res) => {
   //preventing spam likes
   const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
   // Check if IP exists in cache and if last signup was less than 0.5 seconds ago
@@ -1225,8 +1237,6 @@ ip check to make sure same ip can upload once in 5 minutes and twice in 24 hour
 //connect cache to homepage. Currently cachedUserData can only be filled once login clicked. 
 //Change it to homepage display.
 //add security check for repetitive wrong login attemps
-//Currently I can enter into any profile. Prevent that. Registered people should only see their profile, not any.
-//make sure only the profile owner can update
 //remove console.log statements from all components and server.js
 //convert all error, success and alert messages to Latvian, also buttons and any other text
 //Add visit counter to each ad page
@@ -1243,13 +1253,7 @@ ip check to make sure same ip can upload once in 5 minutes and twice in 24 hour
 //Add a loading circle when uploading an ad and waiting for reply if ad is saved
 //Add small screen style
 Make sure people cannot register with same email address and direct them login page.
-Add token and id number checks:
-server endpoinnt profile
-server endpoint upload
-server endpoint ad update
-server endpoint profile update
-server endpoinnt login
-server endpoint register
+Add date column to ads
 */
 
 app.post("/api/save-message", async (req, res) => {

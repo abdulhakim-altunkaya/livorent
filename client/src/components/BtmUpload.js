@@ -27,6 +27,7 @@ function BtmUpload() {
   const [resultArea, setResultArea] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const visitorNumberFromStorage = Number(localStorage.getItem("visitorNumber"));
+  const token = localStorage.getItem("token_livorent");
 
   useEffect(() => {
       //Check 1: Only people with token can open upload page. 
@@ -115,8 +116,11 @@ function BtmUpload() {
           return;
         }
 
-      const res1 = await axios.post("http://localhost:5000/serversavead", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
+      const res1 = await axios.post("http://localhost:5000/api/post/serversavead", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`
+          },
       });
       setResultArea(`${res1.data.myMessage} ✅`);  // Emoji U+2705
       alert("ad saved");
