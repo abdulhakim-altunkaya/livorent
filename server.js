@@ -18,6 +18,10 @@ app.use(express.json()); //we need this to read the data is coming from frontend
 //UNCOMMENT WHEN IN PRODUCTION
 //app.use(express.static(path.join(__dirname, "client/build")));
 
+// 🔒 Custom input sanitization middleware
+const sanitizeInputs = require('./utilsSanitize.js');
+app.use(sanitizeInputs);
+
 // 🔐 Middleware: Token verification
 const authenticateToken = (req, res, next) => {
   const token = req.headers.authorization?.split(" ")[1];
@@ -133,7 +137,6 @@ app.post("/api/register", async (req, res) => {
   if (ignoredIPs.includes(ipVisitor)) {
     return res.status(429).json({myMessage: 'Visitor is banned'}); 
   }
-  console.log("hi connection is fine");
 
   let client;
   const registerObject = req.body;
@@ -156,6 +159,7 @@ app.post("/api/register", async (req, res) => {
 
     //CHECK: existing emails mean user already registered
     const { rowCount } = await client.query(
+      /*select 1 means check if there is matching record. select 1 focuses on match, not on data */
       `SELECT 1 FROM livorent_users WHERE email = $1`,
       [registerLoad.email1]
     );
@@ -1219,10 +1223,7 @@ app.listen(PORT, () => {
   numbers in his liked ads or sellers array. Make sure you skip the deleted id numbers while mapping array.
   We will map array to display favourite sellers or ad to the user.
   Also develop isLikeAllowed state to improve security on like logic code. state is in BtmItem and BtmSeller components
-Delete images from storage too   
-change 1000 to 3600000 in the time limit of serversavevisitor endpoint
-change 1000 to 60000 in the serversavecomment endpoint
-change 1000 to 60000 in the serversavecommentreply endpoint
+
 change all xxxxx things in the footer component 
 Add limits for contact form inputs and textarea
 add two more comment section to each part
@@ -1231,29 +1232,36 @@ check time limits on post routes . They are not 1 minute, if so, convert them to
 ip check to make sure same ip can upload once in 5 minutes and twice in 24 hour 
 
 //Add comment system
-//Make zustand cachedUserData persist across page refreshes by saving it into the localstorage.
-//Add search logic, add limits on search input length, search text should match to the word. 
+//add limits on search input length, search text should match to the word. 
 //Add password renewal logic
-//connect cache to homepage. Currently cachedUserData can only be filled once login clicked. 
-//Change it to homepage display.
 //add security check for repetitive wrong login attemps
-//remove console.log statements from all components and server.js
-//convert all error, success and alert messages to Latvian, also buttons and any other text
 //Add visit counter to each ad page
 //Only last 10 records will be uploaded to the main pages. How to add a button to add another 10 when user clicks?
 //And another 10 if user clicks again and so on?
-//upload component has hard coded css style. Maybe I can remove it?
 //prevent spam uploads by putting a time limit
-//put a limit on inputs on upload component
-//Also input checks on upload and signup and login components
-//In the list display of ads, limit the number of characters displayed. Otherwise some ads might have 
-//too long texts and it will overflow list. Also limit the number of inputs. People should not upload
-//many images and information inputs
-//before signingup a new user, make sure the email does not exist already.
+//People should not upload many images and long inputs
 //Add a loading circle when uploading an ad and waiting for reply if ad is saved
-//Add small screen style
-Make sure people cannot register with same email address and direct them login page.
 Add date column to ads
+
+Add small screen style
+resultArea style improve on big screen
+
+
+GENERAL SECURITY
+  verify token middleware: backend
+  input sanitization: backend
+  input validation and checks: frontend and backend
+  rate limiter: backend
+
+BEFORE DEPLOYING:
+  Delete images from storage too   
+  change 1000 to 3600000 in the time limit of serversavevisitor endpoint
+  change 1000 to 60000 in the serversavecomment endpoint
+  change 1000 to 60000 in the serversavecommentreply endpoint
+  remove console.log statements from all components and server.js
+  also check server file to uncomment relevant code
+  remove all localhost words from api endpoints in frontend
+  convert all error, success and alert messages to Latvian, also buttons and any other text
 */
 
 app.post("/api/save-message", async (req, res) => {
