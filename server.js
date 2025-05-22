@@ -18,11 +18,11 @@ app.use(express.json()); //we need this to read the data is coming from frontend
 //UNCOMMENT WHEN IN PRODUCTION
 //app.use(express.static(path.join(__dirname, "client/build")));
 
-// 🔒 Custom input sanitization middleware
+// 🔒 MIDDLEWARE 1: Custom input sanitization
 const sanitizeInputs = require('./utilsSanitize.js');
 app.use(sanitizeInputs);
 
-// 🔐 Middleware: Token verification
+// 🔐 MIDDLEWARE 2: Token verification
 const authenticateToken = (req, res, next) => {
   const token = req.headers.authorization?.split(" ")[1];
   if (!token) return res.status(401).json({ error: "No token provided" });
@@ -37,7 +37,17 @@ const authenticateToken = (req, res, next) => {
   }
 };
 
+// 🔒 MIDDLEWARE 3: Rate Limiter
+const rateLimit = require('express-rate-limit');
+const rateLimiter = rateLimit({
+  windowMs: 700, // 0.7 second
+  max: 1, // Limit each IP to 1 request per 500ms
+  message: { myMessage: 'Too many attempts from this visitor' },
+  standardHeaders: true, // Return rate limit info in `RateLimit-*` headers
+  legacyHeaders: false,  // Disable the `X-RateLimit-*` headers
+});
 
+// 🔒 MIDDLEWARE 4: Custom spam ip block
 // List of IPs to ignore (server centers, ad bots, my ip etc) 
 const ignoredIPs = ["66.249.68.5", "66.249.68.4", "66.249.88.2", "66.249.89.2", "66.249.65.32", "66.249.88.3", 
   "209.85.238.224", "80.89.77.205", "212.3.197.186", "80.89.74.90", "80.89.79.74", "80.89.77.116", "80.89.73.22", 
@@ -45,23 +55,21 @@ const ignoredIPs = ["66.249.68.5", "66.249.68.4", "66.249.88.2", "66.249.89.2", 
   "66.249.73.233", "66.249.73.234", "62.103.210.169", "66.249.66.161", "66.249.69.65", "66.249.68.33", "66.249.68.37",
   "66.249.68.38", "66.249.68.34", "40.77.189.152", "17.246.15.253", "17.246.15.253", "152.39.239.250", "45.114.243.179", 
   "66.249.73.197", "66.249.73.202", "205.169.39.19", "209.85.238.225", "205.169.39.232"];
+const blockBannedIPs = (req, res, next) => {
+  const ipVisitor = req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress || req.ip;
+  if (ignoredIPs.includes(ipVisitor)) {
+    return res.status(429).json({ myMessage: 'Visitor is banned' });
+  }
+  next();
+};
+
 
 //A temporary cache to save ip addresses and it will prevent spam comments and replies for 1 minute.
 //I can do that by checking each ip with database ip addresses but then it will be too many requests to db
 const ipCache3 = {}
-app.post("/api/post/serversavead", upload.array("images", 4), async (req, res) => {
+app.post("/api/post/serversavead", upload.array("images", 4), authenticateToken, rateLimiter, blockBannedIPs, async (req, res) => {
   //preventing spam comments
   const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
-  // Check if IP exists in cache and if last comment was less than 1 minute ago
-  if (ipCache3[ipVisitor] && Date.now() - ipCache3[ipVisitor] < 1000) {
-    return res.status(429).json({myMessage: 'Too many uploads from this visitor'});
-  }
-  ipCache3[ipVisitor] = Date.now();//save visitor ip to ipCache3
-
-  // Check if the IP is in the ignored list
-  if (ignoredIPs.includes(ipVisitor)) {
-    return res.status(429).json({myMessage: 'Visitor is banned'}); 
-  }
 
   let client;
   const adData = JSON.parse(req.body.adData);  // ✅ Parse the JSON string
@@ -124,19 +132,9 @@ app.post("/api/post/serversavead", upload.array("images", 4), async (req, res) =
 const ipCache4 = {}
 const JWT_SEC = process.env.JWT_SECRET; // Ensure you have this in your .env file
 const SALT_ROUNDS = 5; // For password hashing, normally 10 would be safe. I am not storing sensitive data. So, 5 is enough.
-app.post("/api/register", async (req, res) => {
+app.post("/api/register", rateLimiter, blockBannedIPs, async (req, res) => {
   //preventing spam signups
   const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
-  // Check if IP exists in cache and if last signup was less than 1 minute ago
-  if (ipCache4[ipVisitor] && Date.now() - ipCache4[ipVisitor] < 1000) {
-    return res.status(429).json({myMessage: 'Too many signup attempts from this visitor'});
-  }
-  ipCache4[ipVisitor] = Date.now();//save visitor ip to ipCache4
-
-  // Check if the IP is in the ignored list
-  if (ignoredIPs.includes(ipVisitor)) {
-    return res.status(429).json({myMessage: 'Visitor is banned'}); 
-  }
 
   let client;
   const registerObject = req.body;
@@ -187,20 +185,9 @@ app.post("/api/register", async (req, res) => {
 
 });
 
-app.post("/api/login", async (req, res) => {
+app.post("/api/login", rateLimiter, blockBannedIPs, async (req, res) => {
   //preventing spam logins
   const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
-  // Check if IP exists in cache and if last login was less than 1 minute ago
-  if (ipCache4[ipVisitor] && Date.now() - ipCache4[ipVisitor] < 1000) {
-    return res.status(429).json({myMessage: 'Too many login attempts from this visitor'});
-  }
-  ipCache4[ipVisitor] = Date.now();//save visitor ip to ipCache4
-
-  // Check if the IP is in the ignored list
-  if (ignoredIPs.includes(ipVisitor)) {
-    return res.status(429).json({myMessage: 'Visitor is banned.'}); 
-  }
-  console.log("hi connection is fine");
 
   let client; 
   const loginObject = req.body;
@@ -242,7 +229,7 @@ app.post("/api/login", async (req, res) => {
 
 });
 
-app.get("/api/get/adsbycategory/:idcategory", async (req, res) => {
+app.get("/api/get/adsbycategory/:idcategory", rateLimiter, blockBannedIPs, async (req, res) => {
   const { idcategory } = req.params; 
   let client;
   if(!idcategory) {
@@ -268,7 +255,7 @@ app.get("/api/get/adsbycategory/:idcategory", async (req, res) => {
   }
 });
 
-app.get("/api/get/adsbysubsection/:sectionNumber", async (req, res) => {
+app.get("/api/get/adsbysubsection/:sectionNumber", rateLimiter, blockBannedIPs, async (req, res) => {
   const { sectionNumber } = req.params; 
   let client;
   if(!sectionNumber) {
@@ -293,7 +280,7 @@ app.get("/api/get/adsbysubsection/:sectionNumber", async (req, res) => {
   }
 });
 
-app.get("/api/get/adsbyuser/:iduser", async (req, res) => {
+app.get("/api/get/adsbyuser/:iduser", rateLimiter, blockBannedIPs, async (req, res) => {
   const { iduser } = req.params;
   let client;
   if(!iduser) {
@@ -319,7 +306,7 @@ app.get("/api/get/adsbyuser/:iduser", async (req, res) => {
   }
 });
 
-app.get("/api/get/userdata/:iduser", async (req, res) => {
+app.get("/api/get/userdata/:iduser", rateLimiter, blockBannedIPs, async (req, res) => {
   const { iduser } = req.params;
   let client;
   if(!iduser) {
@@ -344,7 +331,7 @@ app.get("/api/get/userdata/:iduser", async (req, res) => {
   }
 });
 
-app.get("/api/get/item/:itemNumber", async (req, res) => {
+app.get("/api/get/item/:itemNumber", rateLimiter, blockBannedIPs, async (req, res) => {
   const { itemNumber } = req.params;
   let client;
   if(!itemNumber) {
@@ -369,19 +356,9 @@ app.get("/api/get/item/:itemNumber", async (req, res) => {
   }
 });
  
-app.post("/api/update", authenticateToken, async (req, res) => {
+app.post("/api/update", authenticateToken, rateLimiter, blockBannedIPs, async (req, res) => {
   //preventing spam signups
   const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
-  // Check if IP exists in cache and if last signup was less than 1 minute ago
-  if (ipCache4[ipVisitor] && Date.now() - ipCache4[ipVisitor] < 1000) {
-    return res.status(429).json({myMessage: 'Too many attempts from this visitor'});
-  }
-  ipCache4[ipVisitor] = Date.now();//save visitor ip to ipCache4
-
-  // Check if the IP is in the ignored list
-  if (ignoredIPs.includes(ipVisitor)) {
-    return res.status(429).json({myMessage: 'Visitor is banned'}); 
-  }
 
   let client;
   const updateObject = req.body;
@@ -415,7 +392,7 @@ app.post("/api/update", authenticateToken, async (req, res) => {
     client.release();
   } 
 });
-app.delete("/api/delete/item/:itemNumber", authenticateToken, async (req, res) => {
+app.delete("/api/delete/item/:itemNumber", authenticateToken, rateLimiter, blockBannedIPs, async (req, res) => {
   const { itemNumber } = req.params;
   let client;
   if(!itemNumber) {
@@ -440,19 +417,9 @@ app.delete("/api/delete/item/:itemNumber", authenticateToken, async (req, res) =
     if(client) client.release();
   }
 });
-app.patch("/api/profile/update-ad", authenticateToken, upload.array("adUpdateImages", 5), async (req, res) => { 
+app.patch("/api/profile/update-ad", upload.array("adUpdateImages", 5), authenticateToken, rateLimiter, blockBannedIPs, async (req, res) => { 
   //preventing spam comments
   const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
-  // Check if IP exists in cache and if last comment was less than 1 minute ago
-  if (ipCache3[ipVisitor] && Date.now() - ipCache3[ipVisitor] < 1000) {
-    return res.status(429).json({myMessage: 'Too many uploads from this visitor'});
-  }
-  ipCache3[ipVisitor] = Date.now();//save visitor ip to ipCache3
-
-  // Check if the IP is in the ignored list
-  if (ignoredIPs.includes(ipVisitor)) {
-    return res.status(429).json({myMessage: 'Visitor is banned'}); 
-  }
  
   let client;
   const adData = JSON.parse(req.body.adUpdateData);  // ✅ Parse the JSON string
@@ -554,19 +521,9 @@ app.patch("/api/profile/update-ad", authenticateToken, upload.array("adUpdateIma
   } 
 
 });
-app.post("/api/like/sellers", authenticateToken, async (req, res) => {
+app.post("/api/like/sellers", authenticateToken, rateLimiter, blockBannedIPs, async (req, res) => {
   //preventing spam likes
   const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
-  // Check if IP exists in cache and if last signup was less than 0.5 seconds ago
-  if (ipCache4[ipVisitor] && Date.now() - ipCache4[ipVisitor] < 500) {
-    return res.status(429).json({myMessage: 'Too many attempts from this visitor'});
-  }
-  ipCache4[ipVisitor] = Date.now();//save visitor ip to ipCache4
-
-  // Check if the IP is in the ignored list
-  if (ignoredIPs.includes(ipVisitor)) {
-    return res.status(429).json({myMessage: 'Visitor is banned'}); 
-  }
 
   let client;
   const { likeStatus, likedId, userId } = req.body;
@@ -663,19 +620,9 @@ app.post("/api/like/sellers", authenticateToken, async (req, res) => {
     if (client) client.release();
   } 
 });
-app.post("/api/like/items", authenticateToken, async (req, res) => {
+app.post("/api/like/items", authenticateToken, rateLimiter, blockBannedIPs, async (req, res) => {
   //preventing spam likes
   const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
-  // Check if IP exists in cache and if last signup was less than 1 minute ago
-  if (ipCache4[ipVisitor] && Date.now() - ipCache4[ipVisitor] < 1000) {
-    return res.status(429).json({myMessage: 'Too many attempts from this visitor'});
-  }
-  ipCache4[ipVisitor] = Date.now();//save visitor ip to ipCache4
-
-  // Check if the IP is in the ignored list
-  if (ignoredIPs.includes(ipVisitor)) {
-    return res.status(429).json({myMessage: 'Visitor is banned'}); 
-  }
 
   let client;
   const { likeStatus, likedId, userId } = req.body;
@@ -772,19 +719,9 @@ app.post("/api/like/items", authenticateToken, async (req, res) => {
     if (client) client.release();
   } 
 });
-app.post("/api/like/seller-to-users", authenticateToken, async (req, res) => {
+app.post("/api/like/seller-to-users", authenticateToken, rateLimiter, blockBannedIPs, async (req, res) => {
   //preventing spam likes
   const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
-  // Check if IP exists in cache and if last signup was less than 1 minute ago
-  if (ipCache4[ipVisitor] && Date.now() - ipCache4[ipVisitor] < 500) {
-    return res.status(429).json({myMessage: 'Too many attempts from this visitor'});
-  }
-  ipCache4[ipVisitor] = Date.now();//save visitor ip to ipCache4
-
-  // Check if the IP is in the ignored list
-  if (ignoredIPs.includes(ipVisitor)) {
-    return res.status(429).json({myMessage: 'Visitor is banned'}); 
-  }
 
   let client;
   const { likeStatus, likedId, userId } = req.body;
@@ -879,19 +816,9 @@ app.post("/api/like/seller-to-users", authenticateToken, async (req, res) => {
     if (client) client.release();
   } 
 });
-app.post("/api/like/item-to-users", authenticateToken, async (req, res) => {
+app.post("/api/like/item-to-users", authenticateToken, rateLimiter, blockBannedIPs, async (req, res) => {
   //preventing spam likes
   const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
-  // Check if IP exists in cache and if last signup was less than 0.5 seconds ago
-  if (ipCache4[ipVisitor] && Date.now() - ipCache4[ipVisitor] < 500) {
-    return res.status(429).json({myMessage: 'Too many attempts from this visitor'});
-  }
-  ipCache4[ipVisitor] = Date.now();//save visitor ip to ipCache4
-
-  // Check if the IP is in the ignored list
-  if (ignoredIPs.includes(ipVisitor)) {
-    return res.status(429).json({myMessage: 'Visitor is banned'}); 
-  }
 
   let client;
   const { likeStatus, likedId, userId } = req.body;
@@ -985,7 +912,7 @@ app.post("/api/like/item-to-users", authenticateToken, async (req, res) => {
     if (client) client.release();
   } 
 });
-app.get("/api/like/get-seller-likes-count/:idSeller1", async (req, res) => {
+app.get("/api/like/get-seller-likes-count/:idSeller1", rateLimiter, blockBannedIPs, async (req, res) => {
 
   const { idSeller1 } = req.params;
   const sellerId = Number(idSeller1);
@@ -1044,7 +971,7 @@ app.get("/api/like/get-seller-likes-count/:idSeller1", async (req, res) => {
     if (client) client.release();
   } 
 })
-app.get("/api/like/get-item-likes-count/:idItem1", async (req, res) => {
+app.get("/api/like/get-item-likes-count/:idItem1", rateLimiter, blockBannedIPs, async (req, res) => {
 
   const { idItem1 } = req.params;
   const idItem = Number(idItem1);
@@ -1103,7 +1030,7 @@ app.get("/api/like/get-item-likes-count/:idItem1", async (req, res) => {
     if (client) client.release();
   } 
 });
-app.get("/api/search", async (req, res) => {
+app.get("/api/search", rateLimiter, blockBannedIPs, async (req, res) => {
 
   const searchText = req.query.myQuery;
 
@@ -1160,7 +1087,7 @@ app.get("/api/search", async (req, res) => {
   } 
 });
 
-app.get('/api/verify-token', async (req, res) => {
+app.get('/api/verify-token', rateLimiter, blockBannedIPs, async (req, res) => {
   const token = req.headers.authorization?.split(' ')[1];
   if (!token) {
     return res.status(401).json({ error: 'No token provided' });
@@ -1223,11 +1150,7 @@ app.listen(PORT, () => {
   numbers in his liked ads or sellers array. Make sure you skip the deleted id numbers while mapping array.
   We will map array to display favourite sellers or ad to the user.
   Also develop isLikeAllowed state to improve security on like logic code. state is in BtmItem and BtmSeller components
-
-change all xxxxx things in the footer component 
-Add limits for contact form inputs and textarea
 add two more comment section to each part
-before creating a new profile, a check on emails to make sure user does exist
 check time limits on post routes . They are not 1 minute, if so, convert them to 1 minute
 ip check to make sure same ip can upload once in 5 minutes and twice in 24 hour 
 
@@ -1242,16 +1165,17 @@ ip check to make sure same ip can upload once in 5 minutes and twice in 24 hour
 //People should not upload many images and long inputs
 //Add a loading circle when uploading an ad and waiting for reply if ad is saved
 Add date column to ads
+Remove ipVisitor data from endpoints if they are not used. Wait for counter and visitor log code before removing it.
 
 Add small screen style
 resultArea style improve on big screen
 
 
 GENERAL SECURITY
-  verify token middleware: backend
-  input sanitization: backend
+  *Done: verify token middleware: backend
+  *Done: input sanitization: backend
   input validation and checks: frontend and backend
-  rate limiter: backend
+  *Done: rate limiter: backend
 
 BEFORE DEPLOYING:
   Delete images from storage too   
@@ -1262,6 +1186,7 @@ BEFORE DEPLOYING:
   also check server file to uncomment relevant code
   remove all localhost words from api endpoints in frontend
   convert all error, success and alert messages to Latvian, also buttons and any other text
+  change all xxxxx things in the footer component 
 */
 
 app.post("/api/save-message", async (req, res) => {
