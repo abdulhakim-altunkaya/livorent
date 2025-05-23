@@ -51,11 +51,7 @@ function BtmLogin() {
         loginEmail: email, 
         loginPasstext: passtext
       };
-      const res1 = await axios.post("http://localhost:5000/api/login", loginObject, {
-        headers: {
-          Authorization: `Bearer ${token}` // Optional for login
-        }
-      });
+      const res1 = await axios.post("http://localhost:5000/api/login", loginObject);
 
       // Servers sends ok message and token upon successful login,
       // and we save token in localStorage
@@ -71,7 +67,7 @@ function BtmLogin() {
           // navigate(`/profile/${res1.data.visitorNumber}`); navigate does not refresh page
           // we need to refresh page to reflect state update on profile*/
           window.location.href = `/profile/${res1.data.visitorNumber}`;
-        }, 50); // Even 10–50ms can help
+        }, 200); // 0.2 seconds might help
         
       }
 

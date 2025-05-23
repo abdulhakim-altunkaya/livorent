@@ -40,8 +40,8 @@ const authenticateToken = (req, res, next) => {
 // 🔒 MIDDLEWARE 3: Rate Limiter
 const rateLimit = require('express-rate-limit');
 const rateLimiter = rateLimit({
-  windowMs: 700, // 0.7 second
-  max: 1, // Limit each IP to 1 request per 500ms
+  windowMs: 100, // 0.1 second
+  max: 2, // Limit each IP to 1 request per 500ms
   message: { myMessage: 'Too many attempts from this visitor' },
   standardHeaders: true, // Return rate limit info in `RateLimit-*` headers
   legacyHeaders: false,  // Disable the `X-RateLimit-*` headers
@@ -195,8 +195,6 @@ app.post("/api/login", rateLimiter, blockBannedIPs, async (req, res) => {
     email1: loginObject.loginEmail.trim(),     // Ensure date is trimmed, now whitespace,
     passtext1: loginObject.loginPasstext.trim()
   };
-  console.log("loginObject: ", loginObject);
-  console.log("loginLoad: ", loginLoad);
   try {
     client = await pool.connect();
     //find user by email
@@ -207,7 +205,6 @@ app.post("/api/login", rateLimiter, blockBannedIPs, async (req, res) => {
       return res.status(401).json({ error: "Wrong e-mail or password"});
     }
     const user = users[0];
-    console.log("user: ", user);
     //comparing password. Bcrypt will know from hashed password the number of salt rounds
     const passwordMatch = await bcrypt.compare(loginLoad.passtext1, user.passtext);
     if (!passwordMatch) {
