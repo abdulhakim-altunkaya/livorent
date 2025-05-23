@@ -119,6 +119,11 @@ function BtmRegister() {
               <input className="loginInputShort" type="text" id="inputPasstextControl"
                 value={passtextControl} onChange={(e) => setPasstextControl(e.target.value)} required  />
             </div>
+            <div className="loginInputs">
+              <label htmlFor="inputPasstextControl">Atkārtot paroli:</label>
+              <input className="loginInputShort" type="text" id="inputPasstextControl"
+                value={passtextControl} onChange={(e) => setPasstextControl(e.target.value)} required  />
+            </div>
           <button className="btnSelectCategory2" type="submit">Reģistrēties</button>
         </form>
         <div>{resultArea}</div>
