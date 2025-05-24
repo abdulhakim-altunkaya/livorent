@@ -142,7 +142,8 @@ app.post("/api/register", rateLimiter, blockBannedIPs, async (req, res) => {
     name1: registerObject.registerName.trim(),
     telephone1: registerObject.registerTelephone.trim(),     // Ensure text values are trimmed
     email1: registerObject.registerEmail.trim(),     // Ensure date is trimmed (still stored as text in DB),
-    passtext1: registerObject.registerPasstext.trim()
+    passtext1: registerObject.registerPasstext.trim(),
+    secretWord1: registerObject.registerSecretWord.trim(),
   };
   const visitorData = {
     ip: ipVisitor,
@@ -150,8 +151,9 @@ app.post("/api/register", rateLimiter, blockBannedIPs, async (req, res) => {
   };
 
   try {
-    // Hash the password
+    // Hash the password and secret word
     const hashedPassword = await bcrypt.hash(registerLoad.passtext1, SALT_ROUNDS);
+    const hashedSecretWord = await bcrypt.hash(registerLoad.secretWord1, SALT_ROUNDS);
 
     client = await pool.connect();
 
@@ -168,9 +170,11 @@ app.post("/api/register", rateLimiter, blockBannedIPs, async (req, res) => {
     }
 
     const { rows: newUser } = await client.query(
-      `INSERT INTO livorent_users (name, telephone, email, passtext, ip, date) 
-      VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`,
-      [registerLoad.name1, registerLoad.telephone1, registerLoad.email1, hashedPassword, visitorData.ip, visitorData.visitDate]
+      `INSERT INTO livorent_users (name, telephone, email, passtext, ip, date, secretword, loginattempt, loginattemptstamp) 
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id`,
+      [registerLoad.name1, registerLoad.telephone1, registerLoad.email1, 
+        hashedPassword, visitorData.ip, visitorData.visitDate, 
+        hashedSecretWord, 0, new Date().toISOString()]
     );
 
     // Generate a JWT for the new user and send it to frontend
@@ -1150,9 +1154,8 @@ app.listen(PORT, () => {
 add two more comment section to each part
 check time limits on post routes . They are not 1 minute, if so, convert them to 1 minute
 ip check to make sure same ip can upload once in 5 minutes and twice in 24 hour 
-
 //Add comment system
-//add limits on search input length, search text should match to the word. 
+//search text should approximately match the word. 
 //Add password renewal logic
 //add security check for repetitive wrong login attemps
 //Add visit counter to each ad page
@@ -1166,7 +1169,6 @@ Remove ipVisitor data from endpoints if they are not used. Wait for counter and 
 
 Add small screen style
 resultArea style improve on big screen
-
 
 GENERAL SECURITY
   *Done: verify token middleware: backend

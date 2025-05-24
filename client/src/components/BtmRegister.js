@@ -14,6 +14,7 @@ function BtmRegister() {
   const [passtext, setPasstext] = useState("");
   const [resultArea, setResultArea] = useState("");
   const [passtextControl, setPasstextControl] = useState("");
+  const [secretWord, setSecretWord] = useState("");
 
   useEffect(() => {
     const token = localStorage.getItem("token_livorent");
@@ -53,7 +54,8 @@ function BtmRegister() {
         registerName: name, 
         registerTelephone: telephone, 
         registerEmail: email, 
-        registerPasstext: passtext
+        registerPasstext: passtext,
+        registerSecretWord: secretWord
       };
 
       const res1 = await axios.post("http://localhost:5000/api/register", registerObject);
@@ -120,9 +122,10 @@ function BtmRegister() {
                 value={passtextControl} onChange={(e) => setPasstextControl(e.target.value)} required  />
             </div>
             <div className="loginInputs">
-              <label htmlFor="inputPasstextControl">Atkārtot paroli:</label>
-              <input className="loginInputShort" type="text" id="inputPasstextControl"
-                value={passtextControl} onChange={(e) => setPasstextControl(e.target.value)} required  />
+              <label htmlFor="inputSecretWord">Kā sauc jūsu labāko draugu bērnībā?</label>
+              <input className="loginInputShort" type="text" id="inputSecretWord"
+                value={secretWord} onChange={(e) => setSecretWord(e.target.value)} required />
+              <small><em>Šo atbildi izmantosim, lai pārbaudītu jūsu identitāti, ja aizmirstat paroli.</em></small>
             </div>
           <button className="btnSelectCategory2" type="submit">Reģistrēties</button>
         </form>
