@@ -230,6 +230,55 @@ app.post("/api/login", rateLimiter, blockBannedIPs, async (req, res) => {
 
 });
 
+app.post("/api/post/password-renewal", rateLimiter, blockBannedIPs, async (req, res) => {
+  //preventing spam logins
+  const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
+
+  let client; 
+  const renewalObject = req.body;
+  const renewalLoad = {
+    email1: renewalObject.renewalEmail.trim(),     // Ensure date is trimmed, no whitespace,
+    secretWord1: renewalObject.renewalSecretWord.trim()
+  };
+
+  try {
+    const hashedNewPassword = await bcrypt.hash(registerLoad.passtext1, SALT_ROUNDS);
+
+    client = await pool.connect();
+    //find user by email
+    const { rows: users } = await client.query(
+      `SELECT id, secretword FROM livorent_users WHERE email = $1`, [renewalLoad.email1]
+    )
+    if(users.length === 0) {
+      return res.status(401).json({ error: "Wrong e-mail"});
+    }
+    const user = users[0];
+    //comparing secret word. Bcrypt will know from hashed secret word the number of salt rounds used previously
+    const secretWordMatch = await bcrypt.compare(renewalLoad.secretWord1, user.secretword);
+    if (!secretWordMatch) {
+      return res.status(401).json({ error: "Wrong secret word"});
+    }
+
+    //If secret word matches, then update the password and send a new token to frontend
+    const { rows: updatedUser } = await client.query(
+      `UPDATE livorent_users SET passtext = $1 WHERE id = $2 RETURNING id`,
+      [hashedNewPassword, user.id]
+    );
+    // Generate a JWT for the new user and send it to frontend
+    const token = jwt.sign({ userId: updatedUser[0].id, tokenVersion: user.tokenversion}, JWT_SEC, { expiresIn: '100d' });
+    res.status(200).json({
+      message: "Password updated",
+      visitorNumber: user.id,
+      token
+    })
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({myMessage: "Error while login"})
+  } finally {
+    client.release();
+  } 
+})
+
 app.get("/api/get/adsbycategory/:idcategory", rateLimiter, blockBannedIPs, async (req, res) => {
   const { idcategory } = req.params; 
   let client;
@@ -382,7 +431,6 @@ app.post("/api/update", authenticateToken, rateLimiter, blockBannedIPs, async (r
       RETURNING id`,
       [updateLoad.name1, updateLoad.telephone1, updateLoad.email1, hashedPassword, updateLoad.id1]
     );
-
     // Generate a JWT for the new user and send it to frontend
     const token = jwt.sign({ userId: updatedUser[0].id }, JWT_SEC, { expiresIn: '100d' });
     res.status(201).json({ myMessage: 'Profile updated', visitorNumber:updatedUser[0].id, token });
@@ -1166,6 +1214,9 @@ ip check to make sure same ip can upload once in 5 minutes and twice in 24 hour
 //Add a loading circle when uploading an ad and waiting for reply if ad is saved
 Add date column to ads
 Remove ipVisitor data from endpoints if they are not used. Wait for counter and visitor log code before removing it.
+After password change, a new is sent to frontend and it is ok. What if user has account open on another computer?
+In that case, as there will be a valid token on another computer, he will have two different logins to the same account.
+How to prevent that?
 
 Add small screen style
 resultArea style improve on big screen
@@ -1175,6 +1226,8 @@ GENERAL SECURITY
   *Done: input sanitization: backend
   input validation and checks: frontend and backend
   *Done: rate limiter: backend
+  password renewal: use secret word to avoid email/sms confirmations and use token 
+                    version to prevent older tokens from login
 
 BEFORE DEPLOYING:
   Delete images from storage too   
