@@ -10,6 +10,8 @@ function BtmLogin() {
   
   const [email, setEmail] = useState("");
   const [secretWord, setSecretWord] = useState("");
+  const [passtext, setPasstext] = useState("");
+  const [passtextControl, setPasstextControl] = useState("");
   const [resultArea, setResultArea] = useState("");
   const token = localStorage.getItem("token_livorent");
   
@@ -41,20 +43,22 @@ function BtmLogin() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!email || !passtext) {
-      setResultArea("Please enter both email and password.");
+    if (!email || !secretWord) {
+      setResultArea("Please enter both email and secret word.");
       return;
     }
 
     try { 
-      const loginObject = {
-        loginEmail: email, 
-        loginPasstext: passtext
+      const renewalObject = {
+        renewalEmail: email, 
+        renewalPasstext: passtext,
+        renewalSecretWord: secretWord
       };
-      const res1 = await axios.post("http://localhost:5000/api/login", loginObject);
-
-      // Servers sends ok message and token upon successful login,
-      // and we save token in localStorage
+      const res1 = await axios.post("http://localhost:5000/api/post/password-renewal", renewalObject);
+      // Servers sends ok message and token upon successful secret word check,
+      // Then we display two new inputs for new password and its repetition
+      // Upon successful password change we create a token and send token and user id number from Backend to frontend
+      // And we save this token and profile number in the localstorage
       if (res1.data.token) {
         localStorage.setItem("token_livorent", res1.data.token); // Save the token 
         localStorage.setItem("visitorNumber", Number(res1.data.visitorNumber)); //save the user id
@@ -98,6 +102,16 @@ function BtmLogin() {
               <label htmlFor="inputSecretWord">Kā sauc jūsu labāko draugu bērnībā?</label>
               <input className="loginInputShort" type="text" id="inputSecretWord"
                 value={secretWord} onChange={(e) => setSecretWord(e.target.value)} required />
+            </div>
+            <div className="loginInputs">
+              <label htmlFor="inputPasstext">Jauna parole:</label>
+              <input className="loginInputShort" type="text" id="inputPasstext"
+                value={passtext} onChange={(e) => setPasstext(e.target.value)} required  />
+            </div>
+            <div className="loginInputs">
+              <label htmlFor="inputPasstextControl">Atkārtot jauno paroli:</label>
+              <input className="loginInputShort" type="text" id="inputPasstextControl"
+                value={passtextControl} onChange={(e) => setPasstextControl(e.target.value)} required  />
             </div>
             <button className="btnSelectCategory2" type="submit">Ieiet</button>
           </form>

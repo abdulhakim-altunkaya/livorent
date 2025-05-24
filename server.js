@@ -238,44 +238,70 @@ app.post("/api/post/password-renewal", rateLimiter, blockBannedIPs, async (req, 
   const renewalObject = req.body;
   const renewalLoad = {
     email1: renewalObject.renewalEmail.trim(),     // Ensure date is trimmed, no whitespace,
+    passtext1: renewalObject.renewalPasstext.trim(), 
     secretWord1: renewalObject.renewalSecretWord.trim()
   };
 
+
   try {
-    const hashedNewPassword = await bcrypt.hash(registerLoad.passtext1, SALT_ROUNDS);
+    const hashedNewPassword = await bcrypt.hash(renewalLoad.passtext1, SALT_ROUNDS);
 
     client = await pool.connect();
     //find user by email
     const { rows: users } = await client.query(
-      `SELECT id, secretword FROM livorent_users WHERE email = $1`, [renewalLoad.email1]
+      `SELECT id, passtext, tokenversion, secretword FROM livorent_users WHERE email = $1`, [renewalLoad.email1]
     )
     if(users.length === 0) {
-      return res.status(401).json({ error: "Wrong e-mail"});
+      return res.status(401).json({
+        responseMessage: "Wrong credentials",
+        responseStatus: false,
+        responseNumber: 0,
+        responseToken:""
+      });
     }
     const user = users[0];
     //comparing secret word. Bcrypt will know from hashed secret word the number of salt rounds used previously
     const secretWordMatch = await bcrypt.compare(renewalLoad.secretWord1, user.secretword);
     if (!secretWordMatch) {
-      return res.status(401).json({ error: "Wrong secret word"});
+      return res.status(401).json({
+        responseMessage: "Wrong credentials",
+        responseStatus: false,
+        responseNumber: 0,
+        responseToken:""
+      });
     }
 
     //If secret word matches, then update the password and send a new token to frontend
     const { rows: updatedUser } = await client.query(
-      `UPDATE livorent_users SET passtext = $1 WHERE id = $2 RETURNING id`,
+      `UPDATE livorent_users SET passtext = $1, tokenversion = tokenversion + 1 WHERE id = $2 RETURNING id, tokenversion`,
       [hashedNewPassword, user.id]
     );
+    if (updatedUser.length === 0) {
+      return res.status(500).json({
+        responseMessage: "Failed to update password.",
+        responseStatus: false,
+        responseNumber: 0,
+        responseToken: ""
+      });
+    }
     // Generate a JWT for the new user and send it to frontend
-    const token = jwt.sign({ userId: updatedUser[0].id, tokenVersion: user.tokenversion}, JWT_SEC, { expiresIn: '100d' });
+    const token = jwt.sign({ userId: updatedUser[0].id, tokenVersion: updatedUser[0].tokenversion}, JWT_SEC, { expiresIn: '100d' });
     res.status(200).json({
-      message: "Password updated",
-      visitorNumber: user.id,
-      token
-    })
+      responseMessage: "Password updated",
+      responseStatus: true,
+      responseNumber: user.id,
+      responseToken: token
+    });
   } catch (error) {
-    console.log(error.message);
-    res.status(500).json({myMessage: "Error while login"})
+    console.log(error);//log all error stack 
+    res.status(500).json({
+      responseMessage: "Probably database connection failed.",
+      responseStatus: false,
+      responseNumber: 0,
+      responseToken:""
+    })
   } finally {
-    client.release();
+    if (client) client.release();
   } 
 })
 
