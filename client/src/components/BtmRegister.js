@@ -113,12 +113,12 @@ function BtmRegister() {
             </div>
             <div className="loginInputs">
               <label htmlFor="inputPasstext">Parole:</label>
-              <input className="loginInputShort" type="text" id="inputPasstext"
+              <input className="loginInputShort" type="password" id="inputPasstext"
                 value={passtext} onChange={(e) => setPasstext(e.target.value)} required  />
             </div>
             <div className="loginInputs">
               <label htmlFor="inputPasstextControl">Atkārtot paroli:</label>
-              <input className="loginInputShort" type="text" id="inputPasstextControl"
+              <input className="loginInputShort" type="password" id="inputPasstextControl"
                 value={passtextControl} onChange={(e) => setPasstextControl(e.target.value)} required  />
             </div>
             <div className="loginInputs">
