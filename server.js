@@ -256,6 +256,7 @@ app.post("/api/post/password-renewal", rateLimiter, blockBannedIPs, async (req, 
         responseMessage: "Wrong credentials",
         responseStatus: false,
         responseNumber: 0,
+        responseUser: null,
         responseToken:""
       });
     }
@@ -267,13 +268,14 @@ app.post("/api/post/password-renewal", rateLimiter, blockBannedIPs, async (req, 
         responseMessage: "Wrong credentials",
         responseStatus: false,
         responseNumber: 0,
+        responseUser: null,
         responseToken:""
       });
     }
 
     //If secret word matches, then update the password and send a new token to frontend
     const { rows: updatedUser } = await client.query(
-      `UPDATE livorent_users SET passtext = $1, tokenversion = tokenversion + 1 WHERE id = $2 RETURNING id, tokenversion`,
+      `UPDATE livorent_users SET passtext = $1, tokenversion = tokenversion + 1 WHERE id = $2 RETURNING *`,
       [hashedNewPassword, user.id]
     );
     if (updatedUser.length === 0) {
@@ -281,15 +283,19 @@ app.post("/api/post/password-renewal", rateLimiter, blockBannedIPs, async (req, 
         responseMessage: "Failed to update password.",
         responseStatus: false,
         responseNumber: 0,
+        responseUser: null,
         responseToken: ""
       });
     }
     // Generate a JWT for the new user and send it to frontend
-    const token = jwt.sign({ userId: updatedUser[0].id, tokenVersion: updatedUser[0].tokenversion}, JWT_SEC, { expiresIn: '100d' });
+    const token = jwt.sign(
+      { userId: updatedUser[0].id, tokenVersion: updatedUser[0].tokenversion}, JWT_SEC, { expiresIn: '100d' }
+    );
     res.status(200).json({
       responseMessage: "Password updated",
       responseStatus: true,
       responseNumber: user.id,
+      responseUser: updatedUser[0],
       responseToken: token
     });
   } catch (error) {
@@ -298,6 +304,7 @@ app.post("/api/post/password-renewal", rateLimiter, blockBannedIPs, async (req, 
       responseMessage: "Probably database connection failed.",
       responseStatus: false,
       responseNumber: 0,
+      responseUser: null,
       responseToken:""
     })
   } finally {
@@ -451,7 +458,7 @@ app.post("/api/update", authenticateToken, rateLimiter, blockBannedIPs, async (r
     // Hash the password
     const hashedPassword = await bcrypt.hash(updateLoad.passtext1, SALT_ROUNDS);
 
-    client = await pool.connect();
+    client = await pool.connect(); 
     const { rows: updatedUser } = await client.query(
       `UPDATE livorent_users SET name = $1, telephone = $2, email = $3, passtext = $4 WHERE id = $5 
       RETURNING id`,

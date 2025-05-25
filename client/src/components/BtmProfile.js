@@ -99,7 +99,7 @@ function BtmProfile() {
     //navigate("/");//we dont use navigate because zustand old user number will persist after navigate.
     window.location.href = "/";//we use navigate that zustand old user number will reset to zero.
   }
-
+ 
 
 
   const deleteAd = async (n) => {

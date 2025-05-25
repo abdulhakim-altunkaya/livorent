@@ -1,10 +1,11 @@
 import { create } from 'zustand';
-
+ 
 const useUserStore = create((set) => ({
   // user data. From BtmProfile to BtmProfileUpdate component
   cachedUserData: {},
   setCachedUserData: (data) => set({ cachedUserData: data }),
   clearCachedUserData: () => set({ cachedUserData: {} }), 
+  
 
   // seller data. From BtmItem to BtmSeller component
   cachedSellerData: {},
