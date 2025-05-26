@@ -1,19 +1,17 @@
 import React, {useState, useEffect} from "react";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../styles/Login.css";
 import Footer from "./Footer";
 import useUserStore from '../store/userStore'; // Adjust path accordingly
 
 function BtmRenewal() { 
-  const navigate = useNavigate();
-  
+
   const [email, setEmail] = useState("");
   const [secretWord, setSecretWord] = useState("");
   const [passtext, setPasstext] = useState("");
   const [passtextControl, setPasstextControl] = useState("");
   const [resultArea, setResultArea] = useState("");
-
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     localStorage.removeItem("token_livorent");
@@ -26,6 +24,8 @@ function BtmRenewal() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    
+
     if (passtext !== passtextControl) {
       setResultArea("Passwords do not match.");
       return;
@@ -35,7 +35,7 @@ function BtmRenewal() {
       setResultArea("Please enter both email and secret word.");
       return;
     }
-
+    setLoading(true);
     try { 
       const renewalObject = {
         renewalEmail: email, 
@@ -53,13 +53,18 @@ function BtmRenewal() {
         useUserStore.getState().setCachedUserData(responseUser);// set also the cache
         setResultArea(responseMessage);
 
+        setLoading(false);
         // Small delay before navigation to allow store update
         // Later when people visit profile component, it will get data from zustand cache.
+        setEmail("");
+        setSecretWord("");
+        setPasstext("");
+        setPasstextControl("");
         setTimeout(() => {
           // navigate(`/profile/${responseNumber}`); navigate does not refresh page
           // we need to refresh page to reflect state update on profile*/
           window.location.href = `/profile/${responseNumber}`;
-        }, 200); // 0.2 seconds might help
+        }, 1300); // 1.3 seconds will help to update the state and to let the user read resultArea
         
       }
     } catch (error) {
@@ -68,10 +73,12 @@ function BtmRenewal() {
           const serverMessage = error.response.data?.responseMessage || "Unexpected server error.";
           setResultArea(serverMessage);
           console.error("Server responded with error:", error.response.data);
+          setLoading(false);
         } else {
           // Network error, timeout, or no response
           setResultArea("Network or server connection error.");
           console.error("Request failed:", error.message);
+          setLoading(false);
         }
     }
   }
@@ -79,7 +86,7 @@ function BtmRenewal() {
   return (
     <div>
         <div className="tabContainer">
-          <span className="activeTab">Ieeja</span>
+          <span className="activeTab">Paroles atjaunošana</span>
         </div>
         <div className="loginFormArea">
           <form className="loginForm" onSubmit={handleSubmit}>
@@ -95,15 +102,17 @@ function BtmRenewal() {
             </div>
             <div className="loginInputs">
               <label htmlFor="inputPasstext">Jauna parole:</label>
-              <input className="loginInputShort" type="text" id="inputPasstext"
+              <input className="loginInputShort" type="password" id="inputPasstext"
                 value={passtext} onChange={(e) => setPasstext(e.target.value)} required  />
             </div>
             <div className="loginInputs">
               <label htmlFor="inputPasstextControl">Atkārtot jauno paroli:</label>
-              <input className="loginInputShort" type="text" id="inputPasstextControl"
+              <input className="loginInputShort" type="password" id="inputPasstextControl"
                 value={passtextControl} onChange={(e) => setPasstextControl(e.target.value)} required  />
             </div>
-            <button className="btnSelectCategory2" type="submit">saglabāt</button>
+            <button className="btnSelectCategory2" type="submit" disabled={loading}>
+              {loading ? "Apstrādā..." : "Saglabāt"}
+            </button>
           </form>
           <div>{resultArea}</div>
         </div>

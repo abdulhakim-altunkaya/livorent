@@ -1250,6 +1250,7 @@ Remove ipVisitor data from endpoints if they are not used. Wait for counter and 
 After password change, a new is sent to frontend and it is ok. What if user has account open on another computer?
 In that case, as there will be a valid token on another computer, he will have two different logins to the same account.
 How to prevent that?
+Maybe you can update the endpoints to send comprehensive data like in the case of password renewal
 
 Add small screen style
 resultArea style improve on big screen
@@ -1261,6 +1262,7 @@ GENERAL SECURITY
   *Done: rate limiter: backend
   password renewal: use secret word to avoid email/sms confirmations and use token 
                     version to prevent older tokens from login
+                    As I have added tokenversion, should I change anything on token producing and token check components?
 
 BEFORE DEPLOYING:
   Delete images from storage too   
