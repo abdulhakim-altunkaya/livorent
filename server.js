@@ -157,7 +157,8 @@ app.post("/api/register", rateLimiter, blockBannedIPs, async (req, res) => {
       resMessage: 'Missing fields', 
       resVisitorNumber: 0, 
       resToken: "",
-      resUser: null
+      resUser: null,
+      resErrorCode: 1
     });
   }
 
@@ -180,7 +181,8 @@ app.post("/api/register", rateLimiter, blockBannedIPs, async (req, res) => {
         resMessage: 'User exists', 
         resVisitorNumber: 0, 
         resToken: "",
-        resUser: null
+        resUser: null,
+        resErrorCode: 2
       });
     }
 
@@ -200,7 +202,8 @@ app.post("/api/register", rateLimiter, blockBannedIPs, async (req, res) => {
       resMessage: 'Profile created', 
       resVisitorNumber: newUser[0].id, 
       resToken: token,
-      resUser: newUser[0]
+      resUser: newUser[0],
+      resErrorCode: 0
     });
   } catch (error) {
     console.log(error.message);
@@ -209,12 +212,12 @@ app.post("/api/register", rateLimiter, blockBannedIPs, async (req, res) => {
       resMessage: 'Profile creation failed', 
       resVisitorNumber: 0, 
       resToken: "",
-      resUser: null
+      resUser: null,
+      resErrorCode: 3
     });
   } finally {
     if (client) client.release();
   } 
-
 });
 
 app.post("/api/login", rateLimiter, blockBannedIPs, async (req, res) => {

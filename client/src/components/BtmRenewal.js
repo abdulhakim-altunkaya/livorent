@@ -17,7 +17,7 @@ function BtmRenewal() {
     localStorage.removeItem("token_livorent");
     localStorage.removeItem("visitorNumber");
     useUserStore.getState().clearCachedUserData?.();
-    setResultArea(""); // UI state
+    setResultArea(""); 
   }, []);
 
  
