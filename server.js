@@ -141,7 +141,7 @@ app.post("/api/register", rateLimiter, blockBannedIPs, async (req, res) => {
   const registerLoad = {
     name1: registerObject.registerName.trim(),
     telephone1: registerObject.registerTelephone.trim(),     // Ensure text values are trimmed
-    email1: registerObject.registerEmail.trim(),     // Ensure date is trimmed (still stored as text in DB),
+    email1: registerObject.registerEmail.trim().toLowerCase(),     // Ensure date is trimmed and lowercased,
     passtext1: registerObject.registerPasstext.trim(),
     secretWord1: registerObject.registerSecretWord.trim(),
   };
@@ -149,6 +149,17 @@ app.post("/api/register", rateLimiter, blockBannedIPs, async (req, res) => {
     ip: ipVisitor,
     visitDate: new Date().toLocaleDateString('en-GB')
   };
+
+  if (!registerLoad.email1 || !registerLoad.passtext1 || !registerLoad.secretWord1
+      || !registerLoad.name1 || !registerLoad.telephone1) {
+    return res.status(400).json({ 
+      resStatus: false,
+      resMessage: 'Missing fields', 
+      resVisitorNumber: 0, 
+      resToken: "",
+      resUser: null
+    });
+  }
 
   try {
     // Hash the password and secret word
@@ -164,27 +175,44 @@ app.post("/api/register", rateLimiter, blockBannedIPs, async (req, res) => {
       [registerLoad.email1]
     );
     if (rowCount > 0) {
-      return res.status(409).json(
-        { myMessage: "E-pasta adrese jau tiek izmantota. Lūdzu, izvēlieties citu vai piesakieties savā profilā."}
-      );
+      return res.status(409).json({ 
+        resStatus: false,
+        resMessage: 'User exists', 
+        resVisitorNumber: 0, 
+        resToken: "",
+        resUser: null
+      });
     }
 
     const { rows: newUser } = await client.query(
-      `INSERT INTO livorent_users (name, telephone, email, passtext, ip, date, secretword, loginattempt, loginattemptstamp) 
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id`,
+      `INSERT INTO livorent_users 
+      (name, telephone, email, passtext, ip, date, secretword, loginattempt, loginattemptstamp, tokenversion) 
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`,
       [registerLoad.name1, registerLoad.telephone1, registerLoad.email1, 
         hashedPassword, visitorData.ip, visitorData.visitDate, 
-        hashedSecretWord, 0, new Date().toISOString()]
+        hashedSecretWord, 0, new Date().toISOString(), 1]
     );
 
     // Generate a JWT for the new user and send it to frontend
-    const token = jwt.sign({ userId: newUser[0].id }, JWT_SEC, { expiresIn: '100d' });
-    res.status(201).json({ myMessage: 'Profile created', visitorNumber:newUser[0].id, token });
+    const token = jwt.sign({ userId: newUser[0].id, tokenVersion: 1 }, JWT_SEC, { expiresIn: '100d' });
+    res.status(201).json({ 
+      resStatus: true,
+      resMessage: 'Profile created', 
+      resVisitorNumber: newUser[0].id, 
+      resToken: token,
+      resUser: newUser[0]
+    });
   } catch (error) {
     console.log(error.message);
-    res.status(500).json({myMessage: "Error while creating the profile"})
+    res.status(500).json({
+      resStatus: false,
+      resMessage: 'Profile creation failed', 
+      resVisitorNumber: 0, 
+      resToken: "",
+      resUser: null
+    });
   } finally {
-    client.release();
+    if (client) client.release();
   } 
 
 });
@@ -1251,7 +1279,7 @@ After password change, a new is sent to frontend and it is ok. What if user has 
 In that case, as there will be a valid token on another computer, he will have two different logins to the same account.
 How to prevent that?
 Maybe you can update the endpoints to send comprehensive data like in the case of password renewal
-
+Maybe you can limit resUser to specific fields to prevent sending hashed password and secret words
 Add small screen style
 resultArea style improve on big screen
 

@@ -90,7 +90,7 @@ function BtmRegister() {
 
   return (
     <div>
-        <div className="tabContainer">
+        <div className="tabContainer"> 
           <span className="inactiveTab" onClick={() => navigate("/login") }>Ieeja</span>
           <span className="activeTab" onClick={() => navigate("/registration") }>Reģistrācija</span>
         </div>
