@@ -230,35 +230,71 @@ app.post("/api/login", rateLimiter, blockBannedIPs, async (req, res) => {
     email1: loginObject.loginEmail.trim(),     // Ensure date is trimmed, now whitespace,
     passtext1: loginObject.loginPasstext.trim()
   };
+
+  // Early field check
+  if (!loginLoad.email1 || !loginLoad.passtext1) {
+    return res.status(400).json({
+      resStatus: false,
+      resMessage: 'Lauki nevar būt tukši.', 
+      resVisitorNumber: 0,
+      resToken: "",
+      resUser: null,
+      resErrorCode: 4 // Missing fields
+    });
+  }
+
   try {
     client = await pool.connect();
     //find user by email
     const { rows: users } = await client.query(
-      `SELECT id, passtext FROM livorent_users WHERE email = $1`, [loginLoad.email1]
+      `SELECT id, email, passtext, tokenversion, name, telephone FROM livorent_users WHERE email = $1`, [loginLoad.email1]
     )
     if(users.length === 0) {
-      return res.status(401).json({ error: "Wrong e-mail or password"});
+      return res.status(401).json({
+        resStatus: false,
+        resMessage: 'no user found', 
+        resVisitorNumber: 0, 
+        resToken: "",
+        resUser: null,
+        resErrorCode: 1
+      });
     }
     const user = users[0];
     //comparing password. Bcrypt will know from hashed password the number of salt rounds
     const passwordMatch = await bcrypt.compare(loginLoad.passtext1, user.passtext);
     if (!passwordMatch) {
-      return res.status(401).json({ error: "Wrong password or e-mail"});
+      return res.status(401).json({
+        resStatus: false,
+        resMessage: 'wrong password or e-mail', 
+        resVisitorNumber: 0, 
+        resToken: "",
+        resUser: null,
+        resErrorCode: 2
+      });
     }
     //generating JWT for authenticated users
-    const token = jwt.sign({ userId: user.id}, JWT_SEC, { expiresIn: "100d" });
+    const token = jwt.sign({ userId: user.id, tokenVersion: user.tokenversion }, JWT_SEC, { expiresIn: "100d" });
     res.status(200).json({
-      message: "Login successful",
-      visitorNumber: user.id,
-      token
+      resStatus: true,
+      resMessage: "Autorizācija veiksmīga.",
+      resUser: user,
+      resVisitorNumber: user.id, 
+      resToken: token,
+      resErrorCode: 0
     })
   } catch (error) {
     console.log(error.message);
-    res.status(500).json({myMessage: "Error while login"})
+    return res.status(500).json({
+      resStatus: false,
+      resMessage: 'Database connection failed', 
+      resVisitorNumber: 0, 
+      resToken: "",
+      resUser: null,
+      resErrorCode: 3
+    })
   } finally {
-    client.release();
+    if (client) client.release();
   } 
-
 });
 
 app.post("/api/post/password-renewal", rateLimiter, blockBannedIPs, async (req, res) => {
