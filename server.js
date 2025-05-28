@@ -1285,6 +1285,7 @@ Maybe you can update the endpoints to send comprehensive data like in the case o
 Maybe you can limit resUser to specific fields to prevent sending hashed password and secret words
 Add small screen style
 resultArea style improve on big screen
+Add input validations signup and login and password change and  password renewal components
 
 GENERAL SECURITY
   *Done: verify token middleware: backend

@@ -24,8 +24,6 @@ function BtmRenewal() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    
-
     if (passtext !== passtextControl) {
       setResultArea("Passwords do not match.");
       return;

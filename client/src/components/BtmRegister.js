@@ -69,7 +69,7 @@ function BtmRegister() {
       // and we save token in localStorage
       if (res1.data.resToken) {
         localStorage.setItem("token_livorent", res1.data.resToken);
-        localStorage.setItem("visitorNumber", Number(res1.data.resVisitorNumber));
+        localStorage.setItem("visitorNumber", res1.data.resVisitorNumber);
         // set also the cache
         useUserStore.getState().setCachedUserData(res1.data.resUser);
         // Small delay before navigation to allow store update
@@ -83,13 +83,24 @@ function BtmRegister() {
 
     } catch (error) {
       if (error.response) {
-        setResultArea(error.response.data.resMessage);
-        console.log(error.message);
-        setLoading(false);
+        const errorCode = error.response.data.resErrorCode;
+        const resMessage = error.response.data.resMessage;
+
+        if (errorCode === 1) {
+          setResultArea("Lūdzu, aizpildiet visus laukus.");
+        } else if (errorCode === 2) {
+          setResultArea("Šis e-pasts jau ir reģistrēts. Mēģiniet pieteikties vai izmantot citu e-pastu.");
+        } else if (errorCode === 3) {
+          setResultArea("Radās servera kļūda. Mēģiniet vēlreiz vēlāk.");
+        } else {
+          // fallback if unknown code or no code at all
+          setResultArea(resMessage || "Nezināma kļūda pie reģistrācijas.");
+        }
+
+        console.warn("Kļūda pie reģistrācijas:", resMessage);
       } else {
-        setResultArea("Error happened while signup, no data from backend");
-        console.log(error.message);
-        setLoading(false);
+        setResultArea("Reģistrācijas kļūda: serveris neatbild.");
+        console.error("Unhandled signup error:", error.message);
       }
     } finally {
       setLoading(false);
