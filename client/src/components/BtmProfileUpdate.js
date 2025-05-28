@@ -105,7 +105,7 @@ function BtmProfileUpdate() {
             </div>
             <div className="loginInputs1">
               <label htmlFor="inputPasstext1">Parole:</label>
-              <input className="loginInputShort1" type="text" id="inputPasstext1"
+              <input className="loginInputShort1" type="text" id="inputPasstext1" autoComplete="off"
                 value={passtext} onChange={(e) => setPasstext(e.target.value)} required  />
             </div>
           <button className="btnSelectCategory3" type="submit">Atjaunināt</button>

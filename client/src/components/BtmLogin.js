@@ -4,7 +4,7 @@ import axios from "axios";
 import "../styles/Login.css";
 import Footer from "./Footer";
 import useUserStore from '../store/userStore'; // Adjust path accordingly
-
+ 
 function BtmLogin() { 
   const navigate = useNavigate();
   
@@ -46,42 +46,55 @@ function BtmLogin() {
       setResultArea("Please enter both email and password.");
       return;
     }
-
+    setResultArea(""); // Clear previous result before submitting
     setLoading(true);
 
     try { 
       const loginObject = {
-        loginEmail: email, 
-        loginPasstext: passtext
+        loginEmail: email.toLowerCase().trim(), 
+        loginPasstext: passtext.trim()
       };
       const res1 = await axios.post("http://localhost:5000/api/login", loginObject);
-
-      // Servers sends ok message and token upon successful login,
-      // and we save token in localStorage
-      if (res1.data.token) {
-        localStorage.setItem("token_livorent", res1.data.token); // Save the token 
-        localStorage.setItem("visitorNumber", Number(res1.data.visitorNumber)); //save the user id
-        // set also the cache
-        useUserStore.getState().setCachedUserData(res1.data.myMessage);
-        setResultArea(res1.data.myMessage);
-        // Small delay before navigation to allow store update
-        // Later when people visit profile component, it will get data from zustand cache.
-        setTimeout(() => {
-          // navigate(`/profile/${res1.data.visitorNumber}`); navigate does not refresh page
-          // we need to refresh page to reflect state update on profile*/
-          window.location.href = `/profile/${res1.data.visitorNumber}`;
-        }, 200); // 0.2 seconds might help
-        
+      if (!res1.data?.resToken || !res1.data?.resVisitorNumber || !res1.data?.resUser) {
+        setResultArea("Response from Backend is missing required data.");
+        return;
       }
+      
+      localStorage.setItem("token_livorent", res1.data.resToken);
+      localStorage.setItem("visitorNumber", Number(res1.data.resVisitorNumber));
+      // set also the cache
+      useUserStore.getState().setCachedUserData(res1.data.resUser);
+      setResultArea(res1.data.resMessage);
+      // Small delay before navigation to allow store update
+      // Later when people visit profile component, it will get data from zustand cache.
+      setTimeout(() => {
+        // navigate(`/profile/${res1.data.visitorNumber}`); navigate does not refresh page
+        // we need to refresh page to reflect state update on profile*/
+        window.location.href = `/profile/${res1.data.resVisitorNumber}`;
+      }, 1800); // 1.8 seconds might help
+      
 
     } catch (error) {
-      if (error.response) {
-        setResultArea(error.response.data.myMessage);
-        console.log(error.message);
-      } else {
-        setResultArea("Error happened login, no data from backend");
-        console.log(error.message);
-      }
+        if (error.response && error.response.data) {
+          const { resErrorCode, resMessage } = error.response.data;
+
+          if (resErrorCode === 1) {
+            setResultArea("Lietotājs ar šo e-pastu nav atrasts.");
+          } else if (resErrorCode === 2) {
+            setResultArea("Nepareizs e-pasts vai parole.");
+          } else if (resErrorCode === 3) {
+            setResultArea("Neizdevās pieslēgties datubāzei. Lūdzu, mēģiniet vēlāk.");
+          } else if (resErrorCode === 4) {
+            setResultArea("Lūdzu, aizpildiet visus laukus.");
+          } else {
+            setResultArea(resMessage || "Nezināma kļūda. Mēģiniet vēlreiz.");
+          }
+
+          console.warn(`Login error: code ${resErrorCode} – ${resMessage}`);
+        } else {
+          setResultArea("Neizdevās izveidot savienojumu ar serveri.");
+          console.error("Unhandled login error:", error.message);
+        }
     } finally {
       setLoading(false);
     }

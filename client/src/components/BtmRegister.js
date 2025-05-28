@@ -132,17 +132,17 @@ function BtmRegister() {
             </div>
             <div className="loginInputs">
               <label htmlFor="inputPasstext">Parole:</label>
-              <input className="loginInputShort" type="password" id="inputPasstext"
+              <input className="loginInputShort" type="password" id="inputPasstext" autoComplete="off"
                 value={passtext} onChange={(e) => setPasstext(e.target.value)} required  />
             </div>
             <div className="loginInputs">
               <label htmlFor="inputPasstextControl">Atkārtot paroli:</label>
-              <input className="loginInputShort" type="password" id="inputPasstextControl"
+              <input className="loginInputShort" type="password" id="inputPasstextControl" autoComplete="off"
                 value={passtextControl} onChange={(e) => setPasstextControl(e.target.value)} required  />
             </div>
             <div className="loginInputs">
               <label htmlFor="inputSecretWord">Kā sauc jūsu labāko draugu bērnībā?</label>
-              <input className="loginInputShort" type="text" id="inputSecretWord"
+              <input className="loginInputShort" type="text" id="inputSecretWord" autoComplete="off"
                 value={secretWord} onChange={(e) => setSecretWord(e.target.value)} required />
               <small><em>Šo atbildi izmantosim, lai pārbaudītu jūsu identitāti, ja aizmirstat paroli.</em></small>
             </div>
