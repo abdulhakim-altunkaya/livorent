@@ -11,6 +11,7 @@ function BtmLogin() {
   const [email, setEmail] = useState("");
   const [passtext, setPasstext] = useState("");
   const [resultArea, setResultArea] = useState("");
+  const [loading, setLoading] = useState(false);
   const token = localStorage.getItem("token_livorent");
   
   useEffect(() => {
@@ -46,6 +47,8 @@ function BtmLogin() {
       return;
     }
 
+    setLoading(true);
+
     try { 
       const loginObject = {
         loginEmail: email, 
@@ -79,6 +82,8 @@ function BtmLogin() {
         setResultArea("Error happened login, no data from backend");
         console.log(error.message);
       }
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -93,16 +98,18 @@ function BtmLogin() {
 
               <div className="loginInputs">
                 <label htmlFor="inputEmail">E-pasts:</label>
-                <input className="loginInputShort" type="text" id="inputEmail" 
+                <input className="loginInputShort" type="text" id="inputEmail"  
                   value={email} onChange={(e) => setEmail(e.target.value)} required />
               </div>
               <div className="loginInputs">
                 <label htmlFor="inputPasstext">Parole:</label>
-                <input className="loginInputShort" type="text" id="inputPasstext"
+                <input className="loginInputShort" type="text" id="inputPasstext" autoComplete="off"
                   value={passtext} onChange={(e) => setPasstext(e.target.value)} required  />
               </div>
               
-            <button className="btnSelectCategory2" type="submit">Ieiet</button>
+            <button className="btnSelectCategory2" disabled={loading}>
+              {loading ? "Pārbauda..." : "Ieiet"}
+            </button>
           </form>
           <div>{resultArea}</div>
         </div>

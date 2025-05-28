@@ -227,8 +227,9 @@ app.post("/api/login", rateLimiter, blockBannedIPs, async (req, res) => {
   let client; 
   const loginObject = req.body;
   const loginLoad = {
-    email1: loginObject.loginEmail.trim(),     // Ensure date is trimmed, now whitespace,
-    passtext1: loginObject.loginPasstext.trim()
+    // Ensure date is trimmed, no whitespace and also if frontend sends invalid data, keep values "" to prevent crashes.    
+    email1: loginObject.loginEmail?.trim() || "",
+    passtext1: loginObject.loginPasstext?.trim() || ""
   };
 
   // Early field check
@@ -272,8 +273,12 @@ app.post("/api/login", rateLimiter, blockBannedIPs, async (req, res) => {
         resErrorCode: 2
       });
     }
+    //If there is no tokenversion coming from DB, then we can sign it with 0 to prevent errors.
+    const tokenVersionFinal = user.tokenversion ?? 0;
     //generating JWT for authenticated users
-    const token = jwt.sign({ userId: user.id, tokenVersion: user.tokenversion }, JWT_SEC, { expiresIn: "100d" });
+    //tokenversion: field name in DB
+    //tokenVersion: jwt field name
+    const token = jwt.sign({ userId: user.id, tokenVersion: tokenVersionFinal }, JWT_SEC, { expiresIn: "100d" });
     res.status(200).json({
       resStatus: true,
       resMessage: "Autorizācija veiksmīga.",
@@ -304,9 +309,10 @@ app.post("/api/post/password-renewal", rateLimiter, blockBannedIPs, async (req, 
   let client; 
   const renewalObject = req.body;
   const renewalLoad = {
-    email1: renewalObject.renewalEmail.trim(),     // Ensure date is trimmed, no whitespace,
-    passtext1: renewalObject.renewalPasstext.trim(), 
-    secretWord1: renewalObject.renewalSecretWord.trim()
+    // Ensure date is trimmed, no whitespace and if frontend sends invalid data, keep values "" to prevent crashes. 
+    email1: renewalObject.renewalEmail?.trim() || "",
+    passtext1: renewalObject.renewalPasstext?.trim() || "", 
+    secretWord1: renewalObject.renewalSecretWord?.trim() || "",
   };
 
 
@@ -354,9 +360,13 @@ app.post("/api/post/password-renewal", rateLimiter, blockBannedIPs, async (req, 
         responseToken: ""
       });
     }
-    // Generate a JWT for the new user and send it to frontend
+    //If there is no tokenversion coming from DB, then we can sign it with 0 to prevent errors.
+    const tokenVersionFinal = updatedUser[0].tokenversion.tokenversion ?? 0;
+    //generating JWT for authenticated users
+    //tokenversion: field name in DB
+    //tokenVersion: jwt field name
     const token = jwt.sign(
-      { userId: updatedUser[0].id, tokenVersion: updatedUser[0].tokenversion}, JWT_SEC, { expiresIn: '100d' }
+      { userId: updatedUser[0].id, tokenVersion: tokenVersionFinal}, JWT_SEC, { expiresIn: '100d' }
     );
     res.status(200).json({
       responseMessage: "Password updated",
