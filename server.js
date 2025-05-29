@@ -40,8 +40,8 @@ const authenticateToken = (req, res, next) => {
 // 🔒 MIDDLEWARE 3: Rate Limiter
 const rateLimit = require('express-rate-limit');
 const rateLimiter = rateLimit({
-  windowMs: 100, // 0.1 second
-  max: 2, // Limit each IP to 1 request per 500ms
+  windowMs: 500, // 0.5 seconds
+  max: 5, // Limit each IP to 1 request per 500ms
   message: { myMessage: 'Too many attempts from this visitor' },
   standardHeaders: true, // Return rate limit info in `RateLimit-*` headers
   legacyHeaders: false,  // Disable the `X-RateLimit-*` headers
@@ -456,7 +456,7 @@ app.get("/api/get/adsbysubsection/:sectionNumber", rateLimiter, blockBannedIPs, 
   } finally {
     if(client) client.release();
   }
-});
+}); 
 
 app.get("/api/get/adsbyuser/:iduser", rateLimiter, blockBannedIPs, async (req, res) => {
   const { iduser } = req.params;

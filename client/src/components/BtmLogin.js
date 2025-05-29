@@ -71,7 +71,7 @@ function BtmLogin() {
         // navigate(`/profile/${res1.data.visitorNumber}`); navigate does not refresh page
         // we need to refresh page to reflect state update on profile*/
         window.location.href = `/profile/${res1.data.resVisitorNumber}`;
-      }, 1800); // 1.8 seconds might help
+      }, 1000); // 1 second might help
       
 
     } catch (error) {

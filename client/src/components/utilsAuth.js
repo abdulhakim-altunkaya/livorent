@@ -67,7 +67,7 @@ export const getUserId = () => {
     try {
       const response = await axios.get('http://localhost:5000/api/verify-token', {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${token}`, 
         },
       });
   
