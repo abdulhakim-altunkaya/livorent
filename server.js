@@ -28,7 +28,7 @@ const authenticateToken = (req, res, next) => {
   if (!token) return res.status(401).json({ error: "No token provided" });
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || JWT_SEC);
+    const decoded = jwt.verify(token, JWT_SEC);
     req.user = decoded;
     next();
   } catch (err) {
@@ -273,12 +273,22 @@ app.post("/api/login", rateLimiter, blockBannedIPs, async (req, res) => {
         resErrorCode: 2
       });
     }
-    //If there is no tokenversion coming from DB, then we can sign it with 0 to prevent errors.
-    const tokenVersionFinal = user.tokenversion ?? 0;
+
+    //Control Check: verify if tokenversion exists
+    if (user.tokenversion === undefined || user.tokenversion === null || user.tokenversion < 1) {
+      return res.status(500).json({ 
+        resStatus: false,
+        resMessage: "Invalid user data: Contact the website support or create a new profile.", 
+        resVisitorNumber: 0, 
+        resToken: "",
+        resUser: null,
+        resErrorCode: 5
+      });
+    }
     //generating JWT for authenticated users
     //tokenversion: field name in DB
     //tokenVersion: jwt field name
-    const token = jwt.sign({ userId: user.id, tokenVersion: tokenVersionFinal }, JWT_SEC, { expiresIn: "100d" });
+    const token = jwt.sign({ userId: user.id, tokenVersion: user.tokenversion }, JWT_SEC, { expiresIn: "100d" });
     res.status(200).json({
       resStatus: true,
       resMessage: "Autorizācija veiksmīga.",
@@ -360,13 +370,21 @@ app.post("/api/post/password-renewal", rateLimiter, blockBannedIPs, async (req, 
         responseToken: ""
       });
     }
-    //If there is no tokenversion coming from DB, then we can sign it with 0 to prevent errors.
-    const tokenVersionFinal = updatedUser[0].tokenversion.tokenversion ?? 0;
+    //Control Check: verify if tokenversion exists
+    if (updatedUser[0].tokenversion === undefined || updatedUser[0].tokenversion=== null || updatedUser[0].tokenversion < 1) {
+      return res.status(500).json({ 
+        responseStatus: false,
+        responseMessage: "Invalid user data: Contact the website support or create a new profile.", 
+        responseNumber: 0, 
+        responseToken: "",
+        responseUser: null
+      });
+    }
     //generating JWT for authenticated users
     //tokenversion: field name in DB
     //tokenVersion: jwt field name
     const token = jwt.sign(
-      { userId: updatedUser[0].id, tokenVersion: tokenVersionFinal}, JWT_SEC, { expiresIn: '100d' }
+      { userId: updatedUser[0].id, tokenVersion: updatedUser[0].tokenversion}, JWT_SEC, { expiresIn: '100d' }
     );
     res.status(200).json({
       responseMessage: "Password updated",
@@ -538,11 +556,12 @@ app.post("/api/update", authenticateToken, rateLimiter, blockBannedIPs, async (r
     client = await pool.connect(); 
     const { rows: updatedUser } = await client.query(
       `UPDATE livorent_users SET name = $1, telephone = $2, email = $3, passtext = $4 WHERE id = $5 
-      RETURNING id`,
+      RETURNING id, tokenversion`,
       [updateLoad.name1, updateLoad.telephone1, updateLoad.email1, hashedPassword, updateLoad.id1]
     );
     // Generate a JWT for the new user and send it to frontend
-    const token = jwt.sign({ userId: updatedUser[0].id }, JWT_SEC, { expiresIn: '100d' });
+    const token = jwt.sign(
+      {userId: updatedUser[0].id, tokenVersion: updatedUser[0].tokenversion }, JWT_SEC, { expiresIn: '100d' });
     res.status(201).json({ myMessage: 'Profile updated', visitorNumber:updatedUser[0].id, token });
   } catch (error) {
     console.log(error.message);
@@ -1254,7 +1273,7 @@ app.get('/api/verify-token', rateLimiter, blockBannedIPs, async (req, res) => {
  
   let client;
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || JWT_SEC);
+    const decoded = jwt.verify(token, JWT_SEC );
     const requestedId = decoded.userId;
 
     client = await pool.connect();
@@ -1332,6 +1351,7 @@ Maybe you can limit resUser to specific fields to prevent sending hashed passwor
 Add small screen style
 resultArea style improve on big screen
 Add input validations signup and login and password change and  password renewal components
+change input types for passwords from "text" to "password"
 
 GENERAL SECURITY
   *Done: verify token middleware: backend

@@ -86,7 +86,9 @@ function BtmLogin() {
             setResultArea("Neizdevās pieslēgties datubāzei. Lūdzu, mēģiniet vēlāk.");
           } else if (resErrorCode === 4) {
             setResultArea("Lūdzu, aizpildiet visus laukus.");
-          } else {
+          } else if (resErrorCode === 5) {
+            setResultArea("Token version does not exists.");
+          }else {
             setResultArea(resMessage || "Nezināma kļūda. Mēģiniet vēlreiz.");
           }
 
