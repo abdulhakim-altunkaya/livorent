@@ -79,4 +79,10 @@
         border: 1px solid #ccc; /* Add border to active tab */
         border-radius: 5px 5px 0 0; /* Rounded top corners */
     }
+.iconEye {
+  width: 20px;
+  position: absolute;
+  right: 10px;
+  cursor: pointer;
+}
 }

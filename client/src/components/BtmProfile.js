@@ -15,7 +15,6 @@ function BtmProfile() {
   
   const { visitorNumber } = useParams();
   const [message, setMessage] = useState(null); // Initialize with null to better handle initial state
-  const [userData, setUserData] = useState(cachedUserData);
   const [errorFrontend, setErrorFrontend] = useState(null); // Add error state
   const [loading, setLoading] = useState(true); // Add loading state
   const [resultArea, setResultArea] = useState("");
@@ -52,7 +51,6 @@ function BtmProfile() {
       } catch (error) {
         setErrorFrontend("Error: ads could not be fetched");
         console.log(error.message);
-        setUserData({}); // Ensure userData is never null
       } finally {
         setLoading(false);
       }
@@ -133,10 +131,6 @@ function BtmProfile() {
     }
   };
 
-  if (loading) {
-    return <div>Loading user profile...</div>;
-  }
-
   return (
     <div>
       { loading ? 
@@ -154,7 +148,7 @@ function BtmProfile() {
           <div className='profileButtonsArea'>
             <span><button className='button-54' onClick={signoutAccount}>Sign out</button></span>
             <span><button className='button-54'
-              onClick={() => navigate(`/profile/update-account/${visitorNumber}`, {state: { userData: userData } }
+              onClick={() => navigate(`/profile/update-account/${visitorNumber}`, {state: { userData: cachedUserData } }
               )}>
               Update Account</button>
             </span>

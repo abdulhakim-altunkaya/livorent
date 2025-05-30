@@ -16,6 +16,7 @@ function BtmRegister() {
   const [passtextControl, setPasstextControl] = useState("");
   const [secretWord, setSecretWord] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token_livorent");
@@ -107,6 +108,10 @@ function BtmRegister() {
     }
   }
 
+  const toggleEye = () => {
+    setShowPassword(!showPassword);
+  }
+
   return (
     <div>
         <div className="tabContainer"> 
@@ -137,8 +142,9 @@ function BtmRegister() {
             </div>
             <div className="loginInputs">
               <label htmlFor="inputPasstextControl">Atkārtot paroli:</label>
-              <input className="loginInputShort" type="password" id="inputPasstextControl" autoComplete="off"
+              <input className="loginInputShort" type={showPassword ? "text" : "password"} id="inputPasstextControl" autoComplete="off"
                 value={passtextControl} onChange={(e) => setPasstextControl(e.target.value)} required  />
+              <img className="iconEye" src='/svg_eye.svg' onClick={toggleEye} alt='eye to see password'/>
             </div>
             <div className="loginInputs">
               <label htmlFor="inputSecretWord">Kā sauc jūsu labāko draugu bērnībā?</label>
