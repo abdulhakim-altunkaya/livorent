@@ -10,11 +10,12 @@ function BtmProfile() {
   const navigate = useNavigate() 
   //we will check zustand store to see if there is any user data in it. If there is
   //then no need to make repetitive requests to backend and database about user information
-  const { cachedUserData } = useUserStore.getState();
+  const cachedUserData = useUserStore(state => state.cachedUserData);
+
   
   const { visitorNumber } = useParams();
   const [message, setMessage] = useState(null); // Initialize with null to better handle initial state
-  const [userData, setUserData] = useState(null);
+  const [userData, setUserData] = useState(cachedUserData);
   const [errorFrontend, setErrorFrontend] = useState(null); // Add error state
   const [loading, setLoading] = useState(true); // Add loading state
   const [resultArea, setResultArea] = useState("");
@@ -41,38 +42,13 @@ function BtmProfile() {
       navigate("/login");
       return;
     }
-
-
-
+   }, [visitorNumber])
+ 
+   useEffect(() => {
     const getData = async () => {
       try {
         const response = await axios.get(`http://localhost:5000/api/get/adsbyuser/${visitorNumber}`);
         setMessage(response.data);  
-        if (Number(cachedUserData?.id) === Number(visitorNumber)) {
-
-          setUserData(cachedUserData);
-          console.log("cached data displayed");
-          // Clear refresh flag when component mounts
-          if (localStorage.getItem("hasRefreshedOnce")) {
-            localStorage.removeItem("hasRefreshedOnce");
-          }
-
-        } else {
-          setUserData(null); // or show loading state
-          console.warn("User data not in cache – possible timing issue or invalid visitorNumber");
-          // Safely reload once
-          // we need to refresh profile page after coming from login.
-          // Adding simple page refresh causes infinite loop.
-          // To prevent it, we are refreshing the page with localstorage variable.
-          if (!localStorage.getItem("hasRefreshedOnce")) {
-            console.warn("First attempt – will refresh now to sync cache");
-            localStorage.setItem("hasRefreshedOnce", "true");
-            window.location.reload(); // ✅ **Trigger reload just once**
-          } else {
-            console.warn("Already refreshed once, not refreshing again.");
-          }
-        }
-
       } catch (error) {
         setErrorFrontend("Error: ads could not be fetched");
         console.log(error.message);
@@ -95,7 +71,10 @@ function BtmProfile() {
   const signoutAccount = () => {
     localStorage.removeItem("token_livorent");
     localStorage.removeItem("visitorNumber");
-    useUserStore.getState().setCachedUserData(null);
+    // Delay clearing cachedUserData to allow redirect to happen first
+    setTimeout(() => {
+      useUserStore.getState().setCachedUserData(null);
+    }, 100); // 100ms is enough; adjust if needed
     //navigate("/");//we dont use navigate because zustand old user number will persist after navigate.
     window.location.href = "/";//we use navigate that zustand old user number will reset to zero.
   }
@@ -154,7 +133,7 @@ function BtmProfile() {
     }
   };
 
-  if (loading || !userData) {
+  if (loading) {
     return <div>Loading user profile...</div>;
   }
 
@@ -167,10 +146,10 @@ function BtmProfile() {
         <div className='userInfoArea'>
           <div className='welcomeMessageProfile'>laipni lūdzam </div> 
 
-          <div><strong>Name:</strong> {userData.name}</div>
-          <div><strong>E-mail:</strong> {userData.email}</div>
-          <div><strong>Telephone:</strong> {userData.telephone}</div>
-          <div className='lastDivProfile'><strong>Member since:</strong> {userData.date}</div>
+          <div><strong>Name:</strong> {cachedUserData.name}</div>
+          <div><strong>E-mail:</strong> {cachedUserData.email}</div>
+          <div><strong>Telephone:</strong> {cachedUserData.telephone}</div>
+          <div className='lastDivProfile'><strong>Member since:</strong> {cachedUserData.date}</div>
 
           <div className='profileButtonsArea'>
             <span><button className='button-54' onClick={signoutAccount}>Sign out</button></span>
