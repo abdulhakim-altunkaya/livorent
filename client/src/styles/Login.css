@@ -16,6 +16,7 @@
         display: flex;
         flex-direction: column;
         margin-bottom: 18px;
+        position: relative; /* <-- Add this */
     }
     .loginInputs label {
         color: black;
@@ -24,7 +25,11 @@
     .loginInputs input:hover {
         border: 1px solid #4236e9;
     }
+    .loginInputsInputArea {
+        width: 100%;
+    }
     .loginInputShort {
+        width: 80%;
         padding: 12px 20px;
         border-radius: 6px;
         border: 1px solid #b0b0b0;
@@ -79,10 +84,12 @@
         border: 1px solid #ccc; /* Add border to active tab */
         border-radius: 5px 5px 0 0; /* Rounded top corners */
     }
-.iconEye {
-  width: 20px;
-  position: absolute;
-  right: 10px;
-  cursor: pointer;
-}
+    .iconEye {
+        position: absolute;
+        top: 50px;
+        right: 80px;
+        transform: translateY(-50%);
+        width: 20px;
+        cursor: pointer;
+    }
 }

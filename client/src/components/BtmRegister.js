@@ -16,7 +16,9 @@ function BtmRegister() {
   const [passtextControl, setPasstextControl] = useState("");
   const [secretWord, setSecretWord] = useState("");
   const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
+  const [showPassword1, setShowPassword1] = useState(false);
+  const [showPassword2, setShowPassword2] = useState(false);
+  const [showPassword3, setShowPassword3] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token_livorent");
@@ -108,8 +110,14 @@ function BtmRegister() {
     }
   }
 
-  const toggleEye = () => {
-    setShowPassword(!showPassword);
+  const toggleEye = (n) => {
+    if (n === 1) {
+      setShowPassword1(!showPassword1);
+    } else if(n === 2) {
+      setShowPassword2(!showPassword2);
+    } else if(n === 3) {
+      setShowPassword3(!showPassword3);
+    }
   }
 
   return (
@@ -137,19 +145,31 @@ function BtmRegister() {
             </div>
             <div className="loginInputs">
               <label htmlFor="inputPasstext">Parole:</label>
-              <input className="loginInputShort" type="password" id="inputPasstext" autoComplete="off"
-                value={passtext} onChange={(e) => setPasstext(e.target.value)} required  />
+              <div className="loginInputsInputArea">
+                <input className="loginInputShort" type={showPassword1 ? "text" : "password"} 
+                  id="inputPasstext" autoComplete="off"
+                  value={passtext} onChange={(e) => setPasstext(e.target.value)} required  />
+                <img className="iconEye" src='/svg_eye.svg' onClick={()=> toggleEye(1)} alt='eye to see password'/>
+              </div>
             </div>
             <div className="loginInputs">
               <label htmlFor="inputPasstextControl">Atkārtot paroli:</label>
-              <input className="loginInputShort" type={showPassword ? "text" : "password"} id="inputPasstextControl" autoComplete="off"
-                value={passtextControl} onChange={(e) => setPasstextControl(e.target.value)} required  />
-              <img className="iconEye" src='/svg_eye.svg' onClick={toggleEye} alt='eye to see password'/>
+              <div className="loginInputsInputArea">
+                <input className="loginInputShort" type={showPassword2 ? "text" : "password"} 
+                  id="inputPasstextControl" autoComplete="off"
+                  value={passtextControl} onChange={(e) => setPasstextControl(e.target.value)} required  />
+                <img className="iconEye" src='/svg_eye.svg' onClick={()=> toggleEye(2)} alt='eye to see password'/>
+              </div>
+
             </div>
             <div className="loginInputs">
               <label htmlFor="inputSecretWord">Kā sauc jūsu labāko draugu bērnībā?</label>
-              <input className="loginInputShort" type="text" id="inputSecretWord" autoComplete="off"
-                value={secretWord} onChange={(e) => setSecretWord(e.target.value)} required />
+              <div className="loginInputsInputArea">
+                <input className="loginInputShort" type={showPassword3 ? "text" : "password"} 
+                  id="inputSecretWord" autoComplete="off"
+                  value={secretWord} onChange={(e) => setSecretWord(e.target.value)} required />
+                <img className="iconEye" src='/svg_eye.svg' onClick={()=> toggleEye(3)} alt='eye to see password'/>
+              </div>
               <small><em>Šo atbildi izmantosim, lai pārbaudītu jūsu identitāti, ja aizmirstat paroli.</em></small>
             </div>
           <button className="btnSelectCategory2" type="submit" disabled={loading} >
