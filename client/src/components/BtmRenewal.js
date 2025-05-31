@@ -83,9 +83,7 @@ function BtmRenewal() {
 
   return (
     <div>
-        <div className="tabContainer">
-          <span className="activeTab">Paroles atjaunošana</span>
-        </div>
+        <span className="titlePasswordReset">Paroles atjaunošana</span>
         <div className="loginFormArea">
           <form className="loginForm" onSubmit={handleSubmit}>
             <div className="loginInputs">

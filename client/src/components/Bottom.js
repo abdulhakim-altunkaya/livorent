@@ -17,6 +17,7 @@ import BtmProfileUpdate from "./BtmProfileUpdate";
 import BtmProfileAdUpdate from "./BtmProfileAdUpdate";
 import BtmSeller from "./BtmSeller";
 import BtmSearch from "./BtmSearch";
+import BtmRenewal from "./BtmRenewal";
 
 
 function Bottom() {
@@ -40,6 +41,7 @@ function Bottom() {
         <Route path="/seller/:sellerNumber" element={<BtmSeller />} />
         <Route path="/registration" element={<BtmRegister />} />
         <Route path="/login" element={<BtmLogin />} />
+        <Route path="/password-reset" element={<BtmRenewal />} />
         <Route path="/search" element={<BtmSearch />} />
         <Route path="*" element={<BtmHome/>} />
       </Routes>

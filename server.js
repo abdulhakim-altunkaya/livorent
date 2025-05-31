@@ -324,7 +324,7 @@ app.post("/api/post/password-renewal", rateLimiter, blockBannedIPs, async (req, 
     passtext1: renewalObject.renewalPasstext?.trim() || "", 
     secretWord1: renewalObject.renewalSecretWord?.trim() || "",
   };
-
+  
 
   try {
     const hashedNewPassword = await bcrypt.hash(renewalLoad.passtext1, SALT_ROUNDS);
@@ -336,7 +336,7 @@ app.post("/api/post/password-renewal", rateLimiter, blockBannedIPs, async (req, 
     )
     if(users.length === 0) {
       return res.status(401).json({
-        responseMessage: "Wrong credentials",
+        responseMessage: "No user data with that email",
         responseStatus: false,
         responseNumber: 0,
         responseUser: null,
@@ -348,7 +348,7 @@ app.post("/api/post/password-renewal", rateLimiter, blockBannedIPs, async (req, 
     const secretWordMatch = await bcrypt.compare(renewalLoad.secretWord1, user.secretword);
     if (!secretWordMatch) {
       return res.status(401).json({
-        responseMessage: "Wrong credentials",
+        responseMessage: "Secret word does not match",
         responseStatus: false,
         responseNumber: 0,
         responseUser: null,
