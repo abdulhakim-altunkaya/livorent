@@ -12,6 +12,7 @@ function BtmLogin() {
   const [passtext, setPasstext] = useState("");
   const [resultArea, setResultArea] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const token = localStorage.getItem("token_livorent");
   
   useEffect(() => {
@@ -99,7 +100,11 @@ function BtmLogin() {
         }
     } finally {
       setLoading(false);
-    }
+    }  
+  }
+
+  const toggleEye = () => {
+      setShowPassword(!showPassword);
   }
 
   return (
@@ -113,13 +118,19 @@ function BtmLogin() {
 
               <div className="loginInputs">
                 <label htmlFor="inputEmail">E-pasts:</label>
-                <input className="loginInputShort" type="text" id="inputEmail"  
-                  value={email} onChange={(e) => setEmail(e.target.value)} required />
+                <div className="loginInputsInputArea">
+                  <input className="loginInputShort" type="text" id="inputEmail"  
+                    value={email} onChange={(e) => setEmail(e.target.value)} required />
+                </div>
               </div>
               <div className="loginInputs">
                 <label htmlFor="inputPasstext">Parole:</label>
-                <input className="loginInputShort" type="text" id="inputPasstext" autoComplete="off"
-                  value={passtext} onChange={(e) => setPasstext(e.target.value)} required  />
+                <div className="loginInputsInputArea">
+                  <input className="loginInputShort" type={showPassword ? "text" : "password"}  
+                    id="inputPasstext" autoComplete="off"
+                    value={passtext} onChange={(e) => setPasstext(e.target.value)} required  />
+                  <img className="iconEye" src='/svg_eye.svg' onClick={toggleEye} alt='eye to see password'/>
+                </div>
               </div>
               
             <button className="btnSelectCategory2" disabled={loading}>
