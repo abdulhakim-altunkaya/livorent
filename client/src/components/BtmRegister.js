@@ -145,7 +145,7 @@ function BtmRegister() {
             </div>
             <div className="loginInputs">
               <label htmlFor="inputPasstext">Parole:</label>
-              <div className="loginInputsInputArea">
+              <div className="loginInputsInputArea"> 
                 <input className="loginInputShort" type={showPassword1 ? "text" : "password"} 
                   id="inputPasstext" autoComplete="off"
                   value={passtext} onChange={(e) => setPasstext(e.target.value)} required  />
