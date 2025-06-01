@@ -188,7 +188,7 @@ app.post("/api/register", rateLimiter, blockBannedIPs, async (req, res) => {
 
     const { rows: newUser } = await client.query(
       `INSERT INTO livorent_users 
-      (name, telephone, email, passtext, ip, date, secretword, loginattempt, loginattemptstamp, tokenversion) 
+      (name, telephone, email, passtext, ip, date, secretword, loginattempt, logintime, tokenversion) 
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`,
       [registerLoad.name1, registerLoad.telephone1, registerLoad.email1, 
         hashedPassword, visitorData.ip, visitorData.visitDate, 
@@ -264,6 +264,9 @@ app.post("/api/login", rateLimiter, blockBannedIPs, async (req, res) => {
     //comparing password. Bcrypt will know from hashed password the number of salt rounds
     const passwordMatch = await bcrypt.compare(loginLoad.passtext1, user.passtext);
     if (!passwordMatch) {
+      await client.query(`UPDATE livorent_users SET loginattempt = loginattempt + 1 WHERE email = $1`,
+        [loginLoad.email1]
+      );
       return res.status(401).json({
         resStatus: false,
         resMessage: 'wrong password or e-mail', 
