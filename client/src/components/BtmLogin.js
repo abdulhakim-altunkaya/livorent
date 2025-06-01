@@ -89,7 +89,9 @@ function BtmLogin() {
             setResultArea("Lūdzu, aizpildiet visus laukus.");
           } else if (resErrorCode === 5) {
             setResultArea("Token version does not exists.");
-          }else {
+          } else if (resErrorCode === 6) {
+            setResultArea("Login temporarily blocked. Try again later or reset password.");
+          } else {
             setResultArea(resMessage || "Nezināma kļūda. Mēģiniet vēlreiz.");
           }
 

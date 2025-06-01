@@ -248,7 +248,8 @@ app.post("/api/login", rateLimiter, blockBannedIPs, async (req, res) => {
     client = await pool.connect();
     //find user by email
     const { rows: users } = await client.query(
-      `SELECT id, email, passtext, tokenversion, name, telephone FROM livorent_users WHERE email = $1`, [loginLoad.email1]
+      `SELECT id, email, passtext, tokenversion, name, telephone, loginattempt, loginblockeduntil
+       FROM livorent_users WHERE email = $1`, [loginLoad.email1]
     )
     if(users.length === 0) {
       return res.status(401).json({
@@ -261,12 +262,35 @@ app.post("/api/login", rateLimiter, blockBannedIPs, async (req, res) => {
       });
     }
     const user = users[0];
+
+    //1. CHECK IF LOGIN IS BLOCKED
+    //check if value is not null and if blocked time still left. If yes, then return with error message.
+    if (user.loginblockeduntil && new Date(user.loginblockeduntil) > new Date()) {
+      return res.status(403).json({
+        resStatus: false,
+        resMessage: 'login blocked temporarily', 
+        resVisitorNumber: 0, 
+        resToken: "",
+        resUser: null,
+        resErrorCode: 6
+      });
+    } 
+
     //comparing password. Bcrypt will know from hashed password the number of salt rounds
     const passwordMatch = await bcrypt.compare(loginLoad.passtext1, user.passtext);
+
+    //* WRONG PASSWORD CODE *//
     if (!passwordMatch) {
-      await client.query(`UPDATE livorent_users SET loginattempt = loginattempt + 1 WHERE email = $1`,
-        [loginLoad.email1]
-      );
+      if (user.loginattempt < 3) {
+        //increment only if login attempt below 3
+        await client.query(`UPDATE livorent_users SET loginattempt = loginattempt + 1 WHERE email = $1`,
+          [loginLoad.email1]);
+      } else {
+        //block if login attempt is 3 
+        await client.query(
+          `UPDATE livorent_users SET loginblockeduntil = NOW() + INTERVAL '300 seconds' WHERE email = $1`, 
+          [loginLoad.email1]);
+      }
       return res.status(401).json({
         resStatus: false,
         resMessage: 'wrong password or e-mail', 
@@ -288,10 +312,13 @@ app.post("/api/login", rateLimiter, blockBannedIPs, async (req, res) => {
         resErrorCode: 5
       });
     }
+    //** SUCCESS CODE LOGIC **//
     //generating JWT for authenticated users
     //tokenversion: field name in DB
     //tokenVersion: jwt field name
     const token = jwt.sign({ userId: user.id, tokenVersion: user.tokenversion }, JWT_SEC, { expiresIn: "100d" });
+    await client.query(
+      `UPDATE livorent_users SET loginattempt = 0, loginblockeduntil = NULL WHERE email = $1`, [loginLoad.email1]);
     res.status(200).json({
       resStatus: true,
       resMessage: "Autorizācija veiksmīga.",
