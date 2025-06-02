@@ -437,6 +437,96 @@ app.post("/api/post/password-renewal", rateLimiter, blockBannedIPs, async (req, 
   } 
 })
 
+
+
+
+
+app.post("/api/post/password-change", rateLimiter, blockBannedIPs, async (req, res) => {
+  //preventing spam logins
+  const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
+
+
+  let client; 
+  const changeObject = req.body;
+  const changeLoad = {
+    // Ensure date is trimmed, no whitespace and if frontend sends invalid data, keep values "" to prevent crashes. 
+    email1: changeObject.changeEmail?.trim() || "",
+    newPassword1: changeObject.changePasstext?.trim() || "", //new password
+    currentPassword1: changeObject.changeCurrentPassword?.trim() || "", //old password
+  };
+  
+  if (!changeLoad.email1 || !changeLoad.newPassword1 || !changeLoad.currentPassword1) {
+    return res.status(400).json({
+      resMessage: "All fields are required",
+      resStatus: false,
+      resErrorCode: 5
+    });
+  }
+
+  try {
+    const hashedNewPassword = await bcrypt.hash(changeLoad.newPassword1, SALT_ROUNDS);
+
+    client = await pool.connect();
+    //find user by email
+    const { rows: users } = await client.query(
+      `SELECT id, passtext, tokenversion FROM livorent_users WHERE email = $1`, [changeLoad.email1]
+    )
+    if(users.length === 0) {
+      return res.status(401).json({
+        resMessage: "No user data with that email",
+        resStatus: false,
+        resNumber: 0,
+        resUser: null,
+        resErrorCode: 1
+      });
+    }
+    const user = users[0];
+    //comparing passwords. Bcrypt will know from hashed secret word the number of salt rounds used previously
+    const passwordMatch = await bcrypt.compare(changeLoad.currentPassword1, user.passtext);
+    if (!passwordMatch) {
+      return res.status(401).json({
+        resMessage: "Current password is wrong",
+        resStatus: false,
+        resNumber: 0,
+        resUser: null,
+        resErrorCode: 2
+      });
+    }
+
+    //If current password is correct, then update the password
+    const { rows: updatedUser } = await client.query(
+      `UPDATE livorent_users SET passtext = $1 WHERE id = $2 RETURNING *`,
+      [hashedNewPassword, user.id]
+    );
+    if (updatedUser.length === 0) {
+      return res.status(500).json({
+        resMessage: "Failed to update password.",
+        resStatus: false,
+        resNumber: 0,
+        resUser: null,
+        resErrorCode: 3
+      });
+    }
+    res.status(200).json({
+      resMessage: "Password updated",
+      resStatus: true,
+      resNumber: user.id,
+      resUser: updatedUser[0],
+      resErrorCode: 0
+    });
+  } catch (error) {
+    console.log(error);//log all error stack 
+    res.status(500).json({
+      resMessage: "Probably database connection failed.",
+      resStatus: false,
+      resNumber: 0,
+      resUser: null,
+      resErrorCode: 4
+    })
+  } finally {
+    if (client) client.release();
+  } 
+})
 app.get("/api/get/adsbycategory/:idcategory", rateLimiter, blockBannedIPs, async (req, res) => {
   const { idcategory } = req.params; 
   let client;
