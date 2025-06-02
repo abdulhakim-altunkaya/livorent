@@ -131,6 +131,10 @@ function BtmProfile() {
     }
   };
 
+  const changePassword = () => {
+    navigate(`/profile/change-password`);
+  }
+
   return (
     <div>
       { loading ? 
@@ -152,6 +156,7 @@ function BtmProfile() {
               )}>
               Update Account</button>
             </span>
+            <span><button className='button-54' onClick={changePassword}>Change Password</button></span>
             <span><button className='button-54' onClick={deleteAccount}>Delete Account</button></span>
           </div>
         </div>

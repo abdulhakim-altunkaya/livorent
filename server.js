@@ -450,7 +450,7 @@ app.post("/api/post/password-change", rateLimiter, blockBannedIPs, async (req, r
   const changeObject = req.body;
   const changeLoad = {
     // Ensure date is trimmed, no whitespace and if frontend sends invalid data, keep values "" to prevent crashes. 
-    email1: changeObject.changeEmail?.trim() || "",
+    email1: changeObject.changeEmail?.trim().toLowerCase() || "",
     newPassword1: changeObject.changePasstext?.trim() || "", //new password
     currentPassword1: changeObject.changeCurrentPassword?.trim() || "", //old password
   };
@@ -469,7 +469,7 @@ app.post("/api/post/password-change", rateLimiter, blockBannedIPs, async (req, r
     client = await pool.connect();
     //find user by email
     const { rows: users } = await client.query(
-      `SELECT id, passtext, tokenversion FROM livorent_users WHERE email = $1`, [changeLoad.email1]
+      `SELECT id, passtext FROM livorent_users WHERE email = $1`, [changeLoad.email1]
     )
     if(users.length === 0) {
       return res.status(401).json({
@@ -481,7 +481,8 @@ app.post("/api/post/password-change", rateLimiter, blockBannedIPs, async (req, r
       });
     }
     const user = users[0];
-    //comparing passwords. Bcrypt will know from hashed secret word the number of salt rounds used previously
+
+    //comparing passwords. Bcrypt will know from hashed password the number of salt rounds used previously
     const passwordMatch = await bcrypt.compare(changeLoad.currentPassword1, user.passtext);
     if (!passwordMatch) {
       return res.status(401).json({
@@ -490,6 +491,15 @@ app.post("/api/post/password-change", rateLimiter, blockBannedIPs, async (req, r
         resNumber: 0,
         resUser: null,
         resErrorCode: 2
+      });
+    }
+    //new password should be different than old password
+    const samePassword = await bcrypt.compare(changeLoad.newPassword1, user.passtext);
+    if (samePassword) {
+      return res.status(400).json({
+        resMessage: "New password must be different from current",
+        resStatus: false,
+        resErrorCode: 6
       });
     }
 
