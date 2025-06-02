@@ -22,7 +22,6 @@
 .tableRowsProfile:hover {
     background-color: #e5e4e4d1;
     color:#120fcb;
-    font-weight: bolder;
 }
 .imgContainerCell {
     display: flex;

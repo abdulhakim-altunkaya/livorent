@@ -40,8 +40,8 @@ const authenticateToken = (req, res, next) => {
 // 🔒 MIDDLEWARE 3: Rate Limiter
 const rateLimit = require('express-rate-limit');
 const rateLimiter = rateLimit({
-  windowMs: 500, // 0.5 seconds
-  max: 5, // Limit each IP to 1 request per 500ms
+  windowMs: 60 * 1000, // 1 minute
+  max: 30,             // 30 requests per minute
   message: { myMessage: 'Too many attempts from this visitor' },
   standardHeaders: true, // Return rate limit info in `RateLimit-*` headers
   legacyHeaders: false,  // Disable the `X-RateLimit-*` headers
