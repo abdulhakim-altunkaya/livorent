@@ -134,11 +134,12 @@ function BtmLogin() {
                   <img className="iconEye" src='/svg_eye.svg' onClick={toggleEye} alt='eye to see password'/>
                 </div>
               </div>
-              
+            <span className="passwordResetLink" onClick={() => navigate("/password-reset") }>Aizmirsāt paroli?</span>
             <button className="btnSelectCategory2" disabled={loading}>
               {loading ? "Pārbauda..." : "Ieiet"}
             </button>
           </form>
+
           <div>{resultArea}</div>
         </div>
         <br /><br /><br /><br /><br /><br /><br /><br />

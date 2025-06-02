@@ -97,4 +97,10 @@
         font-size: 25px;
         font-family: "Maven pro";
     }
+    .passwordResetLink{
+        color: blue;
+        display: block;
+        margin-bottom: 15px;
+        cursor: pointer;
+    }
 }
