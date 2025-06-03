@@ -18,7 +18,7 @@ function BtmPasswordChange() {
  
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    setResultArea("");
     if (passtext !== passtextControl) {
       setResultArea("Passwords do not match.");
       return;
@@ -31,27 +31,20 @@ function BtmPasswordChange() {
     setLoading(true);
     try {  
       const changeObject = {
-        changeEmail: email, 
-        changePasstext: passtext,
-        changeCurrentPassword: currentPassword
+        changeEmail: email.trim(),
+        changePasstext: passtext.trim(),
+        changeCurrentPassword: currentPassword.trim()
       };
       const res1 = await axios.post("http://localhost:5000/api/post/password-change", changeObject);
 
       const { resToken, resNumber, resStatus, resUser, resMessage } = res1.data;
-      if (responseStatus === true) {
+      if (resStatus === true) {
         setResultArea(resMessage);
-        setLoading(false);
         // Small delay before navigation to allow store update
         setEmail("");
         setCurrentPassword("");
         setPasstext("");
         setPasstextControl("");
-        setResultArea("");
-        setTimeout(() => {
-          // navigate(`/profile/${responseNumber}`); navigate does not refresh page
-          window.location.href = `/profile/${responseNumber}`;
-        }, 1300); // 1.3 seconds will help to update the state and to let the user read resultArea
-        
       }
     } catch (error) {
         if (error.response) {
@@ -59,13 +52,15 @@ function BtmPasswordChange() {
           const serverMessage = error.response.data?.responseMessage || "Unexpected server error.";
           setResultArea(serverMessage);
           console.error("Server responded with error:", error.response.data);
-          setLoading(false);
+          
         } else {
           // Network error, timeout, or no response
           setResultArea("Network or server connection error.");
           console.error("Request failed:", error.message);
-          setLoading(false);
+          
         }
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -86,7 +81,7 @@ function BtmPasswordChange() {
           <form className="loginForm" onSubmit={handleSubmit}>
             <div className="loginInputs">
               <label htmlFor="inputEmail">E-pasts:</label>
-              <input className="loginInputShort" type="text" id="inputEmail" 
+              <input className="loginInputShort" type="email" id="inputEmail" 
                 value={email} onChange={(e) => setEmail(e.target.value)} required />
             </div>
             <div className="loginInputs">
@@ -95,7 +90,8 @@ function BtmPasswordChange() {
                 <input className="loginInputShort" type={showPassword1 ? "text" : "password"}  
                   id="inputCurrentPassword" autoComplete="off"
                   value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} required />
-                <img className="iconEye" src='/svg_eye.svg' onClick={()=> toggleEye(1)} alt='eye to see password'/>
+                <img className="iconEye" src='/svg_eye.svg' onClick={()=> toggleEye(1)} 
+                  role="button" tabIndex="0" alt='eye to see password'/>
               </div>
             </div>
             <div className="loginInputs">
@@ -104,7 +100,8 @@ function BtmPasswordChange() {
                 <input className="loginInputShort" type={showPassword2 ? "text" : "password"} 
                   id="inputPasstext" autoComplete="off"
                   value={passtext} onChange={(e) => setPasstext(e.target.value)} required  />
-                <img className="iconEye" src='/svg_eye.svg' onClick={()=> toggleEye(2)} alt='eye to see password'/>
+                <img className="iconEye" src='/svg_eye.svg' onClick={()=> toggleEye(2)} 
+                  role="button" tabIndex="0" alt='eye to see password'/>
               </div>
             </div>
             <div className="loginInputs">
@@ -113,7 +110,8 @@ function BtmPasswordChange() {
                 <input className="loginInputShort" type={showPassword3 ? "text" : "password"} 
                   id="inputPasstextControl" autoComplete="off"
                   value={passtextControl} onChange={(e) => setPasstextControl(e.target.value)} required  />
-                <img className="iconEye" src='/svg_eye.svg' onClick={()=> toggleEye(3)} alt='eye to see password'/>
+                <img className="iconEye" src='/svg_eye.svg' onClick={()=> toggleEye(3)} 
+                  role="button" tabIndex="0" alt='eye to see password'/>
               </div>
             </div>
             <button className="btnSelectCategory2" type="submit" disabled={loading}>

@@ -72,7 +72,7 @@ function BtmProfile() {
     // Delay clearing cachedUserData to allow redirect to happen first
     setTimeout(() => {
       useUserStore.getState().setCachedUserData(null);
-    }, 100); // 100ms is enough; adjust if needed
+    }, 200); // 100ms is enough; adjust if needed
     //navigate("/");//we dont use navigate because zustand old user number will persist after navigate.
     window.location.href = "/";//we use navigate that zustand old user number will reset to zero.
   }
@@ -132,7 +132,7 @@ function BtmProfile() {
   };
 
   const changePassword = () => {
-    navigate(`/profile/change-password`); 
+    navigate("/profile/password-change"); 
   }
 
   return (
