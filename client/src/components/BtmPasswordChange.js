@@ -47,18 +47,30 @@ function BtmPasswordChange() {
         setPasstextControl("");
       }
     } catch (error) {
-        if (error.response) {
-          // Use structured backend message if available
-          const serverMessage = error.response.data?.responseMessage || "Unexpected server error.";
-          setResultArea(serverMessage);
-          console.error("Server responded with error:", error.response.data);
-          
-        } else {
-          // Network error, timeout, or no response
-          setResultArea("Network or server connection error.");
-          console.error("Request failed:", error.message);
-          
+      if (error.response) {
+        const { resMessage, resErrorCode } = error.response.data || {};
+        let message = "Unexpected error occurred.";
+        if (resErrorCode === 1) {
+          message = "User not found with this email.";
+        } else if (resErrorCode === 2) {
+          message = "Current password is incorrect.";
+        } else if (resErrorCode === 3) {
+          message = "Failed to update password. Try again.";
+        } else if (resErrorCode === 4) {
+          message = "Server error. Try again later.";
+        } else if (resErrorCode === 5) {
+          message = "All fields are required.";
+        } else if (resErrorCode === 6) {
+          message = "New password must differ from the current password.";
+        } else if (resMessage) {
+          message = resMessage;
         }
+        setResultArea(message);
+        console.error("Server error response:", error.response.data);
+      } else {
+        setResultArea("Network or server connection error.");
+        console.error("Request failed:", error.message);
+      }
     } finally {
       setLoading(false);
     }
