@@ -437,10 +437,6 @@ app.post("/api/post/password-renewal", rateLimiter, blockBannedIPs, async (req, 
   } 
 })
 
-
-
-
-
 app.post("/api/post/password-change", rateLimiter, blockBannedIPs, async (req, res) => {
   //preventing spam logins
   const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
@@ -457,8 +453,10 @@ app.post("/api/post/password-change", rateLimiter, blockBannedIPs, async (req, r
   
   if (!changeLoad.email1 || !changeLoad.newPassword1 || !changeLoad.currentPassword1) {
     return res.status(400).json({
-      resMessage: "All fields are required",
+      resMessage: "All fields are required", 
       resStatus: false,
+      resNumber: 0,
+      resUser: null,
       resErrorCode: 5
     });
   }
@@ -499,6 +497,8 @@ app.post("/api/post/password-change", rateLimiter, blockBannedIPs, async (req, r
       return res.status(400).json({
         resMessage: "New password must be different from current",
         resStatus: false,
+        resNumber: 0,
+        resUser: null,
         resErrorCode: 6
       });
     }

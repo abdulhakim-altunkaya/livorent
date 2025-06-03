@@ -39,11 +39,12 @@ function Bottom() {
         <Route path="/profile/update-account/:visitorNumber" element={<BtmProfileUpdate />} />
         <Route path="/profile/update-ad/:adNumber" element={<BtmProfileAdUpdate />} />
         <Route path="/profile/:visitorNumber" element={<BtmProfile />} />
+        <Route path="/profile/password-change" element={<BtmPasswordChange />} />
+
+        <Route path="/password-reset" element={<BtmRenewal />} />
         <Route path="/seller/:sellerNumber" element={<BtmSeller />} />
         <Route path="/registration" element={<BtmRegister />} />
-        <Route path="/login" element={<BtmLogin />} />
-        <Route path="/password-reset" element={<BtmRenewal />} />
-        <Route path="/password-change" element={<BtmPasswordChange />} />
+        <Route path="/login" element={<BtmLogin />} />    
         <Route path="/search" element={<BtmSearch />} />
         <Route path="*" element={<BtmHome/>} />
       </Routes>

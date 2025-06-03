@@ -132,7 +132,7 @@ function BtmProfile() {
   };
 
   const changePassword = () => {
-    navigate(`/profile/change-password`);
+    navigate(`/profile/change-password`); 
   }
 
   return (

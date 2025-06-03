@@ -29,7 +29,7 @@ function BtmPasswordChange() {
       return;
     }
     setLoading(true);
-    try { 
+    try {  
       const changeObject = {
         changeEmail: email, 
         changePasstext: passtext,
@@ -37,18 +37,18 @@ function BtmPasswordChange() {
       };
       const res1 = await axios.post("http://localhost:5000/api/post/password-change", changeObject);
 
-      const { responseToken, responseNumber, responseStatus, responseUser, responseMessage } = res1.data;
+      const { resToken, resNumber, resStatus, resUser, resMessage } = res1.data;
       if (responseStatus === true) {
-        setResultArea(responseMessage);
+        setResultArea(resMessage);
         setLoading(false);
         // Small delay before navigation to allow store update
         setEmail("");
         setCurrentPassword("");
         setPasstext("");
         setPasstextControl("");
+        setResultArea("");
         setTimeout(() => {
           // navigate(`/profile/${responseNumber}`); navigate does not refresh page
-          // we need to refresh page to reflect state update on profile*/
           window.location.href = `/profile/${responseNumber}`;
         }, 1300); // 1.3 seconds will help to update the state and to let the user read resultArea
         
