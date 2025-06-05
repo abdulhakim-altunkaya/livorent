@@ -1,0 +1,33 @@
+@media (min-width: 781px) {
+    .commentArea {
+        width: 450px;
+        margin-left: 20px;
+        margin-top: 5px;
+        padding: 20px;
+        border-radius: 4px;
+        background-color: #f1ec81;
+        margin-bottom: 20px;
+        display: flex;
+        flex-direction: column;
+    }
+    .commentInputText {
+        min-height: 80px; /* Minimum height for the textarea */
+        max-height: 200px; /* Maximum height for vertical resizing */
+        padding: 8px;
+        line-height: 1.5;
+        resize: vertical;
+        font-family: "Poppins", sans-serif;
+    }
+    .commentSaveBtn {
+        background-color: #2563eb; /* bg-blue-600 */
+        color: #ffffff;
+        padding: 5px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-family: "Ubuntu";
+        font-size: 22px;
+        margin-bottom: 10px;
+        margin-top: 15px;
+    }
+}

@@ -1488,9 +1488,8 @@ GENERAL SECURITY
   *Done: input sanitization: backend
   input validation and checks: frontend and backend
   *Done: rate limiter: backend
-  password renewal: use secret word to avoid email/sms confirmations and use token 
-                    version to prevent older tokens from login
-                    As I have added tokenversion, should I change anything on token producing and token check components?
+  *Done: password reset: done with token version update
+  *Done: password change: token version remains the same 
 
 BEFORE DEPLOYING:
   Delete images from storage too   
@@ -1504,74 +1503,12 @@ BEFORE DEPLOYING:
   change all xxxxx things in the footer component 
 */
 
-app.post("/api/save-message", async (req, res) => {
-  const messageObject = req.body;
-  try {
-    const msgLoad = {
-      name1: messageObject.inputName.trim(),
-      email1: messageObject.inputMail.trim(),     // Ensure text values are trimmed
-      message1: messageObject.inputMessage.trim(),     // Ensure date is trimmed (still stored as text in DB)
-      visitDate1: new Date().toLocaleDateString('en-GB')
-    };
-    client = await pool.connect();
-    const result = await client.query(
-      `INSERT INTO latviaresidency_messages (name, email, message, visitdate) 
-      VALUES ($1, $2, $3, $4)`, 
-      [msgLoad.name1, msgLoad.email1, msgLoad.message1, msgLoad.visitDate1]
-    );
-    res.status(200).json({message: "Mesajınız gönderildi."});
-  } catch (error) {
-    console.log(error.message);
-    res.status(500).json({ error: 'Mesaj kaydedilirken hata oluştu. Lütfen doğrudan mail atınız.' });
-  }
-});
+app.post("/api/save-comment")
 
 //A temporary cache to save ip addresses and it will prevent saving same ip addresses for 1 hour.
 //I can do that by checking each ip with database ip addresses but then it will be too many requests to db
 //We will save each visitor data to database. 
-const ipCache = {}
 
-
-app.post("/serversavevisitor", async (req, res) => {
-  //Here we could basically say "const ipVisitor = req.ip" but my app is running on Render platform
-  //and Render is using proxies or load balancers. Because of that I will see "::1" as ip data if I not use
-  //this line below
-  const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
-  let client;
-  // Check if the IP is in the ignored list
-  if (ignoredIPs.includes(ipVisitor)) {
-    return; // Simply exit the function, doing nothing for this IP
-  }
-  // Check if IP exists in cache and if last visit was less than 1 hour ago 
-  if (ipCache[ipVisitor] && Date.now() - ipCache[ipVisitor] < 1000) {
-    return res.status(429).json({message: 'Too many requests from this IP.'});
-  }
-
-  ipCache[ipVisitor] = Date.now();//save visitor ip to ipCache
-  const userAgentString = req.get('User-Agent');
-  const agent = useragent.parse(userAgentString);
-  
-  try {
-    const visitorData = {
-      ip: ipVisitor,
-      os: agent.os.toString(), // operating system
-      browser: agent.toAgent(), // browser
-      visitDate: new Date().toLocaleDateString('en-GB')
-    };
-    //save visitor to database
-    client = await pool.connect();
-    const result = await client.query(
-      `INSERT INTO latviaresidency_visitors (ip, op, browser, date) 
-      VALUES ($1, $2, $3, $4)`, [visitorData.ip, visitorData.os, visitorData.browser, visitorData.visitDate]
-    );
-    res.status(200).json({myMessage: "Visitor IP successfully logged"});
-  } catch (error) {
-    console.error('Error logging visit:', error);
-    res.status(500).json({myMessage: 'Error logging visit dude'});
-  } finally {
-    if(client) client.release();
-  }
-})
 
 //A temporary cache to save ip addresses and it will prevent spam comments and replies for 1 minute.
 //I can do that by checking each ip with database ip addresses but then it will be too many requests to db
@@ -1580,7 +1517,6 @@ app.post("/serversavecomment", async (req, res) => {
   //preventing spam comments
   const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
   // Check if IP exists in cache and if last comment was less than 1 minute ago
-  
   if (ipCache2[ipVisitor] && Date.now() - ipCache2[ipVisitor] < 1000) {
     return res.status(429).json({message: 'Too many comments'});
   }
@@ -1652,3 +1588,66 @@ app.get("/servergetcomments", async (req, res) => {
     if(client) client.release();
   }
 });
+
+app.post("/api/save-message", async (req, res) => {
+  const messageObject = req.body;
+  try {
+    const msgLoad = {
+      name1: messageObject.inputName.trim(),
+      email1: messageObject.inputMail.trim(),     // Ensure text values are trimmed
+      message1: messageObject.inputMessage.trim(),     // Ensure date is trimmed (still stored as text in DB)
+      visitDate1: new Date().toLocaleDateString('en-GB')
+    };
+    client = await pool.connect();
+    const result = await client.query(
+      `INSERT INTO latviaresidency_messages (name, email, message, visitdate) 
+      VALUES ($1, $2, $3, $4)`, 
+      [msgLoad.name1, msgLoad.email1, msgLoad.message1, msgLoad.visitDate1]
+    );
+    res.status(200).json({message: "Mesajınız gönderildi."});
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ error: 'Mesaj kaydedilirken hata oluştu. Lütfen doğrudan mail atınız.' });
+  }
+});
+const ipCache = {}
+app.post("/serversavevisitor", async (req, res) => {
+  //Here we could basically say "const ipVisitor = req.ip" but my app is running on Render platform
+  //and Render is using proxies or load balancers. Because of that I will see "::1" as ip data if I not use
+  //this line below
+  const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
+  let client;
+  // Check if the IP is in the ignored list
+  if (ignoredIPs.includes(ipVisitor)) {
+    return; // Simply exit the function, doing nothing for this IP
+  }
+  // Check if IP exists in cache and if last visit was less than 1 hour ago 
+  if (ipCache[ipVisitor] && Date.now() - ipCache[ipVisitor] < 1000) {
+    return res.status(429).json({message: 'Too many requests from this IP.'});
+  }
+
+  ipCache[ipVisitor] = Date.now();//save visitor ip to ipCache
+  const userAgentString = req.get('User-Agent');
+  const agent = useragent.parse(userAgentString);
+  
+  try {
+    const visitorData = {
+      ip: ipVisitor,
+      os: agent.os.toString(), // operating system
+      browser: agent.toAgent(), // browser
+      visitDate: new Date().toLocaleDateString('en-GB')
+    };
+    //save visitor to database
+    client = await pool.connect();
+    const result = await client.query(
+      `INSERT INTO latviaresidency_visitors (ip, op, browser, date) 
+      VALUES ($1, $2, $3, $4)`, [visitorData.ip, visitorData.os, visitorData.browser, visitorData.visitDate]
+    );
+    res.status(200).json({myMessage: "Visitor IP successfully logged"});
+  } catch (error) {
+    console.error('Error logging visit:', error);
+    res.status(500).json({myMessage: 'Error logging visit dude'});
+  } finally {
+    if(client) client.release();
+  }
+})
