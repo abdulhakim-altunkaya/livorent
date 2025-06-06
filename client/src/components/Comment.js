@@ -14,7 +14,7 @@ function Comment({ commentReceiver }) {
             alert("You are not authorized to comment.");
             return;
         }
-
+ 
         const trimmedTextComment = textComment.trim();
         if (trimmedTextComment.length < 4 || trimmedTextComment.length > 3000) {
             alert("Comment is too short or too long");

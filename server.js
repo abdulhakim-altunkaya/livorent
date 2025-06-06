@@ -1434,9 +1434,14 @@ app.post("/api/post/save-comment", authenticateToken, rateLimiter, blockBannedIP
   const { commentText, commentToken, commentUserNum, commentReceiverNum } = req.body;
   const commentReceiver2 = Number(commentReceiverNum);
   const commentUserNum2 = Number(commentUserNum);
-  
+  const commentDate = new Date().toLocaleDateString('en-GB')
+
   try {
-    console.log(commentReceiver2, commentUserNum2, commentToken, commentText)
+    client = await pool.connect();
+    const result = await client.query(
+      `INSERT INTO livorent_comments (comment, date, commentor, receiver) VALUES ($1, $2, $3, $4)`,
+        [commentText, commentDate, commentUserNum2, commentReceiver2]
+    );
     return res.status(200).json({ message: "Comment saved." });
   } catch (error) {
     console.log(error.message)
