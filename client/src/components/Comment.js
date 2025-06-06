@@ -7,17 +7,29 @@ function Comment() {
     const [isSaving, setIsSaving] = useState(false);
 
     const saveComment = async () => {
-        if (textComment.length > 3000 || textComment.length < 4) {
-            alert("comment is too short or too long");
+        const token = localStorage.getItem("token_number");
+        const visitorNumber = localStorage.getItem("visitorNumber");
+
+        if (!token || !visitorNumber) {
+            alert("You are not authorized to comment.");
             return;
         }
+
+        const trimmedTextComment = textComment.trim();
+        if (trimmedTextComment.length < 4 || trimmedTextComment.length > 3000) {
+            alert("Comment is too short or too long");
+            return;
+        }
+
         setIsSaving(true);
         try {
             const commentObject = {
-                userComment : textComment,
-            }
-            // Replace with your API endpoint
+                commentText: trimmedTextComment,
+                commentToken: token,
+                commentUserNumber: visitorNumber,
+            };
             await axios.post('http://localhost:5000/api/post/save-comment', commentObject);
+            setTextComment("");
         } catch (error) {
             console.error('Error:', error);
             alert('Failed to save comment.');
@@ -26,10 +38,11 @@ function Comment() {
         }
     };
 
+
     return (
         <div>
             <div className='commentArea'>
-                <textArea  className='commentInputText' type='text' placeholder="Comment or Question"
+                <textarea  className='commentInputText' placeholder="Comment or Question"
                     onChange={ (e) => setTextComment(e.target.value)} value={textComment} />
                 <button className='commentSaveBtn' onClick={saveComment} disabled={isSaving} >
                     {isSaving ? "Saglabā..." : "Saglabāt"}
