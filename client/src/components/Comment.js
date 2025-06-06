@@ -2,12 +2,12 @@ import {useState} from 'react';
 import axios from "axios";
 import "../styles/Comment.css";
 
-function Comment() {
+function Comment({ commentReceiver }) {
     const [textComment, setTextComment] = useState("");
     const [isSaving, setIsSaving] = useState(false);
 
     const saveComment = async () => {
-        const token = localStorage.getItem("token_number");
+        const token = localStorage.getItem("token_livorent");
         const visitorNumber = localStorage.getItem("visitorNumber");
 
         if (!token || !visitorNumber) {
@@ -26,10 +26,13 @@ function Comment() {
             const commentObject = {
                 commentText: trimmedTextComment,
                 commentToken: token,
-                commentUserNumber: visitorNumber,
+                commentUserNum: visitorNumber,
+                commentReceiverNum: commentReceiver,
             };
-            await axios.post('http://localhost:5000/api/post/save-comment', commentObject);
-            setTextComment("");
+            const res1 = await axios.post("http://localhost:5000/api/post/save-comment", commentObject, {
+                headers: {Authorization: `Bearer ${token}`}
+            });
+            setTextComment(res1.data.message);
         } catch (error) {
             console.error('Error:', error);
             alert('Failed to save comment.');

@@ -1425,6 +1425,26 @@ app.get('/api/verify-token', rateLimiter, blockBannedIPs, async (req, res) => {
   }
 });
 
+app.post("/api/post/save-comment", authenticateToken, rateLimiter, blockBannedIPs, async (req, res) => {
+  //preventing spam likes
+  const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
+
+  let client;
+
+  const { commentText, commentToken, commentUserNum, commentReceiverNum } = req.body;
+  const commentReceiver2 = Number(commentReceiverNum);
+  const commentUserNum2 = Number(commentUserNum);
+  
+  try {
+    console.log(commentReceiver2, commentUserNum2, commentToken, commentText)
+    return res.status(200).json({ message: "Comment saved." });
+  } catch (error) {
+    console.log(error.message)
+  } finally {
+
+  }
+});
+
 //This line must be under all server routes. Otherwise you will have like not being able to fetch comments etc.
 //This code helps with managing routes that are not defined on react frontend. If you dont add, only index 
 //route will be visible.
