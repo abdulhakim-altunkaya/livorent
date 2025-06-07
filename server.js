@@ -1442,11 +1442,17 @@ app.post("/api/post/save-comment", authenticateToken, rateLimiter, blockBannedIP
       `INSERT INTO livorent_comments (comment, date, commentor, receiver) VALUES ($1, $2, $3, $4)`,
         [commentText, commentDate, commentUserNum2, commentReceiver2]
     );
-    return res.status(200).json({ message: "Comment saved." });
+    return res.status(200).json({ 
+      resStatus: true,
+      resMessage: "Comment saved successfully.",
+      resErrorMessage: "";
+      resVisitor: commentUserNum2,
+      resReceiver: commentReceiver2,
+    });
   } catch (error) {
     console.log(error.message)
   } finally {
-
+    if (client) client.release();
   }
 });
 
