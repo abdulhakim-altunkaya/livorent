@@ -1445,14 +1445,63 @@ app.post("/api/post/save-comment", authenticateToken, rateLimiter, blockBannedIP
     return res.status(200).json({ 
       resStatus: true,
       resMessage: "Comment saved successfully.",
-      resErrorMessage: "";
       resVisitor: commentUserNum2,
       resReceiver: commentReceiver2,
+      resErrorMessage: "",
     });
   } catch (error) {
     console.log(error.message)
   } finally {
     if (client) client.release();
+  }
+});
+
+app.get("/api/get/comments/:commentReceiver", rateLimiter, blockBannedIPs, async (req, res) => {
+  const { commentReceiver } = req.params;
+  let client;
+  const commentReceiver2 = Number(commentReceiver);
+  console.log(commentReceiver, "comment receiver");
+  console.log(commentReceiver2, "commentReceiver 2")
+  if(!commentReceiver) {
+    return res.status(404).json({
+      resStatus: false,
+      resMessage: "comments could not be displayed, advertisement id not detected",
+      resData:"",
+      resErrorCode: 1,
+    });
+  }
+  try {
+    client = await pool.connect();
+    const result = await client.query(
+      `SELECT * FROM livorent_comments WHERE receiver = $1`,
+      [commentReceiver2]
+    );
+    console.log(result.rows);
+    if (result.rows.length > 0) {
+      return res.status(200).json({
+        resStatus: true,
+        resMessage: "comments successfully fetched",
+        resData: result.rows,
+        resErrorCode: 0,
+      });
+    } else {
+      return res.status(404).json({
+          resStatus: false,
+          resMessage: "comments could not be displayed, no comment made yet",
+          resData:"",
+          resErrorCode: 2,
+      })
+    }
+  } catch (error) {
+    console.log(error.message);
+    return res.status(404).json({
+        resStatus: false,
+        resMessage: "comments could not be displayed, db connection failed",
+        resData:"",
+        resErrorCode: 3,
+    })
+  } finally {
+    if(client) client.release();
   }
 });
 

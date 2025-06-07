@@ -32,7 +32,7 @@ function Comment({ commentReceiver }) {
             const res1 = await axios.post("http://localhost:5000/api/post/save-comment", commentObject, {
                 headers: {Authorization: `Bearer ${token}`}
             });
-            setTextComment(res1.data.message);
+            setTextComment(res1.data.resMessage);
         } catch (error) {
             console.error('Error:', error);
             alert('Failed to save comment.');
