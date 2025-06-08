@@ -157,7 +157,6 @@ function BtmItem() {
           params: { visitor: visitorId } 
         });
         const likeNum = Number(response.data.responseLikeCount);
-        console.log("Just checking if like number is correct:", likeNum);
         const likeSta = response.data.responseLikeStatus;
 
         if (likeNum > 0) {
@@ -329,7 +328,7 @@ function BtmItem() {
                             <span>{likeCount}</span>              
                           </div>
                       }
-
+ 
                       {
                         isLikeAllowed ?
                          <></>

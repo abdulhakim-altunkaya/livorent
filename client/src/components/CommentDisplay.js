@@ -1,16 +1,17 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import "../styles/CommentDisplay.css";
 
 function CommentDisplay({ commentReceiver }) {
 
     const [comments, setComments] = useState([]);
     const [replies, setReplies] = useState([]);
-
+    const [testArea, setTestArea] = useState("random text from comment display")
     useEffect(() => {
-      const getData = async () => {
+      const getData = async () => { 
         try {
-            const response = await axios.get(`/api/get/comments/${commentReceiver}`);
-            const fetchedComments = Array.isArray(response.data.resData) ? response.data.resData : [];
+            const response = await axios.get(`http://localhost:5000/api/get/comments/${commentReceiver}`);
+             const fetchedComments = Array.isArray(response.data.resData) ? response.data.resData : [];
             setComments(fetchedComments);
             const fetchedReplies = fetchedComments.filter(comment => comment.parent !== null);
             setReplies(fetchedReplies);
@@ -22,24 +23,23 @@ function CommentDisplay({ commentReceiver }) {
       getData();
     }, [])
 
-    // log after state updates
-    useEffect(() => { console.log(comments); }, [comments]);
-    useEffect(() => { console.log(replies);  }, [replies]);
-    
-
     return (
-        <div>
+        <div> 
             <div className='commentDisplayArea'>
-                <div className='commentTop'>
-                    <span className='commentName'></span>
-                    <span className='commentDate'></span>
-                </div>
-                <div className='commentText'>
-                    random text from comment display
-                </div>
-                <div className='commentButton'>
-
-                </div>
+                {comments.filter(comment => comment.parent === null).map( (com, index) => (
+                    <div key={index} className="commentItem">
+                        <div className='commentTop'>
+                            <span className='commentorName'>{com.commentor_name}</span>
+                            <span className='commentDate'>{com.date}</span>
+                        </div>
+                        <div className='commentText'>
+                            {com.comment}
+                        </div>
+                        <div className='replyButtonArea'>
+                            <button className="replyButton">Reply</button>
+                        </div>
+                    </div>
+                ))}
             </div>
         </div>
     )

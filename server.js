@@ -1431,7 +1431,7 @@ app.post("/api/post/save-comment", authenticateToken, rateLimiter, blockBannedIP
 
   let client;
 
-  const { commentText, commentToken, commentUserNum, commentReceiverNum } = req.body;
+  const { commentText, commentToken, commentUserNum, commentName, commentReceiverNum } = req.body;
   const commentReceiver2 = Number(commentReceiverNum);
   const commentUserNum2 = Number(commentUserNum);
   const commentDate = new Date().toLocaleDateString('en-GB')
@@ -1439,8 +1439,8 @@ app.post("/api/post/save-comment", authenticateToken, rateLimiter, blockBannedIP
   try {
     client = await pool.connect();
     const result = await client.query(
-      `INSERT INTO livorent_comments (comment, date, commentor, receiver) VALUES ($1, $2, $3, $4)`,
-        [commentText, commentDate, commentUserNum2, commentReceiver2]
+      `INSERT INTO livorent_comments (comment, date, commentor_id, receiver, commentor_name) VALUES ($1, $2, $3, $4, $5)`,
+        [commentText, commentDate, commentUserNum2, commentReceiver2, commentName]
     );
     return res.status(200).json({ 
       resStatus: true,
@@ -1460,8 +1460,7 @@ app.get("/api/get/comments/:commentReceiver", rateLimiter, blockBannedIPs, async
   const { commentReceiver } = req.params;
   let client;
   const commentReceiver2 = Number(commentReceiver);
-  console.log(commentReceiver, "comment receiver");
-  console.log(commentReceiver2, "commentReceiver 2")
+
   if(!commentReceiver) {
     return res.status(404).json({
       resStatus: false,
@@ -1470,13 +1469,13 @@ app.get("/api/get/comments/:commentReceiver", rateLimiter, blockBannedIPs, async
       resErrorCode: 1,
     });
   }
+
   try {
     client = await pool.connect();
     const result = await client.query(
       `SELECT * FROM livorent_comments WHERE receiver = $1`,
       [commentReceiver2]
     );
-    console.log(result.rows);
     if (result.rows.length > 0) {
       return res.status(200).json({
         resStatus: true,
@@ -1493,7 +1492,6 @@ app.get("/api/get/comments/:commentReceiver", rateLimiter, blockBannedIPs, async
       })
     }
   } catch (error) {
-    console.log(error.message);
     return res.status(404).json({
         resStatus: false,
         resMessage: "comments could not be displayed, db connection failed",
@@ -1502,7 +1500,7 @@ app.get("/api/get/comments/:commentReceiver", rateLimiter, blockBannedIPs, async
     })
   } finally {
     if(client) client.release();
-  }
+  } 
 });
 
 //This line must be under all server routes. Otherwise you will have like not being able to fetch comments etc.

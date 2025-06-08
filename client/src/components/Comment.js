@@ -4,6 +4,7 @@ import "../styles/Comment.css";
 
 function Comment({ commentReceiver }) {
     const [textComment, setTextComment] = useState("");
+    const [commentorName, setCommentorName] = useState("")
     const [isSaving, setIsSaving] = useState(false);
 
     const saveComment = async () => {
@@ -16,8 +17,13 @@ function Comment({ commentReceiver }) {
         }
  
         const trimmedTextComment = textComment.trim();
+        const trimmedName = commentorName.trim();
         if (trimmedTextComment.length < 4 || trimmedTextComment.length > 3000) {
             alert("Comment is too short or too long");
+            return;
+        }
+        if (trimmedName.length < 4 || trimmedName.length > 100 ) {
+            alert("Name is too short or too long");
             return;
         }
 
@@ -28,6 +34,7 @@ function Comment({ commentReceiver }) {
                 commentToken: token,
                 commentUserNum: visitorNumber,
                 commentReceiverNum: commentReceiver,
+                commentName: trimmedName,
             };
             const res1 = await axios.post("http://localhost:5000/api/post/save-comment", commentObject, {
                 headers: {Authorization: `Bearer ${token}`}
@@ -45,6 +52,8 @@ function Comment({ commentReceiver }) {
     return (
         <div>
             <div className='commentArea'>
+                <input className='commentInputName' type='text' placeholder='vārds' value={commentorName}
+                    onChange={ (e) => setCommentorName(e.target.value)}/>
                 <textarea  className='commentInputText' placeholder="Comment or Question"
                     onChange={ (e) => setTextComment(e.target.value)} value={textComment} />
                 <button className='commentSaveBtn' onClick={saveComment} disabled={isSaving} >
