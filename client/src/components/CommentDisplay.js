@@ -51,7 +51,7 @@ function CommentDisplay({ commentReceiver }) {
                                 < CommentReply commentReceiver cancelReply={cancelReply} />
                             :
                                 <div className='replyButtonArea'>
-                                    <button className="replyButton" onClick={() => handleReply(com.id)}>Reply</button>
+                                    <button className="replyButton" onClick={() => handleReply(com.id)}>Atbildēt</button>
                                 </div>
                             }
                             

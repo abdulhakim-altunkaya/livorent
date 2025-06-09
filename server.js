@@ -1503,6 +1503,36 @@ app.get("/api/get/comments/:commentReceiver", rateLimiter, blockBannedIPs, async
   } 
 });
 
+app.post("/api/post/save-reply", authenticateToken, rateLimiter, blockBannedIPs, async (req, res) => {
+  //preventing spam likes
+  const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
+
+  let client;
+  const { replyText, replyToken, replierNum, replierName, replyReceiverNum } = req.body;
+  const replyReceiverNum2 = Number(replyReceiverNum);
+  const replierNum2 = Number(replierNum);
+  const replyDate = new Date().toLocaleDateString('en-GB')
+
+  try {
+    client = await pool.connect();
+    const result = await client.query(
+      `INSERT INTO livorent_comments (comment, date, commentor_id, receiver, commentor_name) VALUES ($1, $2, $3, $4, $5)`,
+        [commentText, commentDate, commentUserNum2, commentReceiver2, commentName]
+    );
+    return res.status(200).json({ 
+      resStatus: true,
+      resMessage: "Comment saved successfully.",
+      resVisitor: commentUserNum2,
+      resReceiver: commentReceiver2,
+      resErrorMessage: "",
+    });
+  } catch (error) {
+    console.log(error.message)
+  } finally {
+    if (client) client.release();
+  }
+});
+
 //This line must be under all server routes. Otherwise you will have like not being able to fetch comments etc.
 //This code helps with managing routes that are not defined on react frontend. If you dont add, only index 
 //route will be visible.
