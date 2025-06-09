@@ -39,7 +39,7 @@ function CommentReply({commentId2, cancelReply}) {
                     alert("Error while saving the comment. Please try again later.");
                 } 
             } finally {
-                setName("");
+                setName(""); 
                 setText("");
             }
         } else {

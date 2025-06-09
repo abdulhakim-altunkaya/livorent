@@ -3,10 +3,11 @@ import axios from "axios";
 import "../styles/CommentReply.css";
 
 
-function CommentReply({ commentReceiver }) {
+function CommentReply({ commentReceiver, cancelReply }) {
     const [inputName, setInputName] = useState("");
     const [inputReply, setInputReply] = useState("");
     const [isSaving, setIsSaving] = useState(false);
+    
 
     const saveReply = async () => {
         const token = localStorage.getItem("token_livorent");
@@ -48,10 +49,6 @@ function CommentReply({ commentReceiver }) {
             setIsSaving(false);
         }
     };
-
-    const cancelReply = () => {
-      setInputReply("reply cancelled")
-    }
 
     return (
         <div>

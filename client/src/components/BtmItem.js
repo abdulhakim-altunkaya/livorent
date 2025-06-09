@@ -353,8 +353,9 @@ function BtmItem() {
         }
       </div>
       <div> <br/><br/><br/><br/> </div>
-      <div> <Comment commentReceiver={itemNumber} /></div>
       <div> <CommentDisplay commentReceiver={itemNumber} /></div>
+      
+      <div> <Comment commentReceiver={itemNumber} /></div>
       <br/><br/><br/><br/><br/><br/>
       <div className='FooterContainer'>
         <Footer />

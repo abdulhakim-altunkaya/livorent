@@ -74,7 +74,7 @@ function CommentDisplay() {
                       repliedCommentId === comment.id ?
                           <CommentReply commentId2={comment.id} cancelReply={cancelReply}/> 
                         :
-                          null
+                          null 
                       :
                       null
                   }

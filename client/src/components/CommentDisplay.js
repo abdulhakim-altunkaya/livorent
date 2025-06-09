@@ -30,6 +30,10 @@ function CommentDisplay({ commentReceiver }) {
       setRepliedCommentId(num);
     }
 
+    const cancelReply = () => {
+      setRepliedCommentId(null);
+    }
+
     return (
         <div> 
             <div className='commentDisplayArea'>
@@ -43,13 +47,12 @@ function CommentDisplay({ commentReceiver }) {
                             <div className='commentText'>
                                 {com.comment}
                             </div>
-                            <div className='replyButtonArea'>
-                                <button className="replyButton" onClick={() => handleReply(com.id)}>Reply</button>
-                            </div>
                             { repliedCommentId === com.id ? 
-                                < CommentReply commentReceiver />
+                                < CommentReply commentReceiver cancelReply={cancelReply} />
                             :
-                                null
+                                <div className='replyButtonArea'>
+                                    <button className="replyButton" onClick={() => handleReply(com.id)}>Reply</button>
+                                </div>
                             }
                             
                     </div>
