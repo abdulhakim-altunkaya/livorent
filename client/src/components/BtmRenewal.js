@@ -2,7 +2,7 @@ import React, {useState, useEffect} from "react";
 import axios from "axios";
 import "../styles/Login.css";
 import Footer from "./Footer";
-import useUserStore from '../store/userStore'; // Adjust path accordingly
+import useUserStore from '../store/userStore';
 
 function BtmRenewal() { 
 

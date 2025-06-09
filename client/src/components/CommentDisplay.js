@@ -1,12 +1,15 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import "../styles/CommentDisplay.css";
+import CommentReply from "./CommentReply";
 
 function CommentDisplay({ commentReceiver }) {
 
     const [comments, setComments] = useState([]);
     const [replies, setReplies] = useState([]);
-    const [testArea, setTestArea] = useState("random text from comment display")
+    const [testArea, setTestArea] = useState("random text from comment display");
+    const [repliedCommentId, setRepliedCommentId] = useState(null);
+
     useEffect(() => {
       const getData = async () => { 
         try {
@@ -21,23 +24,34 @@ function CommentDisplay({ commentReceiver }) {
         } 
       }
       getData();
-    }, [])
+    }, []);
+
+    const handleReply = (num) => {
+      setRepliedCommentId(num);
+    }
 
     return (
         <div> 
             <div className='commentDisplayArea'>
                 {comments.filter(comment => comment.parent === null).map( (com, index) => (
+
                     <div key={index} className="commentItem">
-                        <div className='commentTop'>
-                            <span className='commentorName'>{com.commentor_name}</span>
-                            <span className='commentDate'>{com.date}</span>
-                        </div>
-                        <div className='commentText'>
-                            {com.comment}
-                        </div>
-                        <div className='replyButtonArea'>
-                            <button className="replyButton">Reply</button>
-                        </div>
+                            <div className='commentTop'>
+                                <span className='commentorName'>{com.commentor_name}</span>
+                                <span className='commentDate'>{com.date}</span>
+                            </div>
+                            <div className='commentText'>
+                                {com.comment}
+                            </div>
+                            <div className='replyButtonArea'>
+                                <button className="replyButton" onClick={() => handleReply(com.id)}>Reply</button>
+                            </div>
+                            { repliedCommentId === com.id ? 
+                                < CommentReply commentReceiver />
+                            :
+                                null
+                            }
+                            
                     </div>
                 ))}
             </div>
