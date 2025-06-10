@@ -3,7 +3,7 @@ import axios from "axios";
 import "../styles/CommentReply.css";
 
 
-function CommentReply({ commentReceiver, cancelReply }) {
+function CommentReply({ commentReceiver, cancelReply, parentId }) {
     const [inputName, setInputName] = useState("");
     const [inputReply, setInputReply] = useState("");
     const [isSaving, setIsSaving] = useState(false);
@@ -17,7 +17,7 @@ function CommentReply({ commentReceiver, cancelReply }) {
             alert("You are not authorized to reply.");
             return;
         }
- 
+  
         const trimmedReply = inputReply.trim();
         const trimmedName = inputName.trim();
         if (trimmedReply.length < 4 || trimmedReply.length > 300) {
@@ -35,22 +35,23 @@ function CommentReply({ commentReceiver, cancelReply }) {
                 replyText: trimmedReply,
                 replyToken: token,
                 replierNum: visitorNumber,
-                replyReceiverNum: commentReceiver,
+                replyReceiverNum: commentReceiver, //the item which receives comments and replies
                 replierName: trimmedName,
+                repliedCommentId: parentId //the comment which receives the reply
             };
             const res1 = await axios.post("http://localhost:5000/api/post/save-reply", replyObject, {
                 headers: {Authorization: `Bearer ${token}`}
             });
-            setInputReply(res1.data.resMessage);
+            setInputReply(res1.data.resMessage); 
         } catch (error) {
             console.error('Error:', error);
-            alert('Failed to save comment.');
+            alert('Failed to save comment.'); 
         } finally {
             setIsSaving(false);
         }
     };
 
-    return (
+    return ( 
         <div>
             <div className='replyArea'>
                 <input className='replyInputName' type='text' placeholder='vārds' value={inputName}

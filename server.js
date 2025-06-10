@@ -1508,22 +1508,25 @@ app.post("/api/post/save-reply", authenticateToken, rateLimiter, blockBannedIPs,
   const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
 
   let client;
-  const { replyText, replyToken, replierNum, replierName, replyReceiverNum } = req.body;
+  const { replyText, replyToken, replierNum, replierName, replyReceiverNum, repliedCommentId } = req.body;
   const replyReceiverNum2 = Number(replyReceiverNum);
   const replierNum2 = Number(replierNum);
+  const repliedCommentId2 = Number(repliedCommentId);
   const replyDate = new Date().toLocaleDateString('en-GB')
 
   try {
     client = await pool.connect();
     const result = await client.query(
-      `INSERT INTO livorent_comments (comment, date, commentor_id, receiver, commentor_name) VALUES ($1, $2, $3, $4, $5)`,
-        [commentText, commentDate, commentUserNum2, commentReceiver2, commentName]
+      `INSERT INTO livorent_comments (comment, date, commentor_name, commentor_id, receiver, parent) 
+        VALUES ($1, $2, $3, $4, $5, $6)`,
+        [replyText, replyDate, replierName, replierNum2, replyReceiverNum2, repliedCommentId2 ]
     );
     return res.status(200).json({ 
       resStatus: true,
-      resMessage: "Comment saved successfully.",
-      resVisitor: commentUserNum2,
-      resReceiver: commentReceiver2,
+      resMessage: "Reply saved successfully.",
+      resVisitor: replierNum2,
+      resReceiverItem: replyReceiverNum2,
+      resReceiverComment: repliedCommentId2,
       resErrorMessage: "",
     });
   } catch (error) {

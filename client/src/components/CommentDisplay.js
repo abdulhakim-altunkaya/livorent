@@ -18,13 +18,15 @@ function CommentDisplay({ commentReceiver }) {
             setComments(fetchedComments);
             const fetchedReplies = fetchedComments.filter(comment => comment.parent !== null);
             setReplies(fetchedReplies);
-            console.log(comments)
+            console.log("raw data :", response.data.resData);
+            console.log("fetchedComments:", fetchedComments);  // already correct
+            console.log("fetchedReplies:", fetchedReplies);
         } catch (error) {
             console.log(error.message);  
         } 
       }
       getData();
-    }, []);
+    }, []);    
 
     const handleReply = (num) => {
       setRepliedCommentId(num);
@@ -47,8 +49,19 @@ function CommentDisplay({ commentReceiver }) {
                             <div className='commentText'>
                                 {com.comment}
                             </div>
+                            {replies.length > 0 ? 
+                                replies.map( (myReply, index) => (
+                                    <div key={index}>
+                                        <span>{myReply.commentor_name}</span>
+                                        <span>{myReply.date}</span>
+                                        <span>{myReply.comment}</span>
+                                    </div>
+                                ))
+                            :
+                             <div></div>
+                            }
                             { repliedCommentId === com.id ? 
-                                < CommentReply commentReceiver cancelReply={cancelReply} />
+                                < CommentReply commentReceiver={commentReceiver} cancelReply={cancelReply} parentId={com.id} />
                             :
                                 <div className='replyButtonArea'>
                                     <button className="replyButton" onClick={() => handleReply(com.id)}>Atbildēt</button>

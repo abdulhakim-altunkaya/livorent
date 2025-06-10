@@ -4,7 +4,7 @@ import "../styles/Comment.css";
 
 function Comment({ commentReceiver }) {
     const [textComment, setTextComment] = useState("");
-    const [commentorName, setCommentorName] = useState("")
+    const [commentorName, setCommentorName] = useState("") 
     const [isSaving, setIsSaving] = useState(false);
 
     const saveComment = async () => {
