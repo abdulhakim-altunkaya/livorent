@@ -50,14 +50,14 @@ function CommentDisplay({ commentReceiver }) {
                                 {com.comment}
                             </div>
                             {replies.length > 0 ? 
-                                replies.map( (myReply, index) => (
-                                    <div key={index}>
-                                        <span>{myReply.commentor_name}</span>
-                                        <span>{myReply.date}</span>
+                                replies.filter(myReply1 => myReply1.parent === com.id).map( (myReply, index) => (
+                                    <div key={index} className='replyCommentContainer'>
+                                        <strong><span>{myReply.commentor_name}</span></strong>&nbsp;
+                                        <span>({myReply.date}):</span>&nbsp;
                                         <span>{myReply.comment}</span>
                                     </div>
                                 ))
-                            :
+                            : 
                              <div></div>
                             }
                             { repliedCommentId === com.id ? 
