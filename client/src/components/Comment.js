@@ -6,8 +6,13 @@ function Comment({ commentReceiver }) {
     const [textComment, setTextComment] = useState("");
     const [commentorName, setCommentorName] = useState("") 
     const [isSaving, setIsSaving] = useState(false);
+    const [errorMsg, setErrorMsg] = useState("");
+
+    const escapeHtml = str => str.replace(/[<>]/g, t => t === '<' ? '&lt;' : '&gt;');
 
     const saveComment = async () => {
+        if (isSaving) return; //prevent double submissions
+
         const token = localStorage.getItem("token_livorent");
         const visitorNumber = localStorage.getItem("visitorNumber");
 
@@ -16,8 +21,12 @@ function Comment({ commentReceiver }) {
             return;
         }
  
+        //trim the white space and prevent script attacks from inputs
         const trimmedTextComment = textComment.trim();
         const trimmedName = commentorName.trim();
+        const safeComment = escapeHtml(trimmedTextComment);
+        const safeName = escapeHtml(trimmedName);
+
         if (trimmedTextComment.length < 4 || trimmedTextComment.length > 3000) {
             alert("Comment is too short or too long");
             return;
@@ -30,21 +39,38 @@ function Comment({ commentReceiver }) {
         setIsSaving(true);
         try {
             const commentObject = {
-                commentText: trimmedTextComment,
+                commentText: safeComment,
                 commentToken: token,
                 commentUserNum: visitorNumber,
                 commentReceiverNum: commentReceiver,
-                commentName: trimmedName,
+                commentName: safeName,
             };
             const res1 = await axios.post("http://localhost:5000/api/post/save-comment", commentObject, {
                 headers: {Authorization: `Bearer ${token}`}
             });
-            setTextComment(res1.data.resMessage);
+            setTextComment(res1?.data?.resMessage);
         } catch (error) {
-            console.error('Error:', error);
-            alert('Failed to save comment.');
+            const code = error.response?.data?.resErrorCode; //"response" is a keyword/field name of error object.
+            if (code === 1) {
+                setErrorMsg("Database error, please try again later.");
+            } else if (code === 2) {
+                setErrorMsg("Comment or name is empty.");
+            } else if (code === 3) {
+                setErrorMsg("Comment must be between 4 and 3000 characters.");
+            } else if (code === 4) {
+                setErrorMsg("Name must be between 4 and 100 characters.");
+            } else if (code === 5) {
+                setErrorMsg("Invalid user ID.");
+            } else if (code === 6) {
+                setErrorMsg("Invalid receiver ID.");
+            } else {
+                setErrorMsg("Unknown error occurred.");
+            }
+            console.log(error);
         } finally {
             setIsSaving(false);
+            setTextComment("");
+            setCommentorName("");
         }
     };
 
@@ -59,6 +85,7 @@ function Comment({ commentReceiver }) {
                 <button className='commentSaveBtn' onClick={saveComment} disabled={isSaving} >
                     {isSaving ? "Saglabā..." : "Saglabāt"}
                 </button>
+                {errorMsg && <div className="commentError">{errorMsg}</div>}
             </div>
         </div>
     )

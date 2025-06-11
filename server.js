@@ -1435,6 +1435,49 @@ app.post("/api/post/save-comment", authenticateToken, rateLimiter, blockBannedIP
   const commentReceiver2 = Number(commentReceiverNum);
   const commentUserNum2 = Number(commentUserNum);
   const commentDate = new Date().toLocaleDateString('en-GB')
+  const trimmedText = commentText.trim();
+  const trimmedName = commentName.trim();
+
+  // === Simple input validations ===
+  if (!trimmedText || !trimmedName) {
+    return res.status(401).json({
+      resStatus: false,
+      resMessage: "Comment is empty",
+      resErrorCode: 2
+    });
+  }
+
+  if (trimmedText.length < 44 || trimmedText.length > 3000) {
+    return res.status(401).json({
+      resStatus: false,
+      resMessage: "Comment length must be between 4 and 3000 characters",
+      resErrorCode: 3
+    });
+  }
+
+  if (trimmedName.length < 4 || trimmedName.length > 100) {
+    return res.status(401).json({
+      resStatus: false,
+      resMessage: "Name length must be between 4 and 100 characters",
+      resErrorCode: 4
+    });
+  }
+
+  if (!Number.isInteger(commentUserNum2) || commentUserNum2 <= 0) {
+    return res.status(401).json({
+      resStatus: false,
+      resMessage: "Invalid user ID",
+      resErrorCode: 5
+    });
+  }
+
+  if (!Number.isInteger(commentReceiver2) || commentReceiver2 <= 0) {
+    return res.status(401).json({
+      resStatus: false,
+      resMessage: "Invalid receiver ID",
+      resErrorCode: 6
+    });
+  }
 
   try {
     client = await pool.connect();
@@ -1447,10 +1490,16 @@ app.post("/api/post/save-comment", authenticateToken, rateLimiter, blockBannedIP
       resMessage: "Comment saved successfully.",
       resVisitor: commentUserNum2,
       resReceiver: commentReceiver2,
-      resErrorMessage: "",
+      resErrorCode: 0
     });
   } catch (error) {
-    console.log(error.message)
+      return res.status(501).json({ 
+        resStatus: false,
+        resMessage: "Saving comment to DB failed",
+        resVisitor: commentUserNum2,
+        resReceiver: commentReceiver2,
+        resErrorCode: 1,
+      });
   } finally {
     if (client) client.release();
   }
