@@ -3,13 +3,16 @@ import axios from "axios";
 import "../styles/CommentReply.css";
 
 
-function CommentReply({ commentReceiver, cancelReply, parentId }) {
+function CommentReply({ commentReceiver, cancelReply, parentId, refreshReplies }) {
     const [inputName, setInputName] = useState("");
     const [inputReply, setInputReply] = useState("");
     const [isSaving, setIsSaving] = useState(false);
+    const [errorText, setErrorText] = useState("");
     
 
     const saveReply = async () => {
+        if (isSaving) return; //prevent double submissions
+        
         const token = localStorage.getItem("token_livorent");
         const visitorNumber = localStorage.getItem("visitorNumber");
 
@@ -43,9 +46,26 @@ function CommentReply({ commentReceiver, cancelReply, parentId }) {
                 headers: {Authorization: `Bearer ${token}`}
             });
             setInputReply(res1.data.resMessage); 
+            cancelReply();
+            refreshReplies();
         } catch (error) {
             console.error('Error:', error);
-            alert('Failed to save comment.'); 
+            const code = error?.response?.data?.resErrorCode;
+            if (code === 1) {
+                setErrorText("Failed to connect to the database.");
+            } else if (code === 2) {
+                setErrorText("Reply or name is empty.");
+            } else if (code === 3) {
+                setErrorText("Reply must be between 4 and 300 characters.");
+            } else if (code === 4) {
+                setErrorText("Name must be between 4 and 100 characters.");
+            } else if (code === 5) {
+                setErrorText("Invalid user ID.");
+            } else if (code === 6) {
+                setErrorText("Invalid receiver ID.");
+            } else {
+                setErrorText("An unknown error occurred.");
+            }
         } finally {
             setIsSaving(false);
         }
@@ -66,6 +86,7 @@ function CommentReply({ commentReceiver, cancelReply, parentId }) {
                         Atcelt
                     </button>
                 </div>
+                {errorText && <div className="commentError">{errorText}</div>}
    
             </div>
         </div>

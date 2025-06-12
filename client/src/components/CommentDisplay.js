@@ -7,14 +7,13 @@ function CommentDisplay({ commentReceiver }) {
 
     const [comments, setComments] = useState([]);
     const [replies, setReplies] = useState([]);
-    const [testArea, setTestArea] = useState("random text from comment display");
     const [repliedCommentId, setRepliedCommentId] = useState(null);
+    const [errorText, setErrorText] = useState("");
 
-    useEffect(() => {
-      const getData = async () => { 
+    const getData = async () => { 
         try {
             const response = await axios.get(`http://localhost:5000/api/get/comments/${commentReceiver}`);
-             const fetchedComments = Array.isArray(response.data.resData) ? response.data.resData : [];
+                const fetchedComments = Array.isArray(response.data.resData) ? response.data.resData : [];
             setComments(fetchedComments);
             const fetchedReplies = fetchedComments.filter(comment => comment.parent !== null);
             setReplies(fetchedReplies);
@@ -22,11 +21,23 @@ function CommentDisplay({ commentReceiver }) {
             console.log("fetchedComments:", fetchedComments);  // already correct
             console.log("fetchedReplies:", fetchedReplies);
         } catch (error) {
-            console.log(error.message);  
+            console.log(error.message);
+            const code = error?.response?.data?.resErrorCode;
+            if (code === 1) {
+                setErrorText("Ad ID is missing or invalid.");
+            } else if (code === 2) {
+                setErrorText("No comments yet.");
+            } else if (code === 3) {
+                setErrorText("Failed to connect to the database.");
+            } else {
+                setErrorText("An unknown error occurred.");
+            }
         } 
-      }
-      getData();
-    }, []);    
+    }
+
+    useEffect(() => {
+        getData();
+    }, [commentReceiver]);
 
     const handleReply = (num) => {
       setRepliedCommentId(num);
@@ -61,7 +72,12 @@ function CommentDisplay({ commentReceiver }) {
                              <div></div>
                             }
                             { repliedCommentId === com.id ? 
-                                < CommentReply commentReceiver={commentReceiver} cancelReply={cancelReply} parentId={com.id} />
+                                < CommentReply 
+                                    commentReceiver={commentReceiver} 
+                                    cancelReply={cancelReply} 
+                                    parentId={com.id} 
+                                    refreshReplies={getData}
+                                />
                             :
                                 <div className='replyButtonArea'>
                                     <button className="replyButton" onClick={() => handleReply(com.id)}>Atbildēt</button>
@@ -70,6 +86,7 @@ function CommentDisplay({ commentReceiver }) {
                             
                     </div>
                 ))}
+                {errorText && <div className="commentError">{errorText}</div>}
             </div>
         </div>
     )

@@ -6,7 +6,7 @@ function Comment({ commentReceiver }) {
     const [textComment, setTextComment] = useState("");
     const [commentorName, setCommentorName] = useState("") 
     const [isSaving, setIsSaving] = useState(false);
-    const [errorMsg, setErrorMsg] = useState("");
+    const [errorText, setErrorText] = useState("");
 
     const escapeHtml = str => str.replace(/[<>]/g, t => t === '<' ? '&lt;' : '&gt;');
 
@@ -52,19 +52,19 @@ function Comment({ commentReceiver }) {
         } catch (error) {
             const code = error.response?.data?.resErrorCode; //"response" is a keyword/field name of error object.
             if (code === 1) {
-                setErrorMsg("Database error, please try again later.");
+                setErrorText("Database error, please try again later.");
             } else if (code === 2) {
-                setErrorMsg("Comment or name is empty.");
+                setErrorText("Comment or name is empty.");
             } else if (code === 3) {
-                setErrorMsg("Comment must be between 4 and 3000 characters.");
+                setErrorText("Comment must be between 4 and 3000 characters.");
             } else if (code === 4) {
-                setErrorMsg("Name must be between 4 and 100 characters.");
+                setErrorText("Name must be between 4 and 100 characters.");
             } else if (code === 5) {
-                setErrorMsg("Invalid user ID.");
+                setErrorText("Invalid user ID.");
             } else if (code === 6) {
-                setErrorMsg("Invalid receiver ID.");
+                setErrorText("Invalid receiver ID.");
             } else {
-                setErrorMsg("Unknown error occurred.");
+                setErrorText("Unknown error occurred.");
             }
             console.log(error);
         } finally {
@@ -85,7 +85,7 @@ function Comment({ commentReceiver }) {
                 <button className='commentSaveBtn' onClick={saveComment} disabled={isSaving} >
                     {isSaving ? "Saglabā..." : "Saglabāt"}
                 </button>
-                {errorMsg && <div className="commentError">{errorMsg}</div>}
+                {errorText && <div className="commentError">{errorText}</div>}
             </div>
         </div>
     )

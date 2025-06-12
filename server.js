@@ -1440,15 +1440,15 @@ app.post("/api/post/save-comment", authenticateToken, rateLimiter, blockBannedIP
 
   // === Simple input validations ===
   if (!trimmedText || !trimmedName) {
-    return res.status(401).json({
+    return res.status(400).json({
       resStatus: false,
       resMessage: "Comment is empty",
       resErrorCode: 2
     });
   }
 
-  if (trimmedText.length < 44 || trimmedText.length > 3000) {
-    return res.status(401).json({
+  if (trimmedText.length < 4 || trimmedText.length > 3000) {
+    return res.status(400).json({
       resStatus: false,
       resMessage: "Comment length must be between 4 and 3000 characters",
       resErrorCode: 3
@@ -1456,7 +1456,7 @@ app.post("/api/post/save-comment", authenticateToken, rateLimiter, blockBannedIP
   }
 
   if (trimmedName.length < 4 || trimmedName.length > 100) {
-    return res.status(401).json({
+    return res.status(400).json({
       resStatus: false,
       resMessage: "Name length must be between 4 and 100 characters",
       resErrorCode: 4
@@ -1464,7 +1464,7 @@ app.post("/api/post/save-comment", authenticateToken, rateLimiter, blockBannedIP
   }
 
   if (!Number.isInteger(commentUserNum2) || commentUserNum2 <= 0) {
-    return res.status(401).json({
+    return res.status(400).json({
       resStatus: false,
       resMessage: "Invalid user ID",
       resErrorCode: 5
@@ -1472,7 +1472,7 @@ app.post("/api/post/save-comment", authenticateToken, rateLimiter, blockBannedIP
   }
 
   if (!Number.isInteger(commentReceiver2) || commentReceiver2 <= 0) {
-    return res.status(401).json({
+    return res.status(400).json({
       resStatus: false,
       resMessage: "Invalid receiver ID",
       resErrorCode: 6
@@ -1493,7 +1493,7 @@ app.post("/api/post/save-comment", authenticateToken, rateLimiter, blockBannedIP
       resErrorCode: 0
     });
   } catch (error) {
-      return res.status(501).json({ 
+      return res.status(500).json({ 
         resStatus: false,
         resMessage: "Saving comment to DB failed",
         resVisitor: commentUserNum2,
@@ -1510,11 +1510,11 @@ app.get("/api/get/comments/:commentReceiver", rateLimiter, blockBannedIPs, async
   let client;
   const commentReceiver2 = Number(commentReceiver);
 
-  if(!commentReceiver) {
-    return res.status(404).json({
+  if(!commentReceiver || isNaN(commentReceiver2) || commentReceiver2 <= 0) {
+    return res.status(400).json({
       resStatus: false,
       resMessage: "comments could not be displayed, advertisement id not detected",
-      resData:"",
+      resData:[],
       resErrorCode: 1,
     });
   }
@@ -1522,7 +1522,7 @@ app.get("/api/get/comments/:commentReceiver", rateLimiter, blockBannedIPs, async
   try {
     client = await pool.connect();
     const result = await client.query(
-      `SELECT * FROM livorent_comments WHERE receiver = $1`,
+      `SELECT * FROM livorent_comments WHERE receiver = $1 ORDER BY id DESC`,
       [commentReceiver2]
     );
     if (result.rows.length > 0) {
@@ -1533,18 +1533,18 @@ app.get("/api/get/comments/:commentReceiver", rateLimiter, blockBannedIPs, async
         resErrorCode: 0,
       });
     } else {
-      return res.status(404).json({
+      return res.status(200).json({
           resStatus: false,
-          resMessage: "comments could not be displayed, no comment made yet",
-          resData:"",
+          resMessage: "no comments yet",
+          resData: [],
           resErrorCode: 2,
       })
     }
   } catch (error) {
-    return res.status(404).json({
+    return res.status(500).json({
         resStatus: false,
         resMessage: "comments could not be displayed, db connection failed",
-        resData:"",
+        resData: [],
         resErrorCode: 3,
     })
   } finally {
@@ -1561,7 +1561,51 @@ app.post("/api/post/save-reply", authenticateToken, rateLimiter, blockBannedIPs,
   const replyReceiverNum2 = Number(replyReceiverNum);
   const replierNum2 = Number(replierNum);
   const repliedCommentId2 = Number(repliedCommentId);
-  const replyDate = new Date().toLocaleDateString('en-GB')
+  const replyDate = new Date().toLocaleDateString('en-GB');
+
+  const trimmedReply = replyText.trim();
+  const trimmedName = replierName.trim();
+
+  // === Simple input validations ===
+  if (!trimmedReply || !trimmedName) {
+    return res.status(400).json({
+      resStatus: false,
+      resMessage: "Reply is empty",
+      resErrorCode: 2
+    });
+  }
+
+  if (trimmedReply.length < 4 || trimmedReply.length > 300) {
+    return res.status(400).json({
+      resStatus: false,
+      resMessage: "Reply length must be between 4 and 300 characters",
+      resErrorCode: 3
+    });
+  }
+
+  if (trimmedName.length < 4 || trimmedName.length > 100) {
+    return res.status(400).json({
+      resStatus: false,
+      resMessage: "Name length must be between 4 and 100 characters",
+      resErrorCode: 4
+    });
+  }
+
+  if (!Number.isInteger(replierNum2) || replierNum2 <= 0) {
+    return res.status(400).json({
+      resStatus: false,
+      resMessage: "Invalid user ID",
+      resErrorCode: 5
+    });
+  }
+
+  if (!Number.isInteger(replyReceiverNum2) || replyReceiverNum2 <= 0) {
+    return res.status(400).json({
+      resStatus: false,
+      resMessage: "Invalid receiver ID",
+      resErrorCode: 6
+    });
+  }
 
   try {
     client = await pool.connect();
@@ -1576,10 +1620,15 @@ app.post("/api/post/save-reply", authenticateToken, rateLimiter, blockBannedIPs,
       resVisitor: replierNum2,
       resReceiverItem: replyReceiverNum2,
       resReceiverComment: repliedCommentId2,
-      resErrorMessage: "",
+      resErrorCode: 0,
     });
   } catch (error) {
-    console.log(error.message)
+    console.log(error.message);
+    return res.status(500).json({ 
+      resStatus: false,
+      resMessage: "Connection to DB failed",
+      resErrorCode: 1,
+    });
   } finally {
     if (client) client.release();
   }
