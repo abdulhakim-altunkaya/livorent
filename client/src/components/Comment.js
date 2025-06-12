@@ -2,7 +2,7 @@ import {useState} from 'react';
 import axios from "axios";
 import "../styles/Comment.css";
 
-function Comment({ commentReceiver }) {
+function Comment({ commentReceiver, refreshComments }) {
     const [textComment, setTextComment] = useState("");
     const [commentorName, setCommentorName] = useState("") 
     const [isSaving, setIsSaving] = useState(false);
@@ -49,6 +49,7 @@ function Comment({ commentReceiver }) {
                 headers: {Authorization: `Bearer ${token}`}
             });
             setTextComment(res1?.data?.resMessage);
+            refreshComments();
         } catch (error) {
             const code = error.response?.data?.resErrorCode; //"response" is a keyword/field name of error object.
             if (code === 1) {

@@ -3,7 +3,6 @@ import axios from 'axios';
 import { useParams, useNavigate } from "react-router-dom";
 import "../styles/Item.css"
 import Footer from "./Footer.js";
-import Comment from "./Comment.js";
 import CommentDisplay from "./CommentDisplay.js"
 import { detectSection, detectCategory } from './utilsCategories';
 import useUserStore from '../store/userStore';
@@ -354,8 +353,6 @@ function BtmItem() {
       </div>
       <div> <br/><br/><br/><br/> </div>
       <div> <CommentDisplay commentReceiver={itemNumber} /></div>
-      
-      <div> <Comment commentReceiver={itemNumber} /></div>
       <br/><br/><br/><br/><br/><br/>
       <div className='FooterContainer'>
         <Footer />

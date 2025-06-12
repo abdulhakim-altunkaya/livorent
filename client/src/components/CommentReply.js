@@ -34,7 +34,7 @@ function CommentReply({ commentReceiver, cancelReply, parentId, refreshReplies }
 
         setIsSaving(true);
         try {
-            const replyObject = {
+            const replyObject = { 
                 replyText: trimmedReply,
                 replyToken: token,
                 replierNum: visitorNumber,

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import "../styles/CommentDisplay.css";
 import CommentReply from "./CommentReply";
+import Comment from "./Comment.js";
 
 function CommentDisplay({ commentReceiver }) {
 
@@ -13,7 +14,7 @@ function CommentDisplay({ commentReceiver }) {
     const getData = async () => { 
         try {
             const response = await axios.get(`http://localhost:5000/api/get/comments/${commentReceiver}`);
-                const fetchedComments = Array.isArray(response.data.resData) ? response.data.resData : [];
+            const fetchedComments = Array.isArray(response.data.resData) ? response.data.resData : [];
             setComments(fetchedComments);
             const fetchedReplies = fetchedComments.filter(comment => comment.parent !== null);
             setReplies(fetchedReplies);
@@ -26,11 +27,11 @@ function CommentDisplay({ commentReceiver }) {
             if (code === 1) {
                 setErrorText("Ad ID is missing or invalid.");
             } else if (code === 2) {
-                setErrorText("No comments yet.");
+                console.log("No comments yet.");
             } else if (code === 3) {
-                setErrorText("Failed to connect to the database.");
+                console.log("Failed to connect to the database.");
             } else {
-                setErrorText("An unknown error occurred.");
+                console.log("An unknown error occurred.");
             }
         } 
     }
@@ -49,6 +50,7 @@ function CommentDisplay({ commentReceiver }) {
 
     return (
         <div> 
+            
             <div className='commentDisplayArea'>
                 {comments.filter(comment => comment.parent === null).map( (com, index) => (
 
@@ -88,6 +90,8 @@ function CommentDisplay({ commentReceiver }) {
                 ))}
                 {errorText && <div className="commentError">{errorText}</div>}
             </div>
+
+            <div> <Comment commentReceiver={commentReceiver} refreshComments={getData} /></div>
         </div>
     )
 }
