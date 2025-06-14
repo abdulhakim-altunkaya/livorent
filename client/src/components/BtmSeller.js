@@ -32,6 +32,7 @@ function BtmSeller() {
   const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState("");
   const token = localStorage.getItem("token_livorent");
+  const [rating, setRating] = useState("4.7");
 
   useEffect(() => {
     const getData = async () => {
@@ -76,6 +77,7 @@ function BtmSeller() {
         const response = await axios.get(`http://localhost:5000/api/like/get-seller-likes-count/${sellerNumber}`, {
           params: { visitor: visitorId }
         });
+        
         const likeNum = Number(response.data.responseLikeCount);
         const likeSta = response.data.responseLikeStatus;
 
@@ -163,39 +165,38 @@ function BtmSeller() {
             <p className='errorFieldProfile'>{errorFrontend}</p> 
           ) :
             <>
+                <div className='userInfoArea'>
+                  <div>Name: <strong>{sellerData.name}</strong> </div>
+                  <div>Rating: <strong>{rating}</strong> </div>
+                  <div className='lastDivProfile'>Since: <strong>{sellerData.date}</strong></div>
+                  <div>
+                    {
+                      isLiked ?
+                        <div className='likeArea'>
+                          <img className='heartIcon' onClick={handleLike} src='/svg_heart_filled.svg' alt='full heart'/> 
+                          <span>{likeCount}</span>              
+                        </div>
+                      :
+                        <div className='likeArea'>
+                          <img className='heartIcon' onClick={handleLike} src='/svg_heart.svg' alt='empty heart'/> 
+                          <span>{likeCount}</span>              
+                        </div>
+                    }
+                    {
+                      isLikeAllowed ?
+                        <></>
+                      :
+                      <div className="noUserBtmUpload">
+                        Lai atzīmētu ar "patīk", jābūt reģistrētam.
+                        <span onClick={() => navigate("/login")}> Ieiet</span> vai 
+                        <span onClick={() => navigate("/registration")}> reģistrēties</span>.
+                      </div>
+                    }
+                  </div>
+                </div>
+
               {message && message.length > 0  ? (
                 <>
-                  <div className='userInfoArea'>
-                    <div className='welcomeMessageProfile'>laipni lūdzam </div> 
-                    <div><strong>Name:</strong> {sellerData.name}</div>
-                    <div className='lastDivProfile'><strong>Member since:</strong> {sellerData.date}</div>
-                    <div>
-                      {
-                        isLiked ?
-                          <div className='likeArea'>
-                            <img className='heartIcon' onClick={handleLike} src='/svg_heart_filled.svg' alt='full heart'/> 
-                            <span>{likeCount}</span>              
-                          </div>
-                        :
-                          <div className='likeArea'>
-                            <img className='heartIcon' onClick={handleLike} src='/svg_heart.svg' alt='empty heart'/> 
-                            <span>{likeCount}</span>              
-                          </div>
-                      }
-                      {
-                        isLikeAllowed ?
-                          <></>
-                        :
-                        <div className="noUserBtmUpload">
-                          Lai atzīmētu ar "patīk", jābūt reģistrētam.
-                          <span onClick={() => navigate("/login")}> Ieiet</span> vai 
-                          <span onClick={() => navigate("/registration")}> reģistrēties</span>.
-                        </div>
-                      }
-
-                      </div>
-                  </div>
-
                   <div className='tableProfileArea'>
                     <table className='tableMainCategory'>
                       <thead> 
@@ -243,6 +244,7 @@ function BtmSeller() {
       <br/><br/><br/><br/><br/><br/>
       <div className='FooterContainer'>
         <Footer />
+        
       </div>
     </div>
   )

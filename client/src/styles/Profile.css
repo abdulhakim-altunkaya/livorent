@@ -137,6 +137,14 @@
     gap: 8px; /* horizontal spacing between items */
 }
 
+.ratingArea {
+
+}
+
+.ratingStar {
+    width: 24px;
+}
+
 @media (min-width: 768px) {
   .button-54 {
     padding: 0.25em 0.75em;
