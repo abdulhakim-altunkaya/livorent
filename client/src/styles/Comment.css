@@ -41,4 +41,22 @@
         margin-bottom: 10px;
         margin-top: 15px;
     }
+    .reviewButtonContainer {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-top: 10px;
+        margin-bottom: 10px;
+    }
+    .reviewRatingButtons {
+        padding: 8px 12px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        cursor: pointer;
+    }
+    .reviewRatingButtons.selected {
+        font-weight: bold;
+        background-color: rgb(85, 208, 3);
+    }
+
 }

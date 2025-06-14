@@ -1633,7 +1633,94 @@ app.post("/api/post/save-reply", authenticateToken, rateLimiter, blockBannedIPs,
     if (client) client.release();
   }
 });
+app.post("/api/post/save-review", authenticateToken, rateLimiter, blockBannedIPs, async (req, res) => {
+  //preventing spam likes
+  const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
 
+  let client;
+
+  const { reviewText, reviewToken, reviewUserNum, reviewerName, reviewReceiverNum, reviewRating } = req.body;
+
+  const reviewReceiver2 = Number(reviewReceiverNum);
+  const reviewUserNum2 = Number(reviewUserNum);
+  const reviewDate = new Date().toLocaleDateString('en-GB')
+  const trimmedText = reviewText.trim();
+  const trimmedName = reviewerName.trim();
+
+  // === Simple input validations ===
+  if (!trimmedText || !trimmedName) {
+    return res.status(400).json({
+      resStatus: false,
+      resMessage: "Review is empty",
+      resErrorCode: 2
+    });
+  }
+  if (reviewRating < 1 || reviewRating > 10) {
+    return res.status(400).json({
+      resStatus: false,
+      resMessage: "Did you choose rating score?",
+      resErrorCode: 7
+    });
+  }
+
+  if (trimmedText.length < 4 || trimmedText.length > 3000) {
+    return res.status(400).json({
+      resStatus: false,
+      resMessage: "Review length must be between 4 and 3000 characters",
+      resErrorCode: 3
+    });
+  }
+
+  if (trimmedName.length < 4 || trimmedName.length > 100) {
+    return res.status(400).json({
+      resStatus: false,
+      resMessage: "Name length must be between 4 and 100 characters",
+      resErrorCode: 4
+    });
+  }
+
+  if (!Number.isInteger(reviewUserNum2) || reviewUserNum2 <= 0) {
+    return res.status(400).json({
+      resStatus: false,
+      resMessage: "Invalid user ID",
+      resErrorCode: 5
+    });
+  }
+
+  if (!Number.isInteger(reviewReceiver2) || reviewReceiver2 <= 0) {
+    return res.status(400).json({
+      resStatus: false,
+      resMessage: "Invalid receiver ID",
+      resErrorCode: 6
+    });
+  }
+
+  try {
+    client = await pool.connect();
+    const result = await client.query(
+      `INSERT INTO livorent_reviews (review_text, date, receiver, rating, reviewer_id, reviewer_name) 
+      VALUES ($1, $2, $3, $4, $5, $6)`,
+        [trimmedText, reviewDate, reviewReceiver2, reviewRating, reviewUserNum2, , trimmedName]
+    );
+    return res.status(200).json({ 
+      resStatus: true,
+      resMessage: "Review saved successfully.",
+      resVisitor: reviewUserNum2,
+      resReceiver: reviewReceiver2,
+      resErrorCode: 0
+    });
+  } catch (error) {
+      return res.status(500).json({ 
+        resStatus: false,
+        resMessage: "Saving review to DB failed",
+        resVisitor: reviewUserNum2,
+        resReceiver: reviewReceiver2,
+        resErrorCode: 1,
+      });
+  } finally {
+    if (client) client.release();
+  }
+});
 //This line must be under all server routes. Otherwise you will have like not being able to fetch comments etc.
 //This code helps with managing routes that are not defined on react frontend. If you dont add, only index 
 //route will be visible.

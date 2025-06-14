@@ -7,6 +7,7 @@ function Review({ reviewReceiver, refreshReviews }) {
     const [reviewerName, setReviewerName] = useState("") 
     const [isSaving, setIsSaving] = useState(false);
     const [errorText, setErrorText] = useState("");
+    const [selectedRating, setSelectedRating] = useState(null);
 
     const escapeHtml = str => str.replace(/[<>]/g, t => t === '<' ? '&lt;' : '&gt;');
 
@@ -18,6 +19,14 @@ function Review({ reviewReceiver, refreshReviews }) {
 
         if (!token || !visitorNumber) {
             alert("You are not authorized to review.");
+            return;
+        }
+         if (!token || !visitorNumber) {
+            alert("You are not authorized to review.");
+            return;
+        }
+        if (selectedRating < 1 || selectedRating > 10 || selectedRating === null) {
+            alert("Choose rating score from 1 to 10");
             return;
         }
  
@@ -44,12 +53,13 @@ function Review({ reviewReceiver, refreshReviews }) {
                 reviewUserNum: visitorNumber,
                 reviewReceiverNum: reviewReceiver,
                 reviewerName: safeName,
+                reviewRating: selectedRating
             };
-            const res1 = await axios.post("http://localhost:5000/api/post/save-comment", reviewObject, {
+            const res1 = await axios.post("http://localhost:5000/api/post/save-review", reviewObject, {
                 headers: {Authorization: `Bearer ${token}`}
             });
             setTextReview(res1?.data?.resMessage);
-            refreshReviews();
+            //refreshReviews();
         } catch (error) {
             const code = error.response?.data?.resErrorCode; //"response" is a keyword/field name of error object.
             if (code === 1) {
@@ -64,6 +74,8 @@ function Review({ reviewReceiver, refreshReviews }) {
                 setErrorText("Invalid user ID.");
             } else if (code === 6) {
                 setErrorText("Invalid receiver ID.");
+            } else if (code === 7) {
+                setErrorText("Did you choose review score?");
             } else {
                 setErrorText("Unknown error occurred.");
             }
@@ -74,11 +86,27 @@ function Review({ reviewReceiver, refreshReviews }) {
             setReviewerName("");
         }
     };
+    
 
+    const handleSelect = (value) => {
+        setSelectedRating(value);
+    };
 
     return (
         <div>
             <div className='commentArea'>
+                <div className='reviewButtonContainer'>
+                    Rating:
+                    {Array.from({ length: 10 }, (_, i) => i + 1).map((num) => (
+                        <button
+                            key={num}
+                            onClick={() => handleSelect(num)}
+                            className={`reviewRatingButtons ${selectedRating === num ? 'selected' : ''}`}
+                            >
+                            {num}
+                        </button>
+                    ))}
+                </div>
                 <input className='commentInputName' type='text' placeholder='vārds' value={reviewerName}
                     onChange={ (e) => setReviewerName(e.target.value)}/>
                 <textarea  className='commentInputText' placeholder="Review"
@@ -86,6 +114,7 @@ function Review({ reviewReceiver, refreshReviews }) {
                 <button className='commentSaveBtn' onClick={saveReview} disabled={isSaving} >
                     {isSaving ? "Saglabā..." : "Saglabāt"}
                 </button>
+                {selectedRating}
                 {errorText && <div className="commentError">{errorText}</div>}
             </div>
         </div>
