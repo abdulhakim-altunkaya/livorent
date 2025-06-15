@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import "../styles/CommentDisplay.css";
-import ReviewReply from "./ReviewReply";
+import ReviewReply from "./ReviewReply.js";
 import Review from "./Review.js";
 
 function ReviewDisplay({ reviewReceiver }) {
@@ -75,7 +75,7 @@ function ReviewDisplay({ reviewReceiver }) {
                                     reviewReceiver={reviewReceiver} 
                                     cancelReply={cancelReply} 
                                     parentId={rew.id} 
-                                    refreshReplies={getData}
+                                    refreshReplies={getData} 
                                 />
                             :
                                 <div className='replyButtonArea'>
