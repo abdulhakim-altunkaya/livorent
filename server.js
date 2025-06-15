@@ -1700,7 +1700,7 @@ app.post("/api/post/save-review", authenticateToken, rateLimiter, blockBannedIPs
     const result = await client.query(
       `INSERT INTO livorent_reviews (review_text, date, receiver, rating, reviewer_id, reviewer_name) 
       VALUES ($1, $2, $3, $4, $5, $6)`,
-        [trimmedText, reviewDate, reviewReceiver2, reviewRating, reviewUserNum2, , trimmedName]
+        [trimmedText, reviewDate, reviewReceiver2, reviewRating, reviewUserNum2, trimmedName]
     );
     return res.status(200).json({ 
       resStatus: true,

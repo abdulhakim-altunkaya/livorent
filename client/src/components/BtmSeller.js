@@ -6,7 +6,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import "../styles/Profile.css";
 import Footer from "./Footer.js";
-import Review from "./Review.js";
+import ReviewDisplay from "./ReviewDisplay.js";
 import { useParams, useNavigate } from "react-router-dom";
 import useUserStore from '../store/userStore';
 
@@ -242,7 +242,7 @@ function BtmSeller() {
         }
       </div>
       <br/><br/><br/><br/><br/><br/>
-      <Review reviewReceiver={23}/>
+      <div> <ReviewDisplay reviewReceiver={sellerNumber} /></div>
       <br/><br/><br/><br/><br/><br/>
       <div className='FooterContainer'>
         <Footer />

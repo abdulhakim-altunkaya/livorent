@@ -2,7 +2,7 @@ import {useState} from 'react';
 import axios from "axios";
 import "../styles/Comment.css";
 
-function Review({ reviewReceiver, refreshReviews }) {
+function Review({ reviewReceiver, refreshReplies }) {
     const [textReview, setTextReview] = useState("");
     const [reviewerName, setReviewerName] = useState("") 
     const [isSaving, setIsSaving] = useState(false);
@@ -59,7 +59,7 @@ function Review({ reviewReceiver, refreshReviews }) {
                 headers: {Authorization: `Bearer ${token}`}
             });
             setTextReview(res1?.data?.resMessage);
-            //refreshReviews();
+            refreshReplies();
         } catch (error) {
             const code = error.response?.data?.resErrorCode; //"response" is a keyword/field name of error object.
             if (code === 1) {

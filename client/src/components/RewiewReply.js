@@ -2,13 +2,11 @@ import {useState} from 'react';
 import axios from "axios";
 import "../styles/CommentReply.css";
 
-
-function RewiewReply({ commentReceiver, cancelReply, parentId, refreshReplies }) {
+function RewiewReply({ reviewReceiver, cancelReply, parentId, refreshReplies }) {
     const [inputName, setInputName] = useState("");
     const [inputReply, setInputReply] = useState("");
     const [isSaving, setIsSaving] = useState(false);
     const [errorText, setErrorText] = useState("");
-    
 
     const saveReply = async () => {
         if (isSaving) return; //prevent double submissions
@@ -38,11 +36,11 @@ function RewiewReply({ commentReceiver, cancelReply, parentId, refreshReplies })
                 replyText: trimmedReply,
                 replyToken: token,
                 replierNum: visitorNumber,
-                replyReceiverNum: commentReceiver, //the item which receives comments and replies
+                replyReceiverNum: reviewReceiver, //the item which receives comments and replies
                 replierName: trimmedName,
-                repliedCommentId: parentId //the comment which receives the reply
+                repliedReviewId: parentId //the review which receives the reply
             };
-            const res1 = await axios.post("http://localhost:5000/api/post/save-reply", replyObject, {
+            const res1 = await axios.post("http://localhost:5000/api/post/save-review-reply", replyObject, {
                 headers: {Authorization: `Bearer ${token}`}
             });
             setInputReply(res1.data.resMessage); 
@@ -76,7 +74,7 @@ function RewiewReply({ commentReceiver, cancelReply, parentId, refreshReplies })
             <div className='replyArea'>
                 <input className='replyInputName' type='text' placeholder='vārds' value={inputName}
                     onChange={ (e) => setInputName(e.target.value)}/>
-                <textarea  className='replyInputText' placeholder="Comment or Question" value={inputReply}
+                <textarea  className='replyInputText' placeholder="Comment" value={inputReply}
                     onChange={ (e) => setInputReply(e.target.value)}/>
                 <div>
                     <button className='replyButtonChild' onClick={saveReply} disabled={isSaving} >
