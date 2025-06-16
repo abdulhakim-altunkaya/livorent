@@ -4,7 +4,7 @@ import "../styles/CommentDisplay.css";
 import ReviewReply from "./ReviewReply.js";
 import Review from "./Review.js";
 
-function ReviewDisplay({ reviewReceiver, handleRating }) {
+function ReviewDisplay({ reviewReceiver, handleRating, handleRaters }) {
 
     const [reviews, setReviews] = useState([]);
     const [replies, setReplies] = useState([]);
@@ -27,6 +27,7 @@ function ReviewDisplay({ reviewReceiver, handleRating }) {
             }
             let averageRating = (totalRating/fetchedRatings.length).toFixed(1);
             handleRating(averageRating);
+            handleRaters(fetchedRatings.length);
             
         } catch (error) {
             console.log(error.message);

@@ -33,7 +33,8 @@ function BtmSeller() {
   const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState("");
   const token = localStorage.getItem("token_livorent");
-  const [rating, setRating] = useState("4.7");
+  const [rating, setRating] = useState(null);
+  const [raters, setRaters] = useState(null);
 
   useEffect(() => {
     const getData = async () => {
@@ -159,6 +160,9 @@ function BtmSeller() {
   const handleRating = (num) => {
     setRating(num);
   };
+  const handleRaters = (num) => {
+    setRaters(num);
+  }
 
   return (
     <div>
@@ -171,7 +175,21 @@ function BtmSeller() {
             <>
                 <div className='userInfoArea'>
                   <div>Name: <strong>{sellerData.name}</strong> </div>
-                  <div>Rating: <strong><span className="ratingNum">{rating}</span></strong> </div>
+                  <div>
+                    {rating > 0 ?
+                      <>Rating: <strong><span className="ratingNum">{rating}</span></strong></>
+                    :
+                      <span className="raterParent">
+                        <span>Rating:<strong> 0 reviews &nbsp;</strong></span> 
+                        <img src='/svg_smiling.svg' className='reviewSmilingIcon' alt='smiling face'/>
+                      </span>
+                    }
+                    {raters > 0 ?
+                      <span>&nbsp;({raters})</span>
+                    :
+                      <></>
+                    }
+                  </div>
                   <div className='lastDivProfile'>Since: <strong>{sellerData.date}</strong></div>
                   <div>
                     {
@@ -245,7 +263,11 @@ function BtmSeller() {
         }
       </div>
       <br/><br/><br/><br/><br/><br/>
-      <div> <ReviewDisplay reviewReceiver={sellerNumber} handleRating = {handleRating}/></div>
+      <div> 
+        <ReviewDisplay reviewReceiver={sellerNumber} 
+        handleRating = {handleRating}
+        handleRaters = {handleRaters} />
+      </div>
       <br/><br/><br/><br/><br/><br/>
       <div className='FooterContainer'>
         <Footer />

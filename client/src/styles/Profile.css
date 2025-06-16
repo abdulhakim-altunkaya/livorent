@@ -147,6 +147,13 @@
     text-align: center;     /* optional: centers number inside */
     user-select: none;
 }
+.raterParent {
+    display: flex;
+    align-items: center;
+}
+.reviewSmilingIcon {
+    width: 25px;
+}
 
 @media (min-width: 768px) {
   .button-54 {

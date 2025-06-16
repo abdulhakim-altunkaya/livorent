@@ -41,7 +41,7 @@ const authenticateToken = (req, res, next) => {
 const rateLimit = require('express-rate-limit');
 const rateLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute
-  max: 30,             // 30 requests per minute
+  max: 100,             // 100 requests per minute
   message: { myMessage: 'Too many attempts from this visitor' },
   standardHeaders: true, // Return rate limit info in `RateLimit-*` headers
   legacyHeaders: false,  // Disable the `X-RateLimit-*` headers
