@@ -1230,10 +1230,20 @@ app.get("/api/like/get-seller-likes-count/:idSeller1", rateLimiter, blockBannedI
   let client;
   
   if(!idSeller1) {
-    return res.status(404).json({myMessage: "no seller id detected on endpoint route"});
+    return res.status(404).json({
+      responseLikeStatus: false,
+      responseMessage: "no seller id detected on endpoint route",
+      responseErrorCode: 1,
+      responseLikeCount: 0
+    });
   }
   if (sellerId < 1) {
-    return res.status(404).json({myMessage: "seller id is wrong"});
+    return res.status(404).json({
+      responseLikeStatus: false,
+      responseMessage: "seller id is wrong",
+      responseErrorCode: 2,
+      responseLikeCount: 0
+    });
   }
 
   try {
@@ -1242,19 +1252,19 @@ app.get("/api/like/get-seller-likes-count/:idSeller1", rateLimiter, blockBannedI
       `SELECT * FROM livorent_likes_ads_sellers WHERE seller_id = $1`,
       [sellerId]
     );
-    if (result.rows.length < 1) {
-      return res.status(404).json({
-        //Frontend is expecting these reply fields. So even if backend reply is negative,
-        //it should still contain these false and 0 values to prevent errors on the frontend.
+    if (result.rows.length < 1) { 
+      return res.status(200).json({
         responseLikeStatus: false,
+        responseMessage: "No one has liked this seller yet",
+        responseErrorCode: 3,
         responseLikeCount: 0
       });
     }
     if (result.rows[0].voted_clients === null) {
       return res.status(404).json({
-        //Frontend is expecting these reply fields. So even if backend reply is negative,
-        //it should still contain these false and 0 values to prevent errors on the frontend.
         responseLikeStatus: false,
+        responseMessage: "This is a conflict. seller_id and voted_clients can exist only together",
+        responseErrorCode: 4,
         responseLikeCount: 0
       });
     }
@@ -1263,6 +1273,7 @@ app.get("/api/like/get-seller-likes-count/:idSeller1", rateLimiter, blockBannedI
       //TRUE means visitor has already liked and the heart on frontend should be filled.
       return res.status(200).json({
         responseLikeStatus: true,
+        responseMessage: "Visitor has liked before, full heart",
         responseLikeCount: result.rows[0].voted_clients.length
       });
     }
@@ -1270,11 +1281,17 @@ app.get("/api/like/get-seller-likes-count/:idSeller1", rateLimiter, blockBannedI
       //If visitor has not liked yet, we will return a false and liker count data.
       //FALSE means visitor has not liked yet and the heart on frontend should be empty.
       responseLikeStatus: false,
+      responseMessage: "Visitor has not liked this seller yet, empty heart",
       responseLikeCount: result.rows[0].voted_clients.length
     });
   } catch (error) {
     console.error("Database error:", error);
-    return res.status(404).json({myMessage: "Something went wrong while getting like data"})
+    return res.status(404).json({
+      responseLikeStatus: false,
+      responseMessage: "Something went wrong while getting like data",
+      responseErrorCode: 5,
+      responseLikeCount: 0
+    })
   } finally {
     if (client) client.release();
   } 

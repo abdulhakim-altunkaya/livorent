@@ -89,11 +89,36 @@ function BtmSeller() {
         if (likeSta === true) {
           setIsLiked(true)
         } else {
-          setIsLiked(false);
+          setIsLiked(false); 
         }
 
       } catch (error) {
-        console.log(error.message);
+        if (error.response && error.response.data) {
+          console.log("Raw error.response.data:", error.response.data);
+
+          // Defensive check in case data is not an object
+          const data = typeof error.response.data === "object" ? error.response.data : {};
+
+          const code = data.responseErrorCode;
+          const message = data.responseMessage || "Unknown backend error";
+
+          if (code === 1) {
+            console.error("Error: Seller ID missing in endpoint route");
+          } else if (code === 2) {
+            console.error("Error: Seller ID is invalid");
+          } else if (code === 3) {
+            console.error("Error: No likes found for this seller");
+          } else if (code === 4) {
+            console.error("Error: Conflict detected between seller_id and voted_clients");
+          } else if (code === 5) {
+            console.error("Error: Database or server issue");
+          } else {
+            console.error(`Error code ${code}: ${message}`);
+          }
+        } else {
+          // No response received or network error
+          console.error("Network or unknown error:", error.message);
+        }
       }
     }
     getData2();
@@ -150,8 +175,6 @@ function BtmSeller() {
         Authorization: `Bearer ${token}`
       }}
       );
-      console.log('LIKE LOGIC 1:', response.data.myMessage);
-      console.log('LIKE LOGIC 2:', response2.data.myMessage);
     } catch (error) {
       console.error('Error saving like:', error);
     }

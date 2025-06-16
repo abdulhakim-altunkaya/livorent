@@ -18,9 +18,6 @@ function CommentDisplay({ commentReceiver }) {
             setComments(fetchedComments);
             const fetchedReplies = fetchedComments.filter(comment => comment.parent !== null);
             setReplies(fetchedReplies);
-            console.log("raw data :", response.data.resData);
-            console.log("fetchedComments:", fetchedComments);  // already correct
-            console.log("fetchedReplies:", fetchedReplies);
         } catch (error) {
             console.log(error.message);
             const code = error?.response?.data?.resErrorCode;
