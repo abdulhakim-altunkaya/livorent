@@ -114,7 +114,6 @@ function Review({ reviewReceiver, refreshReplies }) {
                 <button className='commentSaveBtn' onClick={saveReview} disabled={isSaving} >
                     {isSaving ? "Saglabā..." : "Saglabāt"}
                 </button>
-                {selectedRating}
                 {errorText && <div className="commentError">{errorText}</div>}
             </div>
         </div>

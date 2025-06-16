@@ -50,5 +50,15 @@
         font-size: 13px;
         padding-left: 25px;
     }
+    .ratingNum {
+        border: 2px solid #cfde20;
+        padding: 3px;
+        margin-right: 15px;
+        border-radius: 3px;
+        min-width: 40px;
+        display: inline-block; /* <-- this is key */
+        text-align: center;     /* optional: centers number inside */
+        user-select: none;
+    }
 
 }

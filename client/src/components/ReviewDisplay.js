@@ -4,7 +4,7 @@ import "../styles/CommentDisplay.css";
 import ReviewReply from "./ReviewReply.js";
 import Review from "./Review.js";
 
-function ReviewDisplay({ reviewReceiver }) {
+function ReviewDisplay({ reviewReceiver, handleRating }) {
 
     const [reviews, setReviews] = useState([]);
     const [replies, setReplies] = useState([]);
@@ -18,6 +18,16 @@ function ReviewDisplay({ reviewReceiver }) {
             setReviews(fetchedReviews);
             const fetchedReplies = fetchedReviews.filter(rew => rew.parent !== null);
             setReplies(fetchedReplies);
+
+            // FINDING AVERAGE OF RATINGS: Filter out replies (optional, if only top-level reviews should be counted)
+            const fetchedRatings = fetchedReviews.filter(r => r.parent === null).map(r => Number(r.rating));
+            let totalRating = 0;
+            for (let i = 0; i < fetchedRatings.length; i++) {
+                totalRating += fetchedRatings[i];
+            }
+            let averageRating = (totalRating/fetchedRatings.length).toFixed(1);
+            handleRating(averageRating);
+            
         } catch (error) {
             console.log(error.message);
             const code = error?.response?.data?.resErrorCode;
@@ -53,7 +63,11 @@ function ReviewDisplay({ reviewReceiver }) {
 
                     <div key={index} className="commentItem">
                             <div className='commentTop'>
-                                <span className='commentorName'>{rew.reviewer_name}</span>
+                                <span className='commentorName'>
+                                    
+                                    <span className="ratingNum">{rew.rating}.0</span>
+                                    <span>{rew.reviewer_name}</span>
+                                </span>
                                 <span className='commentDate'>{rew.date}</span>
                             </div>
                             <div className='commentText'>

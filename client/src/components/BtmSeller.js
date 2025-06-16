@@ -156,6 +156,9 @@ function BtmSeller() {
     }
   };
   
+  const handleRating = (num) => {
+    setRating(num);
+  };
 
   return (
     <div>
@@ -168,7 +171,7 @@ function BtmSeller() {
             <>
                 <div className='userInfoArea'>
                   <div>Name: <strong>{sellerData.name}</strong> </div>
-                  <div>Rating: <strong>{rating}</strong> </div>
+                  <div>Rating: <strong><span className="ratingNum">{rating}</span></strong> </div>
                   <div className='lastDivProfile'>Since: <strong>{sellerData.date}</strong></div>
                   <div>
                     {
@@ -242,7 +245,7 @@ function BtmSeller() {
         }
       </div>
       <br/><br/><br/><br/><br/><br/>
-      <div> <ReviewDisplay reviewReceiver={sellerNumber} /></div>
+      <div> <ReviewDisplay reviewReceiver={sellerNumber} handleRating = {handleRating}/></div>
       <br/><br/><br/><br/><br/><br/>
       <div className='FooterContainer'>
         <Footer />
