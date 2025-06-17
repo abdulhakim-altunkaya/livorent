@@ -5,7 +5,7 @@ import "../styles/Like.css";
 import useUserStore from '../store/userStore';
 import { getUserId } from './utilsAuth'; 
 
-function BtmLike({ sellerOrItemId }) {
+function BtmLikeSeller({ sellerId }) {
     //1.visitor id from utilsAuth
     const userIdData = getUserId(); // This returns an object { userNumber }
     const userId = userIdData.userNumber; // Get the actual number
@@ -19,55 +19,45 @@ function BtmLike({ sellerOrItemId }) {
     const { cachedUserData } = useUserStore.getState();
     const visitorNumberCached = cachedUserData.id;
 
+    const token = localStorage.getItem("token_livorent");
     const navigate = useNavigate();
 
-    const [hasLiked, setHasLiked] = useState(true);
+    const [hasLiked, setHasLiked] = useState(false);
     const [isLikeAllowed, setIsLikeAllowed] = useState(true);
     const [likeCount, setLikeCount] = useState(0);
     const [likeNum, setLikeNum] = useState(null);
     const [likeState, setLikeState] = useState(false);
     const [likeMessage, setLikeMessage] = useState("");
-/*
-    const getData = async () => {
+
+    const handleLike = async () => {
+      if (visitorNumberFromStorage < 1) {
+        setIsLikeAllowed(false);
+        return;
+      }
+      //only people who are registered can like or unlike
+      const newHasLiked = !hasLiked;
+      setHasLiked(newHasLiked);
+      if (newHasLiked) {
+        setLikeCount((prev) => prev + 1); // you're liking now
+      } else {
+        setLikeCount((prev) => Math.max(0, prev - 1)); // you're unliking
+      }
+      
+    }
+
+    const saveLike = async () => {
       try {
-        //we will check the total number of likes for that seller or item. 
-        //Also we will check if user is inside like likers array. That is why we are sending it also. 
-        const response = await axios.get(`http://localhost:5000/api/get/likes/seller/${sellerOrItemId}`, {
-          params: { visitor: visitorId }
+        const likeObject = { 
+            likerId: visitorNumberFromStorage,
+            likedSeller: sellerId,
+            likeStatus: hasLiked, 
+        };
+        const res1 = await axios.post("http://localhost:5000/api/post/save-like-seller", likeObject, {
+            headers: {Authorization: `Bearer ${token}`}
         });
-        setLikeNum(Number(response.data.resLikeCount));
-        setLikeState(response.data.resLikeStatus);
-        setLikeMessage(response.data.resMessage);
       } catch (error) {
         console.log(error.message);
       }
-    }
-
-    useEffect(() => {
-        getData();
-    }, [sellerOrItemId])
-
- */ 
-    const getVisitorId = () => {
-      if (visitorNumberFromStorage < 1) {
-        setIsLikeAllowed(false);
-      } else {
-        setIsLikeAllowed(true);
-      }
-    }  
-    
-    const handleLike = () => {
-      getVisitorId();
-      //only people who are registered can like or unlike
-      if (isLikeAllowed === false) {
-        return;
-      }
-      setHasLiked(!hasLiked);
-    }
-    const saveLike = async () => {
-      console.log(likeNum);
-      console.log(likeState);
-      console.log(likeMessage);
     }
 
     return (
@@ -93,33 +83,31 @@ function BtmLike({ sellerOrItemId }) {
                     <span onClick={() => navigate("/registration")}> reģistrēties</span>.
                 </div>
             }
-            <span>{userId}</span> <br/>
-            <span>{visitorNumberFromStorage}</span>  <br/>
-            <span>{visitorNumberCached}</span>  
         </div>
     )
 }
 
-export default BtmLike;
+export default BtmLikeSeller;
 
 /*
-            {
-                isLikeAllowed ?
-                    <></>
-                :
-                <div className="noUserBtmUpload">
-                    Lai atzīmētu ar "patīk", jābūt reģistrētam.
-                    <span onClick={() => navigate("/login")}> Ieiet</span> vai 
-                    <span onClick={() => navigate("/registration")}> reģistrēties</span>.
-                </div>
-            }
+    const getData = async () => {
+      try {
+        //we will check the total number of likes for that seller or item. 
+        //Also we will check if user is inside like likers array. That is why we are sending it also. 
+        const response = await axios.get(`http://localhost:5000/api/get/likes/seller/${sellerOrItemId}`, {
+          params: { visitor: visitorId }
+        });
+        setLikeNum(Number(response.data.resLikeCount));
+        setLikeState(response.data.resLikeStatus);
+        setLikeMessage(response.data.resMessage);
+      } catch (error) {
+        console.log(error.message);
+      }
+    }
 
-  //we will check zustand store to see if there is any user data in it. If there is
-  //then no need to make repetitive requests to backend.
-  //We will use cachedUserData to let the visitor to leave a like. Only registered people can like.
-  const { cachedUserData } = useUserStore.getState();
-  
-    const token = localStorage.getItem("token_livorent");
+    useEffect(() => {
+        getData();
+    }, [sellerOrItemId])
 
   const debounceTimer = useRef(null);//we will use this to force wait time on like clicks
   const [resultArea, setResultArea] = useState("");

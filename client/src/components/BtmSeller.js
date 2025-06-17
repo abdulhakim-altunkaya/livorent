@@ -7,7 +7,7 @@ import axios from 'axios';
 import "../styles/Profile.css";
 import Footer from "./Footer.js";
 import ReviewDisplay from "./ReviewDisplay.js";
-import BtmLike from "./BtmLike.js";
+import BtmLikeSeller from "./BtmLikeSeller.js";
 import { useParams, useNavigate } from "react-router-dom";
 import useUserStore from '../store/userStore';
 
@@ -89,7 +89,7 @@ function BtmSeller() {
                     }
                   </div>
                   <div className='lastDivProfile'>Since: <strong>{sellerData.date}</strong></div>
-                  <BtmLike sellerOrItemId={sellerNumber}  />
+                  <BtmLikeSeller sellerId={sellerNumber}  />
                 </div>
 
               {message && message.length > 0  ? (
