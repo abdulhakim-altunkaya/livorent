@@ -1,0 +1,17 @@
+
+@media (min-width: 768px) {
+    .heartIcon {
+        width: 35px;
+        cursor: pointer;
+    }
+    .likeArea {
+        display: flex;
+        align-items: center; /* vertical alignment */
+        gap: 8px; /* horizontal spacing between items */
+    }
+}
+
+
+@media (max-width: 767px) {
+
+}
