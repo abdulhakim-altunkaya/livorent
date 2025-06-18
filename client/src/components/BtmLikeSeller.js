@@ -29,6 +29,9 @@ function BtmLikeSeller({ sellerId }) {
     const [likeState, setLikeState] = useState(false);
     const [likeMessage, setLikeMessage] = useState("");
 
+    const timeoutRef = useRef(null); // to store debounce timer
+    const latestLikeStatus = useRef(hasLiked); // to store the latest like state
+
     const handleLike = async () => {
       if (visitorNumberFromStorage < 1) {
         setIsLikeAllowed(false);
@@ -37,24 +40,34 @@ function BtmLikeSeller({ sellerId }) {
       //only people who are registered can like or unlike
       const newHasLiked = !hasLiked;
       setHasLiked(newHasLiked);
-      if (newHasLiked) {
+      latestLikeStatus.current = newHasLiked; // ✅ Update latest value
+
+      if (newHasLiked) {//we cannot check hasLiked state update takes a little time
         setLikeCount((prev) => prev + 1); // you're liking now
       } else {
         setLikeCount((prev) => Math.max(0, prev - 1)); // you're unliking
       }
-      
+
+      // We will let the user to click heart icon many times before triggering
+      //saveLike function with the last like value
+      clearTimeout(timeoutRef.current); // cancel the earlier scheduled saveLike
+      // Set new timeout to call saveLike after 10 seconds
+      timeoutRef.current = setTimeout(() => {
+        saveLike(latestLikeStatus.current);
+      }, 5000);
     }
 
-    const saveLike = async () => {
+    const saveLike = async (likeSta) => {
       try {
         const likeObject = { 
             likerId: visitorNumberFromStorage,
             likedSeller: sellerId,
-            likeStatus: hasLiked, 
+            likeStatus: likeSta, 
         };
         const res1 = await axios.post("http://localhost:5000/api/post/save-like-seller", likeObject, {
             headers: {Authorization: `Bearer ${token}`}
         });
+        
       } catch (error) {
         console.log(error.message);
       }

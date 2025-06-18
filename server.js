@@ -1864,6 +1864,57 @@ app.get("/api/get/reviews/:reviewReceiver", rateLimiter, blockBannedIPs, async (
     if(client) client.release();
   } 
 });
+app.post("/api/post/save-like-seller", authenticateToken, rateLimiter, blockBannedIPs, async (req, res) => {
+  //preventing spam likes
+  const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
+
+  let client;
+  const { likerId, likedSeller, likeStatus } = req.body;
+  const likedSeller2 = Number(likedSeller);
+  const likerId2 = Number(likerId);
+  
+  // === Simple input validations ===
+  if (!likerId || !likedSeller || !likeStatus) {
+    return res.status(400).json({
+      resStatus: false,
+      resMessage: "One of like data is missing",
+      resErrorCode: 1
+    });
+  }
+  if (likerId2 < 1 || !likedSeller2 < 1 ) {
+    return res.status(400).json({
+      resStatus: false,
+      resMessage: "Invalid seller or liker id",
+      resErrorCode: 2
+    });
+  }
+
+  try {
+    client = await pool.connect();
+    const result = await client.query(
+      `INSERT INTO livorent_likes (review_text, date, reviewer_name, reviewer_id, receiver, parent) 
+        VALUES ($1, $2, $3, $4, $5, $6)`,
+        [replyText, replyDate, replierName, replierNum2, replyReceiverNum2, repliedReviewId2 ]
+    );
+    return res.status(200).json({ 
+      resStatus: true,
+      resMessage: "Reply saved successfully.",
+      resVisitor: replierNum2,
+      resReceiverItem: replyReceiverNum2,
+      resReceiverComment: repliedReviewId2,
+      resErrorCode: 0,
+    });
+  } catch (error) {
+    console.log(error.message);
+    return res.status(500).json({ 
+      resStatus: false,
+      resMessage: "Connection to DB failed",
+      resErrorCode: 1,
+    });
+  } finally {
+    if (client) client.release();
+  }
+})
 //This line must be under all server routes. Otherwise you will have like not being able to fetch comments etc.
 //This code helps with managing routes that are not defined on react frontend. If you dont add, only index 
 //route will be visible.
