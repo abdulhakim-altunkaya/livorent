@@ -1882,19 +1882,64 @@ app.post("/api/post/save-like-seller", authenticateToken, rateLimiter, blockBann
     });
   }
   if (likerId2 < 1 || !likedSeller2 < 1 ) {
-    return res.status(400).json({
+    return res.status(400).json({ 
       resStatus: false,
       resMessage: "Invalid seller or liker id",
       resErrorCode: 2
     });
   }
+  client = await pool.connect();
+  const resultGet = await client.query(`SELECT * FROM livorent_likes WHERE seller_id = $1`, [likedSeller2]);
+  const existingSeller = result.rows[0];
+  let existingLike = false;//default is false to prevent errors in case if statement below fails to update its value.
+  let existingArray = [];//default is empty to prevent errors if statement below fails to update its value. 
+  if (existingSeller) {
+    // 1) if likers is already a JS array then we can use it as it is. 
+    //If not, we need to convert/parse it to JS array.
+    //2) NULL check below is only an extra step to prevent errors. 
+    if (existingSeller.likers === null) {
+      existingArray = [];
+    } else {
+      existingArray = Array.isArray(existingSeller.likers)
+      ? existingSeller.likers
+      : JSON.parse(existingSeller.likers);
+    }
+    existingLike = existingArray.includes(likerId);
+  }
+
 
   try {
-    client = await pool.connect();
-    const result = await client.query(
-      `INSERT INTO livorent_likes (review_text, date, reviewer_name, reviewer_id, receiver, parent) 
+    //1. Seller exists, User likes - add user in empty likers array
+    //2. Seller exists, User unlikes - remove user from likers array
+    //3. Seller does not exist, User likes - add saver to seller_id and add user in empty likers array
+    //4. Seller does not exist, User unlikes - nothing to do.
+
+    //1. existingLike===true means, seller exists and user has liked seller before. 
+    //And if likeStatus is also true, that means a repetition. So, we can return without doing anything.
+    if (existingLike && likeStatus) {
+      return res.status(200).json({ 
+        resStatus: false,
+        resMessage: "User has liked before.",
+        resErrorCode: 0
+      });
+    }
+
+    //2. existingLike===true means, seller exists and user has liked seller before. 
+    //And if likeStatus is false, that means we need to remove user from likers array.
+    if (existingLike && likeStatus === false) {
+      
+    }
+
+    //3. existingSeller means user exists. existingLike===false means user is not in the likers array. 
+    //And if likeStatus is false, that means we need to remove user from likers array.
+    if (existingSeller && existingLike === false && likeStatus === false) {
+      
+    }
+
+    const resultPost = await client.query(
+      `INSERT INTO livorent_likes () 
         VALUES ($1, $2, $3, $4, $5, $6)`,
-        [replyText, replyDate, replierName, replierNum2, replyReceiverNum2, repliedReviewId2 ]
+        [replyText, replyDate, replierName ]
     );
     return res.status(200).json({ 
       resStatus: true,
