@@ -32,6 +32,21 @@ function BtmLikeSeller({ sellerId }) {
     const timeoutRef = useRef(null); // to store debounce timer
     const latestLikeStatus = useRef(hasLiked); // to store the latest like state
 
+    const getLikeData = async () => {
+      try {
+        const res2 = await axios.get(`http://localhost:5000/api/get/like-seller/${sellerId}`, {
+          params: { visitorId: visitorNumberFromStorage }
+        });
+      } catch (error) {
+        
+      }
+    }
+
+    useEffect(() => {
+      getLikeData();
+    }, [sellerId]);
+    
+
     const handleLike = async () => {
       if (visitorNumberFromStorage < 1) {
         setIsLikeAllowed(false);

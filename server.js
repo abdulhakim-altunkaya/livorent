@@ -1864,6 +1864,79 @@ app.get("/api/get/reviews/:reviewReceiver", rateLimiter, blockBannedIPs, async (
     if(client) client.release();
   } 
 });
+app.get("/api/get/like-seller/:sellerId", rateLimiter, blockBannedIPs, async (req, res) => {
+
+  const { sellerId } = req.params;
+  const sellerId2 = Number(idSeller1);
+  const visitorId2 = req.query.visitorId;
+  const visitorId3 = Number(visitorId2);
+
+  let client;
+  
+  if(!sellerId2) {
+    return res.status(404).json({
+      resMessage: "no seller id detected on endpoint route",
+      resLikeCount: 0,
+      resVisitorIncluded: false,
+      resErrorCode: 1
+    });
+  }
+  if (sellerId2 < 1) {
+    return res.status(404).json({
+      resMessage: "seller id is wrong",
+      resLikeCount: 0,
+      resVisitorIncluded: false,
+      resErrorCode: 2
+    });
+  }
+
+  try {
+    client = await pool.connect();
+    const result = await client.query(
+      `SELECT * FROM livorent_likes WHERE seller_id = $1`,
+      [sellerId2]
+    );
+    if (result.rows.length < 1) { 
+      //Seller does not exists. It means seller has not received any like.
+      //The heart should be empty.
+      return res.status(200).json({
+        resMessage: "No one has liked this seller yet",
+        resLikeCount: 0,
+        resVisitorIncluded: false,
+        resOkCode: 1
+      });
+    }
+
+    if (result.rows[0].likers.includes(visitorId3)) {
+      //Seller exists, and there is likers array. And visitor is also in the array.
+      //Return true and liker array length and the heart should be filled.
+      return res.status(200).json({
+        resMessage: "Visitor has liked before, full heart",
+        resLikeCount: result.rows[0].likers.length,
+        resVisitorIncluded: true,
+        resOkCode: 2
+      });
+    }
+    return res.status(200).json({
+      //Seller exists, and there is likers array. But the visitor has not liked yet.
+      //Return false and liker array length and the heart should be empty.
+      resMessage: "Visitor has not liked this seller yet, empty heart",
+      resLikeCount: result.rows[0].likers.length,
+      resVisitorIncluded: false,
+      resOkCode: 3
+    });
+  } catch (error) {
+    console.error("Database error:", error);
+    return res.status(404).json({
+      resMessage: "Something went wrong while getting like data",
+      resLikeCount: 0,
+      resVisitorIncluded: false,
+      resErrorCode: 4
+    })
+  } finally {
+    if (client) client.release();
+  } 
+})
 app.post("/api/post/save-like-seller", authenticateToken, rateLimiter, blockBannedIPs, async (req, res) => {
   //preventing spam likes
   const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
