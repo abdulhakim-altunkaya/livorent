@@ -35,7 +35,7 @@ function BtmLikeSeller({ sellerId }) {
     //variables to send data to post-like api endpoint. 
     const [databaseLike, setDatabaseLike] = useState(false);
     const [databaseCount, setDatabaseCount] = useState(0);
-    const [databaseIsFirstLike, setIsFirstLike] = useState(true);
+    const [databaseIsFirstLike, setIsFirstLike] = useState(false);
 
     const getLikeData = async () => {
       try {
@@ -106,9 +106,11 @@ function BtmLikeSeller({ sellerId }) {
       try {
         const likeObject = { 
             likerId: visitorNumberFromStorage,
-            likedSeller: sellerId,
-            likeStatus: likeSta, 
-            likeIsFirst: databaseIsFirstLike
+            likedSeller: Number(sellerId),
+            likeOldStatus: databaseLike,
+            likeNewStatus: likeSta, 
+            likeIsFirst: databaseIsFirstLike,
+            likersArrayLength: Number(databaseCount)
         };
         const res1 = await axios.post("http://localhost:5000/api/post/save-like-seller", likeObject, {
             headers: {Authorization: `Bearer ${token}`}
@@ -148,172 +150,3 @@ function BtmLikeSeller({ sellerId }) {
 
 export default BtmLikeSeller;
 
-/*
-    const getData = async () => {
-      try {
-        //we will check the total number of likes for that seller or item. 
-        //Also we will check if user is inside like likers array. That is why we are sending it also. 
-        const response = await axios.get(`http://localhost:5000/api/get/likes/seller/${sellerOrItemId}`, {
-          params: { visitor: visitorId }
-        });
-        setLikeNum(Number(response.data.resLikeCount));
-        setLikeState(response.data.resLikeStatus);
-        setLikeMessage(response.data.resMessage);
-      } catch (error) {
-        console.log(error.message);
-      }
-    }
-
-    useEffect(() => {
-        getData();
-    }, [sellerOrItemId])
-
-  const debounceTimer = useRef(null);//we will use this to force wait time on like clicks
-  const [resultArea, setResultArea] = useState("");
-  const [isLikeAllowed, setIsLikeAllowed] = useState(true);
-  const [isLiked, setIsLiked] = useState(false);
-  const [likeCount, setLikeCount] = useState("");
-
-  useEffect(() => {
-    const getData2 = async () => {
-      //we will get the total number of likes and if user has liked before or not. If liked, heart will be filled.
-      //we will send seller id in req.params and visitor id in req.query
-      //we cannot use req.body because req.body can only be used with axios.post requests
-      //backend will check if the visitor has liked the seller.
-      //If visitor has liked, it will return a TRUE and like count value.
-      if (!cachedUserData || !cachedUserData.id) {
-        setIsLiked(false); // not logged in
-      }
-      const visitorId = cachedUserData?.id || 0; //we are sending at least a 0 to prevent crashes if no login
-
-      try {
-        const response = await axios.get(`http://localhost:5000/api/like/get-seller-likes-count/${sellerNumber}`, {
-          params: { visitor: visitorId }
-        });
-        
-        const likeNum = Number(response.data.responseLikeCount);
-        const likeSta = response.data.responseLikeStatus;
-
-        if (likeNum > 0) {
-          setLikeCount(likeNum); 
-        }
-        if (likeSta === true) {
-          setIsLiked(true)
-        } else {
-          setIsLiked(false); 
-        }
-
-      } catch (error) {
-        if (error.response && error.response.data) {
-          console.log("Raw error.response.data:", error.response.data);
-
-          // Defensive check in case data is not an object
-          const data = typeof error.response.data === "object" ? error.response.data : {};
-
-          const code = data.responseErrorCode;
-          const message = data.responseMessage || "Unknown backend error";
-
-          if (code === 1) {
-            console.error("Error: Seller ID missing in endpoint route");
-          } else if (code === 2) {
-            console.error("Error: Seller ID is invalid");
-          } else if (code === 3) {
-            console.error("Error: No likes found for this seller");
-          } else if (code === 4) {
-            console.error("Error: Conflict detected between seller_id and voted_clients");
-          } else if (code === 5) {
-            console.error("Error: Database or server issue");
-          } else {
-            console.error(`Error code ${code}: ${message}`);
-          }
-        } else {
-          // No response received or network error
-          console.error("Network or unknown error:", error.message);
-        }
-      }
-    }
-    getData2();
-  }, [sellerNumber]);
-  
-
-  const handleLike = () => {
-    // Check if visitor is logged in
-    if (!cachedUserData || !cachedUserData.id) {
-      alert("To leave a like, you need to login");
-      setIsLikeAllowed(!isLikeAllowed)
-      return;
-    }
-    const newLikeState = !isLiked; // this is the actual updated state
-    if (newLikeState === true) {
-      setLikeCount(likeCount+1);
-    } else if (newLikeState === false) {
-      setLikeCount(likeCount-1);
-    }
-    setIsLiked(newLikeState);
-    // Clear previous timeout if it exists
-    if (debounceTimer.current) {
-      clearTimeout(debounceTimer.current);
-    }
-    // Set a new debounce timer
-    debounceTimer.current = setTimeout(() => {
-      saveLike(newLikeState);
-    }, 5000); // delay in milliseconds (5s here)
-  };
-  const saveLike = async (likeState) => {
-
-    try {
-      console.log('Like after 10 seconds:', likeState);
-      if (cachedSellerData?.id === cachedUserData?.id) {
-        console.log("No self like");
-        return; 
-      }
-      const response = await axios.post('http://localhost:5000/api/like/sellers', 
-        {likeStatus: likeState,
-        likedId: cachedSellerData?.id,//in BtmItem component this will be cachedItemData.id
-        userId: cachedUserData?.id
-        },
-        {headers: {
-          Authorization: `Bearer ${token}`
-        }}
-      );
-      await new Promise(resolve => setTimeout(resolve, 1100));
-      const response2 = await axios.post('http://localhost:5000/api/like/seller-to-users', 
-      {likeStatus: likeState,
-      likedId: sellerData?.id,
-      userId: cachedUserData?.id
-      },
-      {headers: {
-        Authorization: `Bearer ${token}`
-      }}
-      );
-    } catch (error) {
-      console.error('Error saving like:', error);
-    }
-  };
-  
-                    <div>
-                    {
-                      isLiked ?
-                        <div className='likeArea'>
-                          <img className='heartIcon' onClick={handleLike} src='/svg_heart_filled.svg' alt='full heart'/> 
-                          <span>{likeCount}</span>              
-                        </div>
-                      :
-                        <div className='likeArea'>
-                          <img className='heartIcon' onClick={handleLike} src='/svg_heart.svg' alt='empty heart'/> 
-                          <span>{likeCount}</span>              
-                        </div>
-                    }
-                    {
-                      isLikeAllowed ?
-                        <></>
-                      :
-                      <div className="noUserBtmUpload">
-                        Lai atzīmētu ar "patīk", jābūt reģistrētam.
-                        <span onClick={() => navigate("/login")}> Ieiet</span> vai 
-                        <span onClick={() => navigate("/registration")}> reģistrēties</span>.
-                      </div>
-                    }
-                  </div>
-                  
-*/
