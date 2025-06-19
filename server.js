@@ -1867,7 +1867,7 @@ app.get("/api/get/reviews/:reviewReceiver", rateLimiter, blockBannedIPs, async (
 app.get("/api/get/like-seller/:sellerId", rateLimiter, blockBannedIPs, async (req, res) => {
 
   const { sellerId } = req.params;
-  const sellerId2 = Number(idSeller1);
+  const sellerId2 = Number(sellerId);
   const visitorId2 = req.query.visitorId;
   const visitorId3 = Number(visitorId2);
 
@@ -1897,8 +1897,8 @@ app.get("/api/get/like-seller/:sellerId", rateLimiter, blockBannedIPs, async (re
       [sellerId2]
     );
     if (result.rows.length < 1) { 
-      //Seller does not exists. It means seller has not received any like.
-      //The heart should be empty.
+      //Seller does not exists. It means seller has not received any like yet.
+      //But we are sending ok message because visitor can leave a first like for the seller. The heart should be empty.
       return res.status(200).json({
         resMessage: "No one has liked this seller yet",
         resLikeCount: 0,
@@ -1931,7 +1931,7 @@ app.get("/api/get/like-seller/:sellerId", rateLimiter, blockBannedIPs, async (re
       resMessage: "Something went wrong while getting like data",
       resLikeCount: 0,
       resVisitorIncluded: false,
-      resErrorCode: 4
+      resErrorCode: 3
     })
   } finally {
     if (client) client.release();

@@ -25,18 +25,47 @@ function BtmLikeSeller({ sellerId }) {
     const [hasLiked, setHasLiked] = useState(false);
     const [isLikeAllowed, setIsLikeAllowed] = useState(true);
     const [likeCount, setLikeCount] = useState(0);
-    const [likeNum, setLikeNum] = useState(null);
     const [likeState, setLikeState] = useState(false);
     const [likeMessage, setLikeMessage] = useState("");
 
     const timeoutRef = useRef(null); // to store debounce timer
     const latestLikeStatus = useRef(hasLiked); // to store the latest like state
 
+    //these state variables will be updated with get-like api endpoint. We will then use the updated
+    //variables to send data to post-like api endpoint. 
+    const [databaseLike, setDatabaseLike] = useState(false);
+    const [databaseCount, setDatabaseCount] = useState(0);
+    const [databaseIsFirstLike, setIsFirstLike] = useState(true);
+
     const getLikeData = async () => {
       try {
         const res2 = await axios.get(`http://localhost:5000/api/get/like-seller/${sellerId}`, {
           params: { visitorId: visitorNumberFromStorage }
-        });
+        }); 
+        if (res2.data.resOkCode === 1) {
+          // No one has liked this seller yet
+          setDatabaseLike(res2.data.resVisitorIncluded);//this will be false, empty heart
+          setDatabaseCount(0);
+          setIsFirstLike(true);
+        } else if (res2.data.resOkCode === 2) {
+          // Visitor has liked before, full heart
+          setDatabaseLike(res2.data.resVisitorIncluded);//this will be true, full heart
+          setDatabaseCount(res2.data.resLikeCount);
+          setIsFirstLike(false);
+        } else if (res2.data.resOkCode === 3) {
+          // Visitor has not liked yet, seller has some likes
+          setDatabaseLike(res2.data.resVisitorIncluded);//this will be false, empty heart
+          setDatabaseCount(res2.data.resLikeCount);
+          setIsFirstLike(false);
+        } else {
+          // Unexpected but successful response
+          console.warn("Unhandled response code", res2.data);
+        }
+        setLikeCount(databaseCount);
+        setLikeState(databaseLike)
+        console.log("db like: ", databaseLike);
+        console.log("db count: ", databaseCount);
+        console.log("db is first like: ", databaseIsFirstLike);
       } catch (error) {
         
       }
@@ -44,6 +73,7 @@ function BtmLikeSeller({ sellerId }) {
 
     useEffect(() => {
       getLikeData();
+      
     }, [sellerId]);
     
 
@@ -78,6 +108,7 @@ function BtmLikeSeller({ sellerId }) {
             likerId: visitorNumberFromStorage,
             likedSeller: sellerId,
             likeStatus: likeSta, 
+            likeIsFirst: databaseIsFirstLike
         };
         const res1 = await axios.post("http://localhost:5000/api/post/save-like-seller", likeObject, {
             headers: {Authorization: `Bearer ${token}`}
