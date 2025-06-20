@@ -1963,6 +1963,7 @@ app.post("/api/post/save-like-seller", authenticateToken, rateLimiter, blockBann
   } 
   // === Ok status ===
   try {
+    client = await pool.connect();
     if (likeIsFirst === true && likeNewStatus === false) {
       return res.status(200).json({ 
         resStatus: false,
@@ -1995,12 +1996,37 @@ app.post("/api/post/save-like-seller", authenticateToken, rateLimiter, blockBann
 
 
     if (oldLikeStatus === false && likeNewStatus === true) {
-
-      const newArray = existingArray.filter(likerNum => likerNum !== likerId);
+      const result = await client.query(`SELECT * FROM livorent_likes WHERE seller_id = $1`, [sellerId2]);
+      const existingSeller = result.rows[0];
+      if (!existingSeller) {
+        return res.status(400).json({ 
+          resStatus: false,
+          resMessage: "Invalid seller id",
+          resErrorCode: 3
+        });
+      }
+      let existingLike = false;//default is false to prevent errors in case if statement below fails to update its value.
+      let existingArray = [];//default is empty to prevent errors if statement below fails to update its value.
+      if (existingSeller) {
+        // 1) if likers is already a JS array then we can use it as it is. 
+        //If not, we need to convert/parse it to JS array.
+        //2) NULL check below is only an extra step to prevent errors. 
+        if (existingSeller.likers === null) {
+          existingArray = [];
+        } else {
+          existingArray = Array.isArray(existingSeller.likers)
+          ? existingSeller.likers
+          : JSON.parse(existingSeller.likers);
+        }
+        existingLike = existingArray.includes(likerId2);
+      }
+      if (existingLike === false) {
+        existingArray.push(likerId2);
+      }
       //And we cannot save an array directly in postgresql, we need to stringfy it.
-      const newArray2 = JSON.stringify(newArray);
-      const result = await client.query(`UPDATE livorent_likes_ads_sellers SET voted_clients = $2 WHERE seller_id = $1`,
-        [sellerId, newArray2]);
+      const newArray2 = JSON.stringify(existingArray);
+      const result2 = await client.query(`UPDATE livorent_likes SET likers = $2 WHERE seller_id = $1`,
+        [sellerId2, newArray2]);
       return res.status(200).json({ 
         resStatus: false,
         resMessage: "Visitor has not liked before. Add visitor to likers array",
@@ -2010,12 +2036,36 @@ app.post("/api/post/save-like-seller", authenticateToken, rateLimiter, blockBann
 
 
     if (oldLikeStatus === true && likeNewStatus === false) {
+      const result = await client.query(`SELECT * FROM livorent_likes WHERE seller_id = $1`, [sellerId2]);
+      const existingSeller = result.rows[0];
+      let existingLike = false;//default is false to prevent errors in case if statement below fails to update its value.
+      let existingArray = [];//default is empty to prevent errors if statement below fails to update its value.
+      if (existingSeller) {
+        // 1) if likers is already a JS array then we can use it as it is. 
+        //If not, we need to convert/parse it to JS array.
+        //2) NULL check below is only an extra step to prevent errors. 
+        if (existingSeller.likers === null) {
+          existingArray = [];
+        } else {
+          existingArray = Array.isArray(existingSeller.likers)
+          ? existingSeller.likers
+          : JSON.parse(existingSeller.likers);
+        }
+        existingLike = existingArray.includes(likerId2);
+      }
+      const newArray = existingArray.filter(likerNum => likerNum !== likerId2);
+      //And we cannot save an array directly in postgresql, we need to stringfy it.
+      const newArray2 = JSON.stringify(newArray);
+      const result2 = await client.query(`UPDATE livorent_likes SET likers = $2 WHERE seller_id = $1`,
+        [sellerId2, newArray2]);
       return res.status(200).json({ 
         resStatus: false,
         resMessage: "Visitor has liked before. Remove visitor from likers array",
         resOkCode: 5
       });
     }
+
+
   } catch (error) {
     console.log(error.message);
   } finally {
