@@ -24,8 +24,6 @@ function BtmLikeSeller({ sellerId }) {
 
     const [hasLiked, setHasLiked] = useState(false);
     const [isLikeAllowed, setIsLikeAllowed] = useState(true);
-    const [likeCount, setLikeCount] = useState(0);
-    const [likeState, setLikeState] = useState(false);
     const [likeMessage, setLikeMessage] = useState("");
 
     const timeoutRef = useRef(null); // to store debounce timer
@@ -61,11 +59,6 @@ function BtmLikeSeller({ sellerId }) {
           // Unexpected but successful response
           console.warn("Unhandled response code", res2.data);
         }
-        setLikeCount(databaseCount);
-        setLikeState(databaseLike)
-        console.log("db like: ", databaseLike);
-        console.log("db count: ", databaseCount);
-        console.log("db is first like: ", databaseIsFirstLike);
       } catch (error) {
         
       }
@@ -73,8 +66,11 @@ function BtmLikeSeller({ sellerId }) {
 
     useEffect(() => {
       getLikeData();
-      
     }, [sellerId]);
+
+    useEffect(() => {
+      setHasLiked(databaseLike);
+    }, [databaseLike, databaseCount, databaseIsFirstLike]);
     
 
     const handleLike = async () => {
@@ -88,9 +84,9 @@ function BtmLikeSeller({ sellerId }) {
       latestLikeStatus.current = newHasLiked; // ✅ Update latest value
 
       if (newHasLiked) {//we cannot check hasLiked state update takes a little time
-        setLikeCount((prev) => prev + 1); // you're liking now
+        setDatabaseCount((prev) => prev + 1); // you're liking now
       } else {
-        setLikeCount((prev) => Math.max(0, prev - 1)); // you're unliking
+        setDatabaseCount((prev) => Math.max(0, prev - 1)); // you're unliking
       }
 
       // We will let the user to click heart icon many times before triggering
@@ -126,12 +122,12 @@ function BtmLikeSeller({ sellerId }) {
             {hasLiked ?
               <div className='likeArea'>
                   <img className='heartIcon' onClick={handleLike} src='/svg_heart_filled.svg' alt='full heart'/> 
-                  <span>{likeCount} full heart true hasLiked</span>              
+                  <span>{databaseCount} full heart true hasLiked</span>              
               </div>
               :
               <div className='likeArea'>
                   <img className='heartIcon' onClick={handleLike} src='/svg_heart.svg' alt='empty heart'/> 
-                  <span>{likeCount}empty heart false hasLiked</span>              
+                  <span>{databaseCount}empty heart false hasLiked</span>              
               </div>
             }
             {

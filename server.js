@@ -1891,6 +1891,12 @@ app.get("/api/get/like-seller/:sellerId", rateLimiter, blockBannedIPs, async (re
   }
 
   try {
+    client = await pool.connect();
+    const result = await client.query(
+      `SELECT * FROM livorent_likes WHERE seller_id = $1`,
+      [sellerId2]
+    );
+
     if (result.rows.length < 1) { 
       //Seller does not exist. It means seller has not received any like yet.
       //But we are sending ok message because visitor can leave a first like for the seller. The heart should be empty.
@@ -1902,11 +1908,6 @@ app.get("/api/get/like-seller/:sellerId", rateLimiter, blockBannedIPs, async (re
       });
     }
 
-    client = await pool.connect();
-    const result = await client.query(
-      `SELECT * FROM livorent_likes WHERE seller_id = $1`,
-      [sellerId2]
-    );
     let likers = [];
     try {
       likers = Array.isArray(result.rows[0].likers)
