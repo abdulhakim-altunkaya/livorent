@@ -1891,13 +1891,8 @@ app.get("/api/get/like-seller/:sellerId", rateLimiter, blockBannedIPs, async (re
   }
 
   try {
-    client = await pool.connect();
-    const result = await client.query(
-      `SELECT * FROM livorent_likes WHERE seller_id = $1`,
-      [sellerId2]
-    );
     if (result.rows.length < 1) { 
-      //Seller does not exists. It means seller has not received any like yet.
+      //Seller does not exist. It means seller has not received any like yet.
       //But we are sending ok message because visitor can leave a first like for the seller. The heart should be empty.
       return res.status(200).json({
         resMessage: "No one has liked this seller yet",
@@ -1907,12 +1902,27 @@ app.get("/api/get/like-seller/:sellerId", rateLimiter, blockBannedIPs, async (re
       });
     }
 
-    if (result.rows[0].likers.includes(visitorId3)) {
+    client = await pool.connect();
+    const result = await client.query(
+      `SELECT * FROM livorent_likes WHERE seller_id = $1`,
+      [sellerId2]
+    );
+    let likers = [];
+    try {
+      likers = Array.isArray(result.rows[0].likers)
+        ? result.rows[0].likers
+        : JSON.parse(result.rows[0].likers || "[]");
+    } catch {
+      likers = [];
+    }
+
+
+    if (likers.includes(visitorId3)) {
       //Seller exists, and there is likers array. And visitor is also in the array.
       //Return true and liker array length and the heart should be filled.
       return res.status(200).json({
         resMessage: "Visitor has liked before, full heart",
-        resLikeCount: result.rows[0].likers.length,
+        resLikeCount: likers.length,
         resVisitorIncluded: true,
         resOkCode: 2
       });
@@ -1921,7 +1931,7 @@ app.get("/api/get/like-seller/:sellerId", rateLimiter, blockBannedIPs, async (re
       //Seller exists, and there is likers array. But the visitor has not liked yet.
       //Return false and liker array length and the heart should be empty.
       resMessage: "Visitor has not liked this seller yet, empty heart",
-      resLikeCount: result.rows[0].likers.length,
+      resLikeCount: likers.length,
       resVisitorIncluded: false,
       resOkCode: 3
     });
@@ -1947,14 +1957,14 @@ app.post("/api/post/save-like-seller", authenticateToken, rateLimiter, blockBann
   const likerId2 = Number(likerId);
   
   // === Simple input validations ===
-  if (!likerId || !likedSeller || !likeNewStatus) {
+  if (!likerId || !likedSeller || typeof likeNewStatus !== "boolean") {
     return res.status(400).json({
       resStatus: false,
       resMessage: "One of like data is missing",
       resErrorCode: 1
     });
   }
-  if (likerId2 < 1 || !likedSeller2 < 1 ) {
+  if (likerId2 < 1 || likedSeller2 < 1 ) {
     return res.status(400).json({ 
       resStatus: false,
       resMessage: "Invalid seller or liker id",
@@ -1982,21 +1992,21 @@ app.post("/api/post/save-like-seller", authenticateToken, rateLimiter, blockBann
     if (likeIsFirst === true && likeNewStatus === true) {
       //Everytime we save a like to likers field, we need to make sure we are saving an array not a number.
       //And we cannot save an array directly in postgresql, we need to stringfy it.
-      const newArray = [likedSeller2];
+      const newArray = [likerId2];
       const newArray2 = JSON.stringify(newArray);
       const result = await client.query(`INSERT INTO livorent_likes (seller_id, likers) VALUES ($1, $2)`,
         [likedSeller2, newArray2]
       );
       return res.status(200).json({ 
         resStatus: false,
-        resMessage: "Seller does not exists, create an array and add visitor to empty array",
+        resMessage: "Seller does not exist, create an array and add visitor to empty array",
         resOkCode: 3
       });
     }
 
 
-    if (oldLikeStatus === false && likeNewStatus === true) {
-      const result = await client.query(`SELECT * FROM livorent_likes WHERE seller_id = $1`, [sellerId2]);
+    if (likeOldStatus === false && likeNewStatus === true) {
+      const result = await client.query(`SELECT * FROM livorent_likes WHERE seller_id = $1`, [likedSeller2]);
       const existingSeller = result.rows[0];
       if (!existingSeller) {
         return res.status(400).json({ 
@@ -2026,7 +2036,7 @@ app.post("/api/post/save-like-seller", authenticateToken, rateLimiter, blockBann
       //And we cannot save an array directly in postgresql, we need to stringfy it.
       const newArray2 = JSON.stringify(existingArray);
       const result2 = await client.query(`UPDATE livorent_likes SET likers = $2 WHERE seller_id = $1`,
-        [sellerId2, newArray2]);
+        [likedSeller2, newArray2]);
       return res.status(200).json({ 
         resStatus: false,
         resMessage: "Visitor has not liked before. Add visitor to likers array",
@@ -2035,8 +2045,8 @@ app.post("/api/post/save-like-seller", authenticateToken, rateLimiter, blockBann
     }
 
 
-    if (oldLikeStatus === true && likeNewStatus === false) {
-      const result = await client.query(`SELECT * FROM livorent_likes WHERE seller_id = $1`, [sellerId2]);
+    if (likeOldStatus === true && likeNewStatus === false) {
+      const result = await client.query(`SELECT * FROM livorent_likes WHERE seller_id = $1`, [likedSeller2]);
       const existingSeller = result.rows[0];
       let existingLike = false;//default is false to prevent errors in case if statement below fails to update its value.
       let existingArray = [];//default is empty to prevent errors if statement below fails to update its value.
@@ -2057,7 +2067,7 @@ app.post("/api/post/save-like-seller", authenticateToken, rateLimiter, blockBann
       //And we cannot save an array directly in postgresql, we need to stringfy it.
       const newArray2 = JSON.stringify(newArray);
       const result2 = await client.query(`UPDATE livorent_likes SET likers = $2 WHERE seller_id = $1`,
-        [sellerId2, newArray2]);
+        [likedSeller2, newArray2]);
       return res.status(200).json({ 
         resStatus: false,
         resMessage: "Visitor has liked before. Remove visitor from likers array",
@@ -2067,7 +2077,11 @@ app.post("/api/post/save-like-seller", authenticateToken, rateLimiter, blockBann
 
 
   } catch (error) {
-    console.log(error.message);
+    return res.status(500).json({
+      resStatus: false,
+      resMessage: "Server error",
+      resErrorCode: 3,
+    });
   } finally {
     if (client) client.release();
   }
