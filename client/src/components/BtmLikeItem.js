@@ -5,7 +5,7 @@ import "../styles/Like.css";
 import useUserStore from '../store/userStore';
 import { getUserId } from './utilsAuth'; 
 
-function BtmLikeSeller({ sellerId }) {
+function BtmLikeItem({ itemId }) {
     //1.visitor id from utilsAuth
     const userIdData = getUserId(); // This returns an object { userNumber }
     const userId = userIdData.userNumber; // Get the actual number
@@ -37,11 +37,11 @@ function BtmLikeSeller({ sellerId }) {
 
     const getLikeData = async () => {
       try {
-        const res2 = await axios.get(`http://localhost:5000/api/get/like-seller/${sellerId}`, {
+        const res2 = await axios.get(`http://localhost:5000/api/get/like-item/${itemId}`, {
           params: { visitorId: visitorNumberFromStorage }
         }); 
         if (res2.data.resOkCode === 1) {
-          // No one has liked this seller yet
+          // No one has liked this item yet
           setDatabaseLike(res2.data.resVisitorIncluded);//this will be false, empty heart
           setDatabaseCount(0);
           setHasLiked(false);
@@ -53,7 +53,7 @@ function BtmLikeSeller({ sellerId }) {
           setHasLiked(true);
           setIsFirstLike(false);
         } else if (res2.data.resOkCode === 3) {
-          // Visitor has not liked yet, seller has some likes
+          // Visitor has not liked yet, item has some likes
           setDatabaseLike(res2.data.resVisitorIncluded);//this will be false, empty heart
           setHasLiked(false);
           setDatabaseCount(res2.data.resLikeCount);
@@ -69,7 +69,7 @@ function BtmLikeSeller({ sellerId }) {
 
     useEffect(() => {
       getLikeData();
-    }, [sellerId]);
+    }, [itemId]);
 
     const handleLike = async () => {
       if (visitorNumberFromStorage < 1) {
@@ -100,13 +100,13 @@ function BtmLikeSeller({ sellerId }) {
       try {
         const likeObject = { 
             likerId: visitorNumberFromStorage,
-            likedSeller: Number(sellerId),
+            likedItem: Number(itemId),
             likeOldStatus: databaseLike,
             likeNewStatus: likeSta, 
             likeIsFirst: databaseIsFirstLike,
             likersArrayLength: Number(databaseCount)
         };
-        const res1 = await axios.post("http://localhost:5000/api/post/save-like-seller", likeObject, {
+        const res1 = await axios.post("http://localhost:5000/api/post/save-like-item", likeObject, {
             headers: {Authorization: `Bearer ${token}`}
         });
         
@@ -142,5 +142,5 @@ function BtmLikeSeller({ sellerId }) {
     )
 }
 
-export default BtmLikeSeller;
+export default BtmLikeItem;
 

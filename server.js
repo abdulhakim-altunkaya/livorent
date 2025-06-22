@@ -1864,6 +1864,89 @@ app.get("/api/get/reviews/:reviewReceiver", rateLimiter, blockBannedIPs, async (
     if(client) client.release();
   } 
 });
+app.get("/api/get/like-item/:itemId", rateLimiter, blockBannedIPs, async (req, res) => {
+
+  const { itemId } = req.params;
+  const itemId2 = Number(itemId);
+  const visitorId2 = req.query.visitorId;
+  const visitorId3 = Number(visitorId2);
+
+  let client;
+  
+  if(!itemId2) {
+    return res.status(404).json({
+      resMessage: "no item id detected on endpoint route",
+      resLikeCount: 0,
+      resVisitorIncluded: false,
+      resErrorCode: 1
+    });
+  }
+  if (itemId2 < 1) {
+    return res.status(404).json({
+      resMessage: "item id is wrong",
+      resLikeCount: 0,
+      resVisitorIncluded: false,
+      resErrorCode: 2
+    });
+  }
+ 
+  try {
+    client = await pool.connect();
+    const result = await client.query(
+      `SELECT * FROM livorent_likes WHERE ad_id = $1`,
+      [itemId2]
+    );
+
+    if (result.rows.length < 1) { 
+      //Item does not exist. It means item has not received any like yet.
+      //But we are sending ok message because visitor can leave a first like for the item. The heart should be empty.
+      return res.status(200).json({
+        resMessage: "No one has liked this item yet",
+        resLikeCount: 0,
+        resVisitorIncluded: false,
+        resOkCode: 1
+      });
+    }
+
+    let likers = [];
+    try {
+      likers = Array.isArray(result.rows[0].likers)
+        ? result.rows[0].likers
+        : JSON.parse(result.rows[0].likers || "[]");
+    } catch {
+      likers = [];
+    }
+
+    if (likers.includes(visitorId3)) {
+      //Item exists, and there is likers array. And visitor is also in the array.
+      //Return true and liker array length and the heart should be filled.
+      return res.status(200).json({
+        resMessage: "Visitor has liked before, full heart",
+        resLikeCount: likers.length,
+        resVisitorIncluded: true,
+        resOkCode: 2
+      });
+    }
+    return res.status(200).json({
+      //Item exists, and there is likers array. But the visitor has not liked yet.
+      //Return false and liker array length and the heart should be empty.
+      resMessage: "Visitor has not liked this item yet, empty heart",
+      resLikeCount: likers.length,
+      resVisitorIncluded: false,
+      resOkCode: 3
+    });
+  } catch (error) {
+    console.error("Database error:", error);
+    return res.status(404).json({
+      resMessage: "Something went wrong while getting like data",
+      resLikeCount: 0,
+      resVisitorIncluded: false,
+      resErrorCode: 3
+    })
+  } finally {
+    if (client) client.release();
+  } 
+});
 app.get("/api/get/like-seller/:sellerId", rateLimiter, blockBannedIPs, async (req, res) => {
 
   const { sellerId } = req.params;
@@ -1889,7 +1972,7 @@ app.get("/api/get/like-seller/:sellerId", rateLimiter, blockBannedIPs, async (re
       resErrorCode: 2
     });
   }
-
+ 
   try {
     client = await pool.connect();
     const result = await client.query(
@@ -2069,6 +2152,145 @@ app.post("/api/post/save-like-seller", authenticateToken, rateLimiter, blockBann
       const newArray2 = JSON.stringify(newArray);
       const result2 = await client.query(`UPDATE livorent_likes SET likers = $2 WHERE seller_id = $1`,
         [likedSeller2, newArray2]);
+      return res.status(200).json({ 
+        resStatus: false,
+        resMessage: "Visitor has liked before. Remove visitor from likers array",
+        resOkCode: 5
+      });
+    }
+
+
+  } catch (error) {
+    return res.status(500).json({
+      resStatus: false,
+      resMessage: "Server error",
+      resErrorCode: 3,
+    });
+  } finally {
+    if (client) client.release();
+  }
+});
+app.post("/api/post/save-like-item", authenticateToken, rateLimiter, blockBannedIPs, async (req, res) => {
+  //preventing spam likes
+  const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
+
+  let client;
+  const { likerId, likedItem, likeOldStatus, likeNewStatus, likeIsFirst, likersArrayLength } = req.body;
+  const likedItem2 = Number(likedItem); 
+  const likerId2 = Number(likerId);
+  
+  // === Simple input validations ===
+  if (!likerId || !likedItem || typeof likeNewStatus !== "boolean") {
+    return res.status(400).json({
+      resStatus: false,
+      resMessage: "One of like data is missing",
+      resErrorCode: 1
+    });
+  }
+  if (likerId2 < 1 || likedItem2 < 1 ) {
+    return res.status(400).json({ 
+      resStatus: false,
+      resMessage: "Invalid item or liker id",
+      resErrorCode: 2
+    });
+  } 
+  // === Ok status ===
+  try {
+    client = await pool.connect();
+    if (likeIsFirst === true && likeNewStatus === false) {
+      return res.status(200).json({ 
+        resStatus: false,
+        resMessage: "Item does not exist, Visitor has sent an unlike, nothing to do here.",
+        resOkCode: 1
+      });
+    }
+    if (likeIsFirst === false && likeOldStatus === likeNewStatus) {
+      return res.status(200).json({ 
+        resStatus: false,
+        resMessage: "Item exists, old and new like status are the same. Nothing changes, nothing to do",
+        resOkCode: 2
+      });
+    }
+
+    if (likeIsFirst === true && likeNewStatus === true) {
+      //Everytime we save a like to likers field, we need to make sure we are saving an array not a number.
+      //And we cannot save an array directly in postgresql, we need to stringfy it.
+      const newArray = [likerId2];
+      const newArray2 = JSON.stringify(newArray);
+      const result = await client.query(`INSERT INTO livorent_likes (ad_id, likers) VALUES ($1, $2)`,
+        [likedItem2, newArray2]
+      );
+      return res.status(200).json({ 
+        resStatus: false,
+        resMessage: "Item does not exist, create an array and add visitor to empty array",
+        resOkCode: 3
+      });
+    }
+
+
+    if (likeOldStatus === false && likeNewStatus === true) {
+      const result = await client.query(`SELECT * FROM livorent_likes WHERE ad_id = $1`, [likedItem2]);
+      const existingItem = result.rows[0];
+      if (!existingItem) {
+        return res.status(400).json({ 
+          resStatus: false,
+          resMessage: "Invalid item id",
+          resErrorCode: 3
+        });
+      }
+      let existingLike = false;//default is false to prevent errors in case if statement below fails to update its value.
+      let existingArray = [];//default is empty to prevent errors if statement below fails to update its value.
+      if (existingItem) {
+        // 1) if likers is already a JS array then we can use it as it is. 
+        //If not, we need to convert/parse it to JS array.
+        //2) NULL check below is only an extra step to prevent errors. 
+        if (existingItem.likers === null) {
+          existingArray = [];
+        } else {
+          existingArray = Array.isArray(existingItem.likers)
+          ? existingItem.likers
+          : JSON.parse(existingItem.likers);
+        }
+        existingLike = existingArray.includes(likerId2);
+      }
+      if (existingLike === false) {
+        existingArray.push(likerId2);
+      }
+      //And we cannot save an array directly in postgresql, we need to stringfy it.
+      const newArray2 = JSON.stringify(existingArray);
+      const result2 = await client.query(`UPDATE livorent_likes SET likers = $2 WHERE ad_id = $1`,
+        [likedItem2, newArray2]);
+      return res.status(200).json({ 
+        resStatus: false,
+        resMessage: "Visitor has not liked before. Add visitor to likers array",
+        resOkCode: 4
+      });
+    }
+
+
+    if (likeOldStatus === true && likeNewStatus === false) {
+      const result = await client.query(`SELECT * FROM livorent_likes WHERE ad_id = $1`, [likedItem2]);
+      const existingItem = result.rows[0];
+      let existingLike = false;//default is false to prevent errors in case if statement below fails to update its value.
+      let existingArray = [];//default is empty to prevent errors if statement below fails to update its value.
+      if (existingItem) {
+        // 1) if likers is already a JS array then we can use it as it is. 
+        //If not, we need to convert/parse it to JS array.
+        //2) NULL check below is only an extra step to prevent errors. 
+        if (existingItem.likers === null) {
+          existingArray = [];
+        } else {
+          existingArray = Array.isArray(existingItem.likers)
+          ? existingItem.likers
+          : JSON.parse(existingItem.likers);
+        }
+        existingLike = existingArray.includes(likerId2);
+      }
+      const newArray = existingArray.filter(likerNum => likerNum !== likerId2);
+      //And we cannot save an array directly in postgresql, we need to stringfy it.
+      const newArray2 = JSON.stringify(newArray);
+      const result2 = await client.query(`UPDATE livorent_likes SET likers = $2 WHERE ad_id = $1`,
+        [likedItem2, newArray2]);
       return res.status(200).json({ 
         resStatus: false,
         resMessage: "Visitor has liked before. Remove visitor from likers array",

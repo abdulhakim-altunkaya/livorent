@@ -2,7 +2,7 @@
 //Make sure only logged in users can leave a like
 //improve isLikeAllowed logic
 
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react'; 
 import axios from 'axios';
 import "../styles/Profile.css";
 import Footer from "./Footer.js";

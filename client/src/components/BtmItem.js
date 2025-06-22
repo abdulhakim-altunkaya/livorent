@@ -5,19 +5,12 @@ import "../styles/Item.css"
 import Footer from "./Footer.js";
 import CommentDisplay from "./CommentDisplay.js"
 import { detectSection, detectCategory } from './utilsCategories';
-import useUserStore from '../store/userStore';
+import BtmLikeItem from './BtmLikeItem.js';
 
 function BtmItem() {
   const navigate = useNavigate();
 
   const { itemNumber } = useParams();
-  
-  //we will check zustand store to see if there is any user data in it. If there is
-  //then no need to make repetitive requests to backend.
-  //We will use cachedUserData to let the visitor to leave a like. Only registered people can like.
-  const { cachedUserData } = useUserStore.getState();
-
-  const debounceTimer = useRef(null);//we will use this to force wait time on like clicks
 
   const [message, setMessage] = useState(null);
   const [errorFrontend, setErrorFrontend] = useState(null);
@@ -33,10 +26,6 @@ function BtmItem() {
   //states for returning back main category or section pages
   const [mainCategoryNum, setMainCategoryNum] = useState(0);
   const [sectionNum, setSectionNum] = useState(0);
-  //states for like logic
-  const [isLikeAllowed, setIsLikeAllowed] = useState(true);
-  const [isLiked, setIsLiked] = useState(false);
-  const [likeCount, setLikeCount] = useState("");
   //we need this to authenticate token on protected endpoints
   const token = localStorage.getItem("token_livorent");
 
@@ -139,41 +128,6 @@ function BtmItem() {
     }
   }, [message, loading]);
 
-  useEffect(() => {
-    const getData2 = async () => {
-      //we will get the total number of likes and if user has liked before or not. If liked, heart will be filled.
-      //we will send item id in req.params and visitor id in req.query
-      //we cannot use req.body because req.body can only be used with axios.post requests
-      //backend will check if the visitor has liked the item.
-      //If visitor has liked, it will return a TRUE and like count value.
-      if (!cachedUserData || !cachedUserData.id) {
-        setIsLiked(false); // not logged in
-      }
-      const visitorId = cachedUserData?.id || 0;//we are sending at least a 0 to prevent crashes if no login
-
-      try {
-        const response = await axios.get(`http://localhost:5000/api/like/get-item-likes-count/${itemNumber}`, {
-          params: { visitor: visitorId } 
-        });
-        const likeNum = Number(response.data.responseLikeCount);
-        const likeSta = response.data.responseLikeStatus;
-
-        if (likeNum > 0) {
-          setLikeCount(likeNum); 
-        }
-        if (likeSta === true) {
-          setIsLiked(true)
-        } else {
-          setIsLiked(false);
-        }
-
-      } catch (error) {
-        console.log(error.message);
-      }
-    }
-    getData2();
-  }, [itemNumber]);
-
   //Also, back navigation links to return to main category or section pages
   const goMain = () => {
     if (mainCategoryNum === 1) {
@@ -200,51 +154,6 @@ function BtmItem() {
       navigate(`/seller/${Number(message.user_id)}`)
     }
   }
- 
-  const handleLike = () => {
-    // Check if visitor is logged in
-    if (!cachedUserData || !cachedUserData.id) {
-      alert("To leave a like, you need to login");
-      setIsLikeAllowed(!isLikeAllowed)
-      return;
-    }
-    const newLikeState = !isLiked; // this is the actual updated state
-    if (newLikeState === true) {
-      setLikeCount(likeCount+1);
-    } else if (newLikeState === false) {
-      setLikeCount(likeCount-1);
-    }
-    setIsLiked(newLikeState);
-    // Clear previous timeout if it exists
-    if (debounceTimer.current) {
-      clearTimeout(debounceTimer.current);
-    }
-    // Set a new debounce timer
-    debounceTimer.current = setTimeout(() => {
-      saveLike(newLikeState);
-    }, 5000); // delay in milliseconds (5s here)
-  };
-  const saveLike = async (likeState) => {
-    try {
-      const response = await axios.post('http://localhost:5000/api/like/items', 
-        {likeStatus: likeState,
-        likedId: message.id, 
-        userId: cachedUserData?.id},
-       {headers: {Authorization: `Bearer ${token}`}}
-      );
-      await new Promise(resolve => setTimeout(resolve, 1100));
-      const response2 = await axios.post('http://localhost:5000/api/like/item-to-users', 
-        {likeStatus: likeState,
-          likedId: message?.id,
-          userId: cachedUserData?.id}, 
-        {headers: {Authorization: `Bearer ${token}`}}
-      );
-      console.log('LIKE LOGIC 1:', response.data.myMessage);
-      console.log('LIKE LOGIC 2:', response2.data.myMessage);
-    } catch (error) {
-      console.error('Error saving like:', error);
-    }
-  };
 
   return ( 
     <div>
@@ -314,31 +223,7 @@ function BtmItem() {
                       <span className='grayText'>Vārds:</span>
                       <span className='itemCategoryLinks' onClick={goSeller}>    {formatName(message?.name)}</span></div>
                     <br/>
-                    <div>
-                      {
-                        isLiked ?
-                          <div className='likeArea'>
-                            <img className='heartIcon' onClick={handleLike} src='/svg_heart_filled.svg' alt='full heart'/> 
-                            <span>{likeCount}</span>              
-                          </div>
-                        :
-                          <div className='likeArea'>
-                            <img className='heartIcon' onClick={handleLike} src='/svg_heart.svg' alt='empty heart'/> 
-                            <span>{likeCount}</span>              
-                          </div>
-                      }
- 
-                      {
-                        isLikeAllowed ?
-                         <></>
-                        :
-                        <div className="noUserBtmUpload">
-                          Lai atzīmētu ar "patīk", jābūt reģistrētam.
-                          <span onClick={() => navigate("/login")}> Ieiet</span> vai 
-                          <span onClick={() => navigate("/registration")}> reģistrēties</span>.
-                        </div>
-                      }
-                    </div>
+                    <BtmLikeItem itemId={itemNumber}  />
                     <div className='smallText'><span>Datums:</span><span>    {message.date}</span></div>
                     <div className='smallText'><span>Unikālo apmeklējumu skaits:</span><span></span></div>
                     
