@@ -6,6 +6,7 @@ import Footer from "./Footer.js";
 import CommentDisplay from "./CommentDisplay.js"
 import { detectSection, detectCategory } from './utilsCategories';
 import BtmLikeItem from './BtmLikeItem.js';
+import BtmVisitor from './BtmVisitor.js';
 
 function BtmItem() {
   const navigate = useNavigate();
@@ -242,6 +243,7 @@ function BtmItem() {
       <div className='FooterContainer'>
         <Footer />
       </div>
+      <BtmVisitor itemId={itemNumber} itemMainCategory={mainCategoryNum} itemSubCategory={sectionNum} />
     </div>
   )
 }

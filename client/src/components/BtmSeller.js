@@ -10,6 +10,7 @@ import ReviewDisplay from "./ReviewDisplay.js";
 import BtmLikeSeller from "./BtmLikeSeller.js";
 import { useParams, useNavigate } from "react-router-dom";
 import useUserStore from '../store/userStore';
+import BtmVisitor from './BtmVisitor.js';
 
 function BtmSeller() {
   const navigate = useNavigate()
@@ -147,6 +148,7 @@ function BtmSeller() {
       <div className='FooterContainer'>
         <Footer />
       </div>
+      <BtmVisitor sellerId={sellerNumber}  />
     </div>
   )
 }

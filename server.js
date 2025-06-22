@@ -49,12 +49,8 @@ const rateLimiter = rateLimit({
 
 // 🔒 MIDDLEWARE 4: Custom spam ip block
 // List of IPs to ignore (server centers, ad bots, my ip etc) 
-const ignoredIPs = ["66.249.68.5", "66.249.68.4", "66.249.88.2", "66.249.89.2", "66.249.65.32", "66.249.88.3", 
-  "209.85.238.224", "80.89.77.205", "212.3.197.186", "80.89.74.90", "80.89.79.74", "80.89.77.116", "80.89.73.22", 
-  "66.249.64.10", "66.249.64.6", "66.249.64.5", "66.249.66.169", "66.249.66.160", "212.3.194.116", "212.3.194.116", 
-  "66.249.73.233", "66.249.73.234", "62.103.210.169", "66.249.66.161", "66.249.69.65", "66.249.68.33", "66.249.68.37",
-  "66.249.68.38", "66.249.68.34", "40.77.189.152", "17.246.15.253", "17.246.15.253", "152.39.239.250", "45.114.243.179", 
-  "66.249.73.197", "66.249.73.202", "205.169.39.19", "209.85.238.225", "205.169.39.232"];
+// Currently it has 2 decoy ip addresses
+const ignoredIPs = ["66.249.68.523123123", "66.222222249.68.523123123"];
 const blockBannedIPs = (req, res, next) => {
   const ipVisitor = req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress || req.ip;
   if (ignoredIPs.includes(ipVisitor)) {
@@ -829,532 +825,6 @@ app.patch("/api/profile/update-ad", upload.array("adUpdateImages", 5), authentic
   } 
 
 });
-app.post("/api/like/sellers", authenticateToken, rateLimiter, blockBannedIPs, async (req, res) => {
-  //preventing spam likes
-  const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
-
-  let client;
-  const { likeStatus, likedId, userId } = req.body;
-  const sellerId = Number(likedId);
-  const userId2 = Number(userId);
-  // 1. We connect to DB and check if user exists
-  // 2. Then we check if like exists in liked_sellers array
-  // 3. Then we save like or remove depending like/unlike info coming from frontend.
-  client = await pool.connect();
-  const result = await client.query(`SELECT * FROM livorent_likes_users WHERE user_id = $1`, [userId2]);
-  const existingUser = result.rows[0];
-  let existingLike = false;//default is false to prevent errors in case if statement below fails to update its value.
-  let existingArray = [];//default is empty to prevent errors if statement below fails to update its value.
-  if (existingUser) {
-    // 1) if liked_ads is already a JS array then we can use it as it is. 
-    //If not, we need to convert/parse it to JS array.
-    // 2) Sometimes a user may like a seller but not an item yet. 
-    // In those cases, we will have an error on the item side because 
-    // seller side will be an array but item side will be NULL and as there is a user registered
-    //the code will try to read NULL field as an array. 
-    //To prevent those situtions, there is this if check down here.
-    if (existingUser.liked_ads === null) {
-      existingArray = [];
-    } else {
-      existingArray = Array.isArray(existingUser.liked_sellers)
-      ? existingUser.liked_sellers
-      : JSON.parse(existingUser.liked_sellers);
-    }
-    existingLike = existingArray.includes(sellerId);
-  }
-
-
-
-  try {
-    //SITUATION 1
-    if (likeStatus === false && !existingUser) {
-      console.log("No user. No like. Nothing to do.");
-      return res.json({myMessage: "No user. No like. Nothing to do."});
-    }
-
-    //SITUATION 2
-    if (likeStatus === true && !existingUser) {
-      console.log("No user. Create a new user-like record. First like of user.");
-      const newArray = [sellerId];
-      //Everytime we save a like to liked_sellers, we need to make sure we are saving an array not a number.
-      //And we cannot save an array directly in postgresql, we need to stringfy it.
-      const newArray2 = JSON.stringify(newArray);
-      const result = await client.query(`INSERT INTO livorent_likes_users (user_id, liked_sellers) VALUES ($1, $2)`,
-        [userId2, newArray2]
-      );
-      return res.json({myMessage: "No user. Create a new user record. First like of user."})
-    }
-
-    //SITUATION 3
-    //In these if statements below, we check if the seller is already liked to prevent repetitive records.
-    if (likeStatus === false && existingUser) {
-      if (existingLike === true) {
-        console.log("User exists. Remove unliked seller from liked array.");
-
-        const newArray = existingArray.filter(sellerNum => sellerNum !== sellerId);
-        //Everytime we save a like to liked_sellers, we need to make sure we are saving an array not a number.
-        //And we cannot save an array directly in postgresql, we need to stringfy it.
-        const newArray2 = JSON.stringify(newArray);
-        const result = await client.query(`UPDATE livorent_likes_users SET liked_sellers = $2 WHERE user_id = $1`,
-          [userId2, newArray2]);
-
-        return res.json({myMessage: "User exists. Remove unliked seller from liked array."})
-      } else {
-        console.log("User exists. the unliked seller is NOT in the liked array. Nothing to do here.");
-        return res.json({myMessage: "User exists. Unliked seller is not in liked array. Nothing to do."})
-      }
-
-    }
-
-    //SITUATION 4
-    if (likeStatus === true && existingUser) {
-      if (existingLike === true) {
-        console.log("User exists. liked seller is in liked_sellers array. Nothing to do here.");
-        return res.json({myMessage: "User exists. liked seller is in liked_sellers array. Nothing to do."})
-      } else {
-        existingArray.push(sellerId);
-        const newArray = JSON.stringify(existingArray);
-        const result = await client.query(`UPDATE livorent_likes_users SET liked_sellers = $2 WHERE user_id = $1`,
-          [userId2, newArray]);
-        console.log("User exists. Add liked seller to liked_sellers array.");
-        return res.json({myMessage: "User exists. Add liked seller to liked_sellers array."})
-      }
-
-    }
-  } catch (error) {
-    console.error("Database error:", error);
-    return res.status(404).json({myMessage: "Something went wrong while getting basic user data"})
-  } finally {
-    if (client) client.release();
-  } 
-});
-app.post("/api/like/items", authenticateToken, rateLimiter, blockBannedIPs, async (req, res) => {
-  //preventing spam likes
-  const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
-
-  let client;
-  const { likeStatus, likedId, userId } = req.body;
-  const itemId = Number(likedId);
-  const userId2 = Number(userId);
-  // 1. We connect to DB and check if user exists
-  // 2. Then we check if like exists in liked_ads array
-  // 3. Then we save like or remove depending like/unlike info coming from frontend.
-  client = await pool.connect();
-  const result = await client.query(`SELECT * FROM livorent_likes_users WHERE user_id = $1`, [userId2]);
-  const existingUser = result.rows[0];
-  let existingLike = false;//default is false to prevent errors in case if statement below fails to update its value.
-  let existingArray = [];//default is empty to prevent errors if statement below fails to update its value.
-  if (existingUser) {
-    // 1) if liked_ads is already a JS array then we can use it as it is. 
-    //If not, we need to convert/parse it to JS array.
-    // 2) Sometimes a user may like a seller but not an item yet. 
-    // In those cases, we will have an error on the item side because 
-    // seller side will be an array but item side will be NULL and as there is a user registered
-    //the code will try to read NULL field as an array. 
-    //To prevent those situtions, there is this if check down here.
-    if (existingUser.liked_ads === null) {
-      existingArray = [];
-    } else {
-      existingArray = Array.isArray(existingUser.liked_ads)
-      ? existingUser.liked_ads
-      : JSON.parse(existingUser.liked_ads);
-    }
-    existingLike = existingArray.includes(itemId);
-  }
-
-
-
-  try {
-    //SITUATION 1
-    if (likeStatus === false && !existingUser) {
-      console.log("No user. No like. Nothing to do.");
-      return res.json({myMessage: "No user. No like. Nothing to do."});
-    }
-
-    //SITUATION 2
-    if (likeStatus === true && !existingUser) {
-      console.log("No user. Create a new user record. First like of user.");
-      const newArray = [itemId];
-      //Everytime we save a like to liked_ads, we need to make sure we are saving an array not a number.
-      //And we cannot save an array directly in postgresql, we need to stringfy it.
-      const newArray2 = JSON.stringify(newArray);
-      const result = await client.query(`INSERT INTO livorent_likes_users (user_id, liked_ads) VALUES ($1, $2)`,
-        [userId2, newArray2]
-      );
-      return res.json({myMessage: "No user. Create a new user record. First like of user."})
-    }
-
-    //SITUATION 3
-    //In these if statements below, we check if the item/ad is already liked to prevent repetitive records.
-    if (likeStatus === false && existingUser) {
-      if (existingLike === true) {
-        console.log("User exists. Remove unliked ad from liked_ads array.");
-
-        const newArray = existingArray.filter(adNum => adNum !== itemId);
-        //Everytime we save a like to liked_ads, we need to make sure we are saving an array not a number.
-        //And we cannot save an array directly in postgresql, we need to stringfy it.
-        const newArray2 = JSON.stringify(newArray);
-        const result = await client.query(`UPDATE livorent_likes_users SET liked_ads = $2 WHERE user_id = $1`,
-          [userId2, newArray2]);
-
-        return res.json({myMessage: "User exists. Remove unliked ad from liked array."})
-      } else {
-        console.log("User exists. the unliked ad is NOT in the liked_ads array. Nothing to do here.");
-        return res.json({myMessage: "User exists. Unliked ad is not in liked_ads array. Nothing to do."})
-      }
-
-    }
-
-    //SITUATION 4
-    if (likeStatus === true && existingUser) {
-      if (existingLike === true) {
-        console.log("User exists. liked ad is in liked_ads array. Nothing to do here.");
-        return res.json({myMessage: "User exists. liked ad is in liked_ads array. Nothing to do."})
-      } else {
-        existingArray.push(itemId);
-        const newArray = JSON.stringify(existingArray);
-        const result = await client.query(`UPDATE livorent_likes_users SET liked_ads = $2 WHERE user_id = $1`,
-          [userId2, newArray]);
-        console.log("User exists. Add liked ad to liked_ads array.");
-        return res.json({myMessage: "User exists. Add liked ad to liked_ads array."})
-      }
-
-    }
-  } catch (error) {
-    console.error("Database error:", error);
-    return res.status(404).json({myMessage: "Something went wrong while getting basic user data"})
-  } finally {
-    if (client) client.release();
-  } 
-});
-app.post("/api/like/seller-to-users", authenticateToken, rateLimiter, blockBannedIPs, async (req, res) => {
-  //preventing spam likes
-  const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
-
-  let client;
-  const { likeStatus, likedId, userId } = req.body;
-  const sellerId = Number(likedId);
-  const likerId = Number(userId);
-  // 1. We connect to DB and check if the seller exists
-  // 2. Then we check if liker exists in voted_clients array
-  // 3. Then we save liker or remove him depending like/unlike info coming from frontend.
-  client = await pool.connect();
-  const result = await client.query(`SELECT * FROM livorent_likes_ads_sellers WHERE seller_id = $1`, [sellerId]);
-  const existingSeller = result.rows[0];
-  let existingLike = false;//default is false to prevent errors in case if statement below fails to update its value.
-  let existingArray = [];//default is empty to prevent errors if statement below fails to update its value.
-  if (existingSeller) {
-    // 1) if voted_clients is already a JS array then we can use it as it is. 
-    //If not, we need to convert/parse it to JS array.
-    //2) NULL check below is only an extra step to prevent errors. 
-    // In other endpoints we need this check but here We dont need it.
-    //Because I cannot think of a situation where there will be seller record without any liker array.
-    if (existingSeller.voted_clients === null) {
-      existingArray = [];
-    } else {
-      existingArray = Array.isArray(existingSeller.voted_clients)
-      ? existingSeller.voted_clients
-      : JSON.parse(existingSeller.voted_clients);
-    }
-    existingLike = existingArray.includes(likerId);
-  }
-
-
-
-  try {
-    //SITUATION 1
-    if (likeStatus === false && !existingSeller) {
-      console.log("No seller record. No liker. Nothing to do.");
-      return res.json({myMessage: "No seller record. No liker. Nothing to do."});
-    }
-
-    //SITUATION 2
-    if (likeStatus === true && !existingSeller) {
-      console.log("No seller record. Create a new seller record. First like for that seller.");
-      const newArray = [likerId];
-      //Everytime we save a liker to voted_clients, we need to make sure we are saving an array not a number.
-      //And we cannot save an array directly in postgresql, we need to stringfy it.
-      const newArray2 = JSON.stringify(newArray);
-      const result = await client.query(`INSERT INTO livorent_likes_ads_sellers (seller_id, voted_clients) VALUES ($1, $2)`,
-        [sellerId, newArray2]
-      );
-      return res.json({myMessage: "No seller record. Create a new seller record. First like for that seller."})
-    }
-
-    //SITUATION 3
-    //1) check if the liker is already in voted_clients array 
-    //2) to prevent overwriting.
-    if (likeStatus === false && existingSeller) {
-      if (existingLike === true) {
-        console.log("Seller exists. Remove liker from voted_clients array.");
-
-        const newArray = existingArray.filter(likerNum => likerNum !== likerId);
-        //And we cannot save an array directly in postgresql, we need to stringfy it.
-        const newArray2 = JSON.stringify(newArray);
-        const result = await client.query(`UPDATE livorent_likes_ads_sellers SET voted_clients = $2 WHERE seller_id = $1`,
-          [sellerId, newArray2]);
-
-        return res.json({myMessage: "Seller exists. Remove liker from voted_clients array."})
-      } else {
-        console.log("Seller exists. unliker is NOT in the voted_clients array. Nothing to do here.");
-        return res.json({myMessage: "Seller exists. unliker is NOT in the voted_clients array. Nothing to do here."})
-      }
-
-    }
-
-    //SITUATION 4
-    if (likeStatus === true && existingSeller) {
-      if (existingLike === true) {
-        console.log("Seller exists. liker is in voted_clients array. Nothing to do here.");
-        return res.json({myMessage: "Seller exists. liker is in voted_clients array. Nothing to do here."})
-      } else {
-        existingArray.push(likerId);
-        const newArray = JSON.stringify(existingArray);
-        const result = await client.query(`UPDATE livorent_likes_ads_sellers SET voted_clients = $2 WHERE seller_id = $1`,
-          [sellerId, newArray]);
-        console.log("Seller exists. Add liker to voted_clients array.");
-        return res.json({myMessage: "Seller exists. Add liker to voted_clients array."})
-      }
-
-    }
-  } catch (error) {
-    console.error("Database error:", error);
-    return res.status(404).json({myMessage: "Something went wrong while getting basic seller data"})
-  } finally {
-    if (client) client.release();
-  } 
-});
-app.post("/api/like/item-to-users", authenticateToken, rateLimiter, blockBannedIPs, async (req, res) => {
-  //preventing spam likes
-  const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
-
-  let client;
-  const { likeStatus, likedId, userId } = req.body;
-  const adId = Number(likedId);
-  const likerId = Number(userId);
-  // 1. We connect to DB and check if the ad exists
-  // 2. Then we check if liker exists in voted_clients array
-  // 3. Then we save liker or remove him depending like/unlike info coming from frontend.
-  client = await pool.connect();
-  const result = await client.query(`SELECT * FROM livorent_likes_ads_sellers WHERE ad_id = $1`, [adId]);
-  const existingAd = result.rows[0];
-  let existingLike = false;//default is false to prevent errors in case if statement below fails to update its value.
-  let existingArray = [];//default is empty to prevent errors if statement below fails to update its value.
-  if (existingAd) {
-    // 1) if voted_clients is already a JS array then we can use it as it is. 
-    //If not, we need to convert/parse it to JS array.
-    //2) NULL check below is only an extra step to prevent errors. 
-    // In other endpoints we need this check but here We dont need it.
-    //Because I cannot think of a situation where there will be an ad record without any liker array.
-    if (existingAd.voted_clients === null) {
-      existingArray = [];
-    } else {
-      existingArray = Array.isArray(existingAd.voted_clients)
-      ? existingAd.voted_clients
-      : JSON.parse(existingAd.voted_clients);
-    }
-    existingLike = existingArray.includes(likerId);
-  }
-
-
-
-  try {
-    //SITUATION 1
-    if (likeStatus === false && !existingAd) {
-      console.log("No ad record. No liker. Nothing to do.");
-      return res.json({myMessage: "No ad record. No liker. Nothing to do."});
-    }
-
-    //SITUATION 2
-    if (likeStatus === true && !existingAd) {
-      console.log("No ad record. Create a new ad record. First like for that ad.");
-      const newArray = [likerId];
-      //Everytime we save a liker to voted_clients, we need to make sure we are saving an array not a number.
-      //And we cannot save an array directly in postgresql, we need to stringfy it.
-      const newArray2 = JSON.stringify(newArray);
-      const result = await client.query(`INSERT INTO livorent_likes_ads_sellers (ad_id, voted_clients) VALUES ($1, $2)`,
-        [adId, newArray2]
-      );
-      return res.json({myMessage: "No ad record. Create a new ad record. First like for that ad."})
-    }
-
-    //SITUATION 3
-    //check if the liker is already in voted_clients array to prevent overwriting.
-    if (likeStatus === false && existingAd) {
-      if (existingLike === true) {
-        console.log("Ad exists. Liker exists. Remove liker from voted_clients array.");
-
-        const newArray = existingArray.filter(likerNum => likerNum !== likerId);
-        //And we cannot save an array directly in postgresql, we need to stringfy it.
-        const newArray2 = JSON.stringify(newArray);
-        const result = await client.query(`UPDATE livorent_likes_ads_sellers SET voted_clients = $2 WHERE ad_id = $1`,
-          [adId, newArray2]);
-
-        return res.json({myMessage: "Ad exists. Liker exists. Remove liker from voted_clients array."})
-      } else {
-        console.log("Ad exists. unliker is NOT in the voted_clients array. Nothing to do here.");
-        return res.json({myMessage: "Ad exists. unliker is NOT in the voted_clients array. Nothing to do here."})
-      }
-
-    }
-
-    //SITUATION 4
-    if (likeStatus === true && existingAd) {
-      if (existingLike === true) {
-        console.log("Ad exists. liker is in voted_clients array. Nothing to do here.");
-        return res.json({myMessage: "Ad exists. liker is in voted_clients array. Nothing to do here."})
-      } else {
-        existingArray.push(likerId);
-        const newArray = JSON.stringify(existingArray);
-        const result = await client.query(`UPDATE livorent_likes_ads_sellers SET voted_clients = $2 WHERE ad_id = $1`,
-          [adId, newArray]);
-        console.log("Ad exists. Add liker to voted_clients array.");
-        return res.json({myMessage: "Ad exists. Add liker to voted_clients array."})
-      }
-
-    }
-  } catch (error) {
-    console.error("Database error:", error);
-    return res.status(404).json({myMessage: "Something went wrong while getting basic ad data"})
-  } finally {
-    if (client) client.release();
-  } 
-});
-app.get("/api/like/get-seller-likes-count/:idSeller1", rateLimiter, blockBannedIPs, async (req, res) => {
-
-  const { idSeller1 } = req.params;
-  const sellerId = Number(idSeller1);
-  const visitor = req.query.visitor;
-  const visitor2 = Number(visitor);
-
-  let client;
-  
-  if(!idSeller1) {
-    return res.status(404).json({
-      responseLikeStatus: false,
-      responseMessage: "no seller id detected on endpoint route",
-      responseErrorCode: 1,
-      responseLikeCount: 0
-    });
-  }
-  if (sellerId < 1) {
-    return res.status(404).json({
-      responseLikeStatus: false,
-      responseMessage: "seller id is wrong",
-      responseErrorCode: 2,
-      responseLikeCount: 0
-    });
-  }
-
-  try {
-    client = await pool.connect();
-    const result = await client.query(
-      `SELECT * FROM livorent_likes_ads_sellers WHERE seller_id = $1`,
-      [sellerId]
-    );
-    if (result.rows.length < 1) { 
-      return res.status(200).json({
-        responseLikeStatus: false,
-        responseMessage: "No one has liked this seller yet",
-        responseErrorCode: 3,
-        responseLikeCount: 0
-      });
-    }
-    if (result.rows[0].voted_clients === null) {
-      return res.status(404).json({
-        responseLikeStatus: false,
-        responseMessage: "This is a conflict. seller_id and voted_clients can exist only together",
-        responseErrorCode: 4,
-        responseLikeCount: 0
-      });
-    }
-    if (result.rows[0].voted_clients.includes(visitor2)) {
-      //If visitor has already liked, we will return a true and liker count data.
-      //TRUE means visitor has already liked and the heart on frontend should be filled.
-      return res.status(200).json({
-        responseLikeStatus: true,
-        responseMessage: "Visitor has liked before, full heart",
-        responseLikeCount: result.rows[0].voted_clients.length
-      });
-    }
-    return res.status(200).json({
-      //If visitor has not liked yet, we will return a false and liker count data.
-      //FALSE means visitor has not liked yet and the heart on frontend should be empty.
-      responseLikeStatus: false,
-      responseMessage: "Visitor has not liked this seller yet, empty heart",
-      responseLikeCount: result.rows[0].voted_clients.length
-    });
-  } catch (error) {
-    console.error("Database error:", error);
-    return res.status(404).json({
-      responseLikeStatus: false,
-      responseMessage: "Something went wrong while getting like data",
-      responseErrorCode: 5,
-      responseLikeCount: 0
-    })
-  } finally {
-    if (client) client.release();
-  } 
-})
-app.get("/api/like/get-item-likes-count/:idItem1", rateLimiter, blockBannedIPs, async (req, res) => {
-
-  const { idItem1 } = req.params;
-  const idItem = Number(idItem1);
-  const visitor = req.query.visitor;
-  const visitor2 = Number(visitor);
-
-  let client;
-  
-  if(!idItem1) {
-    return res.status(404).json({myMessage: "no ad id detected on endpoint route"});
-  }
-  if (idItem < 1) {
-    return res.status(404).json({myMessage: "ad id is wrong"});
-  }
-
-  try {
-    client = await pool.connect();
-    const result = await client.query(
-      `SELECT * FROM livorent_likes_ads_sellers WHERE ad_id = $1`,
-      [idItem]
-    );
-    if (result.rows.length < 1) {
-      return res.status(404).json({
-        //Frontend is expecting these reply fields. So even if backend reply is negative,
-        //it should still contain these false and 0 values to prevent errors on the frontend.
-        responseLikeStatus: false,
-        responseLikeCount: 0
-      });
-    }
-    if (result.rows[0].voted_clients === null) {
-      return res.status(404).json({
-        //Frontend is expecting these reply fields. So even if backend reply is negative,
-        //it should still contain these false and 0 values to prevent errors on the frontend.
-        responseLikeStatus: false,
-        responseLikeCount: 0
-      });
-    }
-    if (result.rows[0].voted_clients.includes(visitor2)) {
-      //If visitor has already liked, we will return a true and liker count data.
-      //TRUE means visitor has already liked and the heart on frontend should be filled.
-      return res.status(200).json({
-        responseLikeStatus: true,
-        responseLikeCount: result.rows[0].voted_clients.length
-      });
-    }
-    return res.status(200).json({
-        //If visitor has not liked yet, it will a return a FALSE and liker count value.
-        //FALSE means visitor has not liked yet and the heart on frontend should be empty.
-        responseLikeStatus: false,
-        responseLikeCount: result.rows[0].voted_clients.length
-    }); 
-  } catch (error) {
-    console.error("Database error:", error);
-    return res.status(404).json({myMessage: "Something went wrong while getting like data"})
-  } finally {
-    if (client) client.release();
-  } 
-});
 app.get("/api/search", rateLimiter, blockBannedIPs, async (req, res) => {
 
   const searchText = req.query.myQuery;
@@ -1521,7 +991,6 @@ app.post("/api/post/save-comment", authenticateToken, rateLimiter, blockBannedIP
     if (client) client.release();
   }
 });
-
 app.get("/api/get/comments/:commentReceiver", rateLimiter, blockBannedIPs, async (req, res) => {
   const { commentReceiver } = req.params;
   let client;
@@ -2309,6 +1778,44 @@ app.post("/api/post/save-like-item", authenticateToken, rateLimiter, blockBanned
     if (client) client.release();
   }
 })
+const ipCache = {}
+app.post("/api/post/visitor/seller", blockBannedIPs, async (req, res) => {
+  //Here we could basically say "const ipVisitor = req.ip" but my app is running on Render platform
+  //and Render is using proxies or load balancers. Because of that I will see "::1" as ip data if I not use
+  //this line below
+  const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
+  
+  // Check if IP exists in cache and if last visit was less than 1 hour ago 
+  if (ipCache[ipVisitor] && Date.now() - ipCache[ipVisitor] < 1000) {
+    return res.status(429).json({message: 'Too many requests from this IP.'});
+  }
+
+  ipCache[ipVisitor] = Date.now();//save visitor ip to ipCache
+  const userAgentString = req.get('User-Agent');
+  const agent = useragent.parse(userAgentString);
+  
+  let client;
+  try {
+    const visitorData = {
+      ip: ipVisitor,
+      os: agent.os.toString(), // operating system
+      browser: agent.toAgent(), // browser
+      visitDate: new Date().toLocaleDateString('en-GB')
+    };
+    //save visitor to database
+    client = await pool.connect();
+    const result = await client.query(
+      `INSERT INTO latviaresidency_visitors (ip, op, browser, date) 
+      VALUES ($1, $2, $3, $4)`, [visitorData.ip, visitorData.os, visitorData.browser, visitorData.visitDate]
+    );
+    res.status(200).json({myMessage: "Visitor IP successfully logged"});
+  } catch (error) {
+    console.error('Error logging visit:', error);
+    res.status(500).json({myMessage: 'Error logging visit dude'});
+  } finally {
+    if(client) client.release();
+  }
+})
 //This line must be under all server routes. Otherwise you will have like not being able to fetch comments etc.
 //This code helps with managing routes that are not defined on react frontend. If you dont add, only index 
 //route will be visible.
@@ -2387,151 +1894,8 @@ BEFORE DEPLOYING:
   change all xxxxx things in the footer component 
 */
 
-app.post("/api/save-comment")
-
 //A temporary cache to save ip addresses and it will prevent saving same ip addresses for 1 hour.
 //I can do that by checking each ip with database ip addresses but then it will be too many requests to db
 //We will save each visitor data to database. 
 
 
-//A temporary cache to save ip addresses and it will prevent spam comments and replies for 1 minute.
-//I can do that by checking each ip with database ip addresses but then it will be too many requests to db
-const ipCache2 = {}
-app.post("/serversavecomment", async (req, res) => {
-  //preventing spam comments
-  const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
-  // Check if IP exists in cache and if last comment was less than 1 minute ago
-  if (ipCache2[ipVisitor] && Date.now() - ipCache2[ipVisitor] < 1000) {
-    return res.status(429).json({message: 'Too many comments'});
-  }
- 
-  ipCache2[ipVisitor] = Date.now();//save visitor ip to ipCache2
-
-  let client;
-  const newComment = req.body;
-  const {name, text, date} = newComment;
-
-  try {
-    client = await pool.connect();
-    const result = await client.query(
-      `INSERT INTO latviaresidency_comments (date, name, comment) values ($1, $2, $3)`, [date, name, text]
-    );
-    res.status(201).json({message: "Comment saved"});
-  } catch (error) {
-    console.log(error.message);
-    res.status(500).json({message: "Error while saving comment"})
-  } finally {
-    if(client) client.release();
-  }
-});
-
-app.post("/serversavecommentreply", async (req, res) => {
-  //preventing spam replies
-  const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
-  // Check if IP exists in cache and if last reply was less than 1 minute ago
-  if (ipCache2[ipVisitor] && Date.now() - ipCache2[ipVisitor] < 1000) {
-    return res.status(429).json({message: 'Too many comments'});
-  }
-  ipCache2[ipVisitor] = Date.now();//save visitor ip to ipCache2
-
-  let client;
-  const newComment = req.body;
-  const {name, text, date, commentId} = newComment;
-
-  try {
-    client = await pool.connect(); 
-    const result = await client.query(
-      `INSERT INTO latviaresidency_comments (date, name, comment, parent_id) values ($1, $2, $3, $4)`, 
-      [date, name, text, commentId]
-    );
-    res.status(201).json({message: "Reply saved"});
-  } catch (error) {
-    console.log(error.message);
-    res.status(500).json({message: "Error while saving reply"})
-  } finally {
-    if(client) client.release();
-  }
-});
-
-app.get("/servergetcomments", async (req, res) => {
-  let client;
-  try {
-    client = await pool.connect(); 
-    const result = await client.query(
-      `SELECT * FROM latviaresidency_comments`
-    );
-    const allComments = await result.rows;
-    if(!allComments) {
-      return res.status(404).json({ message: "No comments yet"})
-    }
-    res.status(200).json(allComments);
-  } catch (error) {
-    console.log(error.message);
-    res.status(500).json({message: "Error while fetching comments"})
-  } finally {
-    if(client) client.release();
-  }
-});
-
-app.post("/api/save-message", async (req, res) => {
-  const messageObject = req.body;
-  try {
-    const msgLoad = {
-      name1: messageObject.inputName.trim(),
-      email1: messageObject.inputMail.trim(),     // Ensure text values are trimmed
-      message1: messageObject.inputMessage.trim(),     // Ensure date is trimmed (still stored as text in DB)
-      visitDate1: new Date().toLocaleDateString('en-GB')
-    };
-    client = await pool.connect();
-    const result = await client.query(
-      `INSERT INTO latviaresidency_messages (name, email, message, visitdate) 
-      VALUES ($1, $2, $3, $4)`, 
-      [msgLoad.name1, msgLoad.email1, msgLoad.message1, msgLoad.visitDate1]
-    );
-    res.status(200).json({message: "Mesajınız gönderildi."});
-  } catch (error) {
-    console.log(error.message);
-    res.status(500).json({ error: 'Mesaj kaydedilirken hata oluştu. Lütfen doğrudan mail atınız.' });
-  }
-});
-const ipCache = {}
-app.post("/serversavevisitor", async (req, res) => {
-  //Here we could basically say "const ipVisitor = req.ip" but my app is running on Render platform
-  //and Render is using proxies or load balancers. Because of that I will see "::1" as ip data if I not use
-  //this line below
-  const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
-  let client;
-  // Check if the IP is in the ignored list
-  if (ignoredIPs.includes(ipVisitor)) {
-    return; // Simply exit the function, doing nothing for this IP
-  }
-  // Check if IP exists in cache and if last visit was less than 1 hour ago 
-  if (ipCache[ipVisitor] && Date.now() - ipCache[ipVisitor] < 1000) {
-    return res.status(429).json({message: 'Too many requests from this IP.'});
-  }
-
-  ipCache[ipVisitor] = Date.now();//save visitor ip to ipCache
-  const userAgentString = req.get('User-Agent');
-  const agent = useragent.parse(userAgentString);
-  
-  try {
-    const visitorData = {
-      ip: ipVisitor,
-      os: agent.os.toString(), // operating system
-      browser: agent.toAgent(), // browser
-      visitDate: new Date().toLocaleDateString('en-GB')
-    };
-    //save visitor to database
-    client = await pool.connect();
-    const result = await client.query(
-      `INSERT INTO latviaresidency_visitors (ip, op, browser, date) 
-      VALUES ($1, $2, $3, $4)`, [visitorData.ip, visitorData.os, visitorData.browser, visitorData.visitDate]
-    );
-    res.status(200).json({myMessage: "Visitor IP successfully logged"});
-  } catch (error) {
-    console.error('Error logging visit:', error);
-    res.status(500).json({myMessage: 'Error logging visit dude'});
-  } finally {
-    if(client) client.release();
-  }
-})
