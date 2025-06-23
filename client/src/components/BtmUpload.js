@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from "react";
+import {useState, useEffect, useRef} from "react";
 import { useNavigate } from 'react-router-dom';
 import axios from "axios";
 import "../styles/upload.css";
@@ -28,6 +28,9 @@ function BtmUpload() {
   const [selectedCategory, setSelectedCategory] = useState("");
   const visitorNumberFromStorage = Number(localStorage.getItem("visitorNumber"));
   const token = localStorage.getItem("token_livorent");
+
+  const isSaving = useRef(false);  // flag to prevent repetitive requests and duplicates
+  const [isSavingButton, setIsSavingButton] = useState(false); //used to display dynamic text in saving button
 
   useEffect(() => {
       //Check 1: Only people with token can open upload page. 
@@ -87,6 +90,12 @@ function BtmUpload() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // prevent duplicates
+    if (isSaving.current) return; 
+    isSaving.current = true;
+    setIsSavingButton(true);
+
     try {
       const adObject = {
         adTitle: title, 
@@ -132,6 +141,9 @@ function BtmUpload() {
         setResultArea("An error happened while saving the news");
         console.log(error.message);
       }
+    } finally {
+      isSaving.current = false;
+      setIsSavingButton(false);
     }
   }
 
@@ -338,8 +350,7 @@ function BtmUpload() {
     
                     </div>
               </div>
-    
-              <button className="button7007" type="submit">Augšupielādēt</button>
+              <button className="button7007" type="submit">{isSavingButton ? "Augšupielādē..." : "Augšupielādēt"}</button>
             </form>
             <div>{resultArea}</div>
           </div>

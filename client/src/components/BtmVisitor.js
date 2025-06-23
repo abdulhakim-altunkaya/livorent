@@ -1,11 +1,15 @@
-import {useEffect, useState} from 'react';
+import {useEffect, useRef } from 'react';
 import axios from 'axios';
 
 function BtmVisitor({ sellerId, itemId, itemMainCategory, itemSubCategory }) {
 
-    //USE USEREF TO PREVENT DUPLICATES AND TRY CATCH FINALLY
+    const isSaving = useRef(false);  // flag to track request state
   
     const saveItemVisit = async () => {
+      // prevent duplicate
+      if (isSaving.current) return; 
+      isSaving.current = true;
+
       try {
         const visitorObject = { 
             visitedSeller: Number(sellerId),
@@ -15,6 +19,8 @@ function BtmVisitor({ sellerId, itemId, itemMainCategory, itemSubCategory }) {
         const res1 = await axios.post("http://localhost:5000/api/post/save-like-item", visitorObject);
       } catch (error) {
         console.log(error)
+      } finally {
+        isSaving.current = false;
       }
     }
 
@@ -24,7 +30,6 @@ function BtmVisitor({ sellerId, itemId, itemMainCategory, itemSubCategory }) {
             visitedSeller: Number(sellerId)
         };
         const res1 = await axios.post("http://localhost:5000/api/post/visitor/seller", visitorObject);
-        set
       } catch (error) {
         console.log(error)
       }

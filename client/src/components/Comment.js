@@ -1,18 +1,18 @@
-import {useState} from 'react';
+import {useState, useRef} from 'react';
 import axios from "axios";
 import "../styles/Comment.css";
 
 function Comment({ commentReceiver, refreshComments }) {
     const [textComment, setTextComment] = useState("");
-    const [commentorName, setCommentorName] = useState("") 
-    const [isSaving, setIsSaving] = useState(false);
+    const [commentorName, setCommentorName] = useState("");
     const [errorText, setErrorText] = useState("");
+
+    const isSaving = useRef(false);  // flag to prevent repetitive requests and duplicates
+    const [isSavingButton, setIsSavingButton] = useState(false); //used to display dynamic text in saving button
 
     const escapeHtml = str => str.replace(/[<>]/g, t => t === '<' ? '&lt;' : '&gt;');
 
     const saveComment = async () => {
-        if (isSaving) return; //prevent double submissions
-
         const token = localStorage.getItem("token_livorent");
         const visitorNumber = localStorage.getItem("visitorNumber");
 
@@ -35,8 +35,10 @@ function Comment({ commentReceiver, refreshComments }) {
             alert("Name is too short or too long");
             return;
         }
-
-        setIsSaving(true);
+        // prevent duplicates
+        if (isSaving.current) return; 
+        isSaving.current = true;
+        setIsSavingButton(true);
         try {
             const commentObject = {
                 commentText: safeComment,
@@ -69,7 +71,8 @@ function Comment({ commentReceiver, refreshComments }) {
             }
             console.log(error);
         } finally {
-            setIsSaving(false);
+            isSaving.current = false;
+            setIsSavingButton(false);
             setTextComment("");
             setCommentorName("");
         }
@@ -84,7 +87,7 @@ function Comment({ commentReceiver, refreshComments }) {
                 <textarea  className='commentInputText' placeholder="Comment or Question"
                     onChange={ (e) => setTextComment(e.target.value)} value={textComment} />
                 <button className='commentSaveBtn' onClick={saveComment} disabled={isSaving} >
-                    {isSaving ? "Saglabā..." : "Saglabāt"}
+                    {isSavingButton ? "Saglabā..." : "Saglabāt"}
                 </button>
                 {errorText && <div className="commentError">{errorText}</div>}
             </div>
