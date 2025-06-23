@@ -1778,23 +1778,43 @@ app.post("/api/post/save-like-item", authenticateToken, rateLimiter, blockBanned
     if (client) client.release();
   }
 })
-const ipCache = {}
+
+// Instead of using: const ipCache2 = {}
+// we are using the map logic below to prevent memory bloat in case website receives thousands of visitors at the same time
+const ipCache = new Map();
+function setIpCache(ip) {
+  ipCache.set(ip, Date.now());
+  setTimeout(() => ipCache.delete(ip), 19 * 1000); // auto-delete after 19s to ensure a single visit per IP every 20 seconds
+}
 app.post("/api/post/visitor/seller", blockBannedIPs, async (req, res) => {
   //Here we could basically say "const ipVisitor = req.ip" but my app is running on Render platform
   //and Render is using proxies or load balancers. Because of that I will see "::1" as ip data if I not use
   //this line below
   const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
   
-  // Check if IP exists in cache and if last visit was less than 1 hour ago 
-  if (ipCache[ipVisitor] && Date.now() - ipCache[ipVisitor] < 1000) {
-    return res.status(429).json({message: 'Too many requests from this IP.'});
+  // ⏱ Limit same IP to one visit per 19 seconds
+  if (ipCache.has(ipVisitor)) {
+    return res.status(429).json({
+      resStatus: false,
+      resMessage: "Too many request from same ip",
+      resErrorCode: 1
+    });
   }
-
-  ipCache[ipVisitor] = Date.now();//save visitor ip to ipCache
+  setIpCache(ipVisitor); // Save to cache with auto-cleanup
+  
   const userAgentString = req.get('User-Agent');
   const agent = useragent.parse(userAgentString);
   
   let client;
+  const { visitedSeller } = req.body;
+
+  if (!visitedSeller || visitedSeller < 1) {
+    return res.status(400).json({
+      resStatus: false,
+      resMessage: "Seller id is not valid",
+      resErrorCode: 2
+    });
+  }
   try {
     const visitorData = {
       ip: ipVisitor,
@@ -1805,16 +1825,202 @@ app.post("/api/post/visitor/seller", blockBannedIPs, async (req, res) => {
     //save visitor to database
     client = await pool.connect();
     const result = await client.query(
-      `INSERT INTO latviaresidency_visitors (ip, op, browser, date) 
-      VALUES ($1, $2, $3, $4)`, [visitorData.ip, visitorData.os, visitorData.browser, visitorData.visitDate]
+      `INSERT INTO livorent_visits (seller_id, ip, op, browser, date) 
+      VALUES ($1, $2, $3, $4, $5)`, [visitedSeller, visitorData.ip, visitorData.os, visitorData.browser, visitorData.visitDate]
     );
-    res.status(200).json({myMessage: "Visitor IP successfully logged"});
+    return res.status(200).json({
+      resStatus: true,
+      resMessage: "Visit registered",
+      resOkCode: 1
+    });
   } catch (error) {
     console.error('Error logging visit:', error);
-    res.status(500).json({myMessage: 'Error logging visit dude'});
+    return res.status(500).json({
+      resStatus: false,
+      resMessage: "Database connection error",
+      resErrorCode: 3
+    });
   } finally {
     if(client) client.release();
   }
+})
+app.get("/api/get/visits/seller/:sellerId", rateLimiter, blockBannedIPs, async (req, res) => {
+
+  const { sellerId } = req.params;
+  const sellerId2 = Number(sellerId);
+
+  let client;
+  
+  if(!sellerId2 || sellerId2 < 1) {
+    return res.status(400).json({
+      resMessage: "invalid seller id",
+      resVisitCount: 0,
+      resErrorCode: 1
+    });
+  }
+ 
+  try {
+    client = await pool.connect();
+    const result = await client.query(
+      `SELECT COUNT(*) FROM livorent_visits WHERE seller_id = $1`,
+      [sellerId2]
+    );
+    const count = Number(result.rows.length);
+
+    if (count < 1) { 
+      //Seller does not exist. It means first visit for that seller. Sending ok message.
+      return res.status(200).json({
+        resMessage: "No one has visited this seller yet",
+        resVisitCount: 0,
+        resOkCode: 1
+      });
+    }
+    console.log("Backend count for seller: ", count);
+    return res.status(200).json({
+      //Seller exists and has been visited before. Sending ok message.
+      resMessage: "Seller exists and has been visited before",
+      resVisitCount: count,
+      resOkCode: 2
+    });
+  } catch (error) {
+    console.error("Database error:", error);
+    return res.status(500).json({
+      resMessage: "Database connection error",
+      resVisitCount: 0,
+      resErrorCode: 2
+    })
+  } finally {
+    if (client) client.release();
+  } 
+})
+// Instead of using: const ipCache2 = {}
+// we are using the map logic below to prevent memory bloat in case website receives thousands of visitors at the same time
+const ipCache2 = new Map();
+function setIpCache2(ip) {
+  ipCache2.set(ip, Date.now());
+  setTimeout(() => ipCache2.delete(ip), 19 * 1000); // auto-delete after 19 seconds
+}
+app.post("/api/post/visitor/item", blockBannedIPs, async (req, res) => {
+  //Here we could basically say "const ipVisitor = req.ip" but my app is running on Render platform
+  //and Render is using proxies or load balancers. Because of that I will see "::1" as ip data if I not use
+  //this line below
+  const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
+  
+  // ⏱ Limit same IP to one visit per 19 seconds
+  if (ipCache2.has(ipVisitor)) {
+    return res.status(429).json({
+      resStatus: false,
+      resMessage: "Too many requests from the same IP",
+      resErrorCode: 1
+    });
+  }
+  setIpCache2(ipVisitor); // Save to ipCache2 with auto-cleanup
+  
+  const userAgentString = req.get('User-Agent');
+  const agent = useragent.parse(userAgentString);
+  
+  let client;
+  const { visitedItem, visitedMainGroup, visitedSubGroup } = req.body;
+  if (!visitedItem || visitedItem < 1) {
+    return res.status(400).json({
+      resStatus: false,
+      resMessage: "Ad id is not valid",
+      resErrorCode: 2
+    });
+  }
+  if (!visitedMainGroup || visitedMainGroup < 1 || visitedMainGroup > 10) {
+    return res.status(400).json({
+      resStatus: false,
+      resMessage: "Main Category id is not valid",
+      resErrorCode: 3
+    });
+  }
+  if (!visitedSubGroup || visitedSubGroup < 10 || visitedSubGroup > 100) {
+    return res.status(400).json({
+      resStatus: false,
+      resMessage: "Sub Category id is not valid",
+      resErrorCode: 4
+    });
+  }
+  try {
+    const visitorData = {
+      ip: ipVisitor,
+      os: agent.os.toString(), // operating system
+      browser: agent.toAgent(), // browser
+      visitDate: new Date().toLocaleDateString('en-GB')
+    };
+    //save visitor to database
+    client = await pool.connect();
+    const result = await client.query(
+      `INSERT INTO livorent_visits (ip, op, browser, date, ad_id, main_id, section_id) 
+      VALUES ($1, $2, $3, $4, $5, $6, $7)`, 
+      [visitorData.ip, visitorData.os, visitorData.browser, visitorData.visitDate, visitedItem, visitedMainGroup, visitedSubGroup]
+    );
+    return res.status(200).json({
+      resStatus: true,
+      resMessage: "Visit registered",
+      resOkCode: 1
+    });
+  } catch (error) {
+    console.error('Error logging visit:', error);
+    return res.status(500).json({
+      resStatus: false,
+      resMessage: "Database connection error",
+      resErrorCode: 5
+    });
+  } finally {
+    if(client) client.release();
+  }
+});
+app.get("/api/get/visits/item/:itemId", rateLimiter, blockBannedIPs, async (req, res) => {
+
+  const { itemId } = req.params;
+  const itemId2 = Number(itemId);
+
+  let client;
+  
+  if(!itemId2 || itemId2 < 1) {
+    return res.status(400).json({
+      resMessage: "invalid item id",
+      resVisitCount: 0,
+      resErrorCode: 1
+    });
+  }
+ 
+  try {
+    client = await pool.connect();
+    const result = await client.query(
+      `SELECT COUNT(*) FROM livorent_visits WHERE ad_id = $1`,
+      [itemId2]
+    );
+    const count = Number(result.rows.count);
+
+    if (count < 1) { 
+      //Item does not exist. It means first visit for that item. Sending ok message.
+      return res.status(200).json({
+        resMessage: "No one has visited this item yet",
+        resVisitCount: 0,
+        resOkCode: 1
+      });
+    }
+    console.log("Backend count for item: ", count);
+    return res.status(200).json({
+      //Item exists and has been visited before. Sending ok message.
+      resMessage: "Item exists and has been visited before",
+      resVisitCount: count,
+      resOkCode: 2
+    });
+    
+  } catch (error) {
+    console.error("Database error:", error);
+    return res.status(500).json({
+      resMessage: "Database connection error",
+      resVisitCount: 0,
+      resErrorCode: 2
+    })
+  } finally {
+    if (client) client.release();
+  } 
 })
 //This line must be under all server routes. Otherwise you will have like not being able to fetch comments etc.
 //This code helps with managing routes that are not defined on react frontend. If you dont add, only index 
@@ -1873,6 +2079,7 @@ Add small screen style
 resultArea style improve on big screen
 Add input validations signup and login and password change and  password renewal components
 change input types for passwords from "text" to "password"
+add useRef logic to all components and add dynamic text display if needed
 
 GENERAL SECURITY
   *Done: verify token middleware: backend

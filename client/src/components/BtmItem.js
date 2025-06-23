@@ -243,7 +243,13 @@ function BtmItem() {
       <div className='FooterContainer'>
         <Footer />
       </div>
-      <BtmVisitor itemId={itemNumber} itemMainCategory={mainCategoryNum} itemSubCategory={sectionNum} />
+      {!loading && mainCategoryNum > 0 && sectionNum > 0 && (
+        <BtmVisitor
+          itemId={itemNumber}
+          itemMainCategory={mainCategoryNum}
+          itemSubCategory={sectionNum}
+        />
+      )}
     </div>
   )
 }

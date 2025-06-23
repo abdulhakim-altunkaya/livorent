@@ -1,10 +1,12 @@
-import React, {useState, useEffect} from "react";
+import {useState, useEffect, useRef} from "react";
 import axios from "axios";
 import "../styles/Login.css";
 import Footer from "./Footer";
 import useUserStore from '../store/userStore';
 
 function BtmRenewal() { 
+
+  const isSaving = useRef(false);  // flag to prevent repetitive requests and duplicates
 
   const [email, setEmail] = useState("");
   const [secretWord, setSecretWord] = useState("");
@@ -25,7 +27,7 @@ function BtmRenewal() {
 
  
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault(); 
 
     if (passtext !== passtextControl) {
       setResultArea("Passwords do not match.");
@@ -37,6 +39,11 @@ function BtmRenewal() {
       return;
     }
     setLoading(true);
+
+    // prevent duplicates
+    if (isSaving.current) return; 
+    isSaving.current = true;
+
     try { 
       const renewalObject = {
         renewalEmail: email, 
@@ -81,6 +88,8 @@ function BtmRenewal() {
           console.error("Request failed:", error.message);
           setLoading(false);
         }
+    } finally {
+      isSaving.current = false;
     }
   }
 
