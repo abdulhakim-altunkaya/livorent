@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from "react";
+import {useState, useEffect, useRef} from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../styles/Login.css";
@@ -7,7 +7,8 @@ import useUserStore from '../store/userStore'; // Adjust path accordingly
 
 function BtmRegister() {
   const navigate = useNavigate();
-  
+  const isSaving = useRef(false);  // flag to prevent repetitive requests and duplicates
+
   const [name, setName] = useState("");
   const [telephone, setTelephone] = useState("");
   const [email, setEmail] = useState("");
@@ -55,6 +56,10 @@ function BtmRegister() {
 
     setLoading(true);
     setResultArea("");
+    
+    // prevent duplicates
+    if (isSaving.current) return; 
+    isSaving.current = true;
     
     try {
       const registerObject = {
@@ -107,6 +112,7 @@ function BtmRegister() {
       }
     } finally {
       setLoading(false);
+      isSaving.current = false;
     }
   }
 

@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from "react";
+import {useState, useEffect, useRef} from "react";
 import { useNavigate, useParams, useLocation  } from "react-router-dom";
 import axios from "axios";
 import "../styles/ProfileUpdate.css";
@@ -8,6 +8,8 @@ import { jwtDecode } from 'jwt-decode';
 
 function BtmProfileUpdate() { 
   const navigate = useNavigate();
+  const isSaving = useRef(false);  // flag to prevent repetitive requests and duplicates
+
   const { visitorNumber } = useParams();
 
   const { state } = useLocation(); //this data is coming from BtmProfile component. It contains userData.
@@ -46,6 +48,9 @@ function BtmProfileUpdate() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // prevent duplicates
+    if (isSaving.current) return; 
+    isSaving.current = true;
     try {
       const updateObject = {
         updateId: Number(visitorNumber),
@@ -76,6 +81,8 @@ function BtmProfileUpdate() {
         setResultArea("Error happened while signup, no data from backend");
         console.log(error.message);
       }
+    } finally {
+      isSaving.current = false;
     }
   }
 
@@ -108,7 +115,9 @@ function BtmProfileUpdate() {
               <input className="loginInputShort1" type="text" id="inputPasstext1" autoComplete="off"
                 value={passtext} onChange={(e) => setPasstext(e.target.value)} required  />
             </div>
-          <button className="btnSelectCategory3" type="submit">Atjaunināt</button>
+          <button className="btnSelectCategory3" type="submit" disabled={isSaving.current} >
+            {isSaving.current ? "Saglabā..." : "Atjaunināt"}
+          </button>
           <span className="btnSelectCategory4" onClick={cancelUpdate}>Atcelt</span>
         </form>
         <div>{resultArea}</div>

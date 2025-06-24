@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import "../styles/Profile.css";
 import Footer from "./Footer.js";
@@ -8,6 +8,7 @@ import { jwtDecode } from 'jwt-decode';
 
 function BtmProfile() {
   const navigate = useNavigate() 
+  const isSaving = useRef(false);  // flag to prevent repetitive requests and duplicates
   //we will check zustand store to see if there is any user data in it. If there is
   //then no need to make repetitive requests to backend and database about user information
   const cachedUserData = useUserStore(state => state.cachedUserData);
@@ -87,6 +88,9 @@ function BtmProfile() {
     );
     //userConfirmed means user confirmed delete operation.
     if (userConfirmed) {
+      // prevent duplicates
+      if (isSaving.current) return; 
+      isSaving.current = true;
       try {
         // Get current state before deletion
         const currentAds = [...message];
@@ -102,6 +106,8 @@ function BtmProfile() {
         window.location.reload(); // ← Force page refresh
       } catch (error) {
         setResultArea(error.response?.data?.error || "Dzēšanas kļūda"); // Red error toast
+      } finally {
+        isSaving.current = false;
       }
     } else {
       return;

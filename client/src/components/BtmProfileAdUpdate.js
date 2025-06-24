@@ -1,5 +1,4 @@
-
-import React, {useEffect, useState} from "react";
+import {useEffect, useState, useRef} from "react";
 import { useNavigate, useParams} from "react-router-dom";
 import axios from "axios";
 import "../styles/upload.css";
@@ -13,6 +12,7 @@ function BtmProfileAdUpdate() {
 
   const navigate = useNavigate();
   const { adNumber } = useParams();
+  const isSaving = useRef(false);  // flag to prevent repetitive requests and duplicates
 
   //we will check if there is token and user id exist in local storage. If there is 
   //we will let the visitor to see upload component. The lines below are for this purpose
@@ -129,6 +129,10 @@ function BtmProfileAdUpdate() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // prevent duplicates
+    if (isSaving.current) return; 
+    isSaving.current = true;
     try {
       const adUpdateObject = {
         adNumber: adNumber,
@@ -175,6 +179,8 @@ function BtmProfileAdUpdate() {
         setResultArea("An error happened while saving the news");
         console.log(error.message);
       } 
+    } finally {
+      isSaving.current = false;
     }
   }
 
@@ -421,7 +427,9 @@ function BtmProfileAdUpdate() {
                       </div>
                 </div>
       
-                <button className="button7007" type="submit">Atjaunināt</button>
+                <button className="button7007" type="submit" disabled={isSaving.current} >
+                  {isSaving.current ? "Saglabā..." : "Atjaunināt"}
+                </button>
               </form>
               <div>{resultArea}</div>
             </div>
