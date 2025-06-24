@@ -60,17 +60,67 @@ const blockBannedIPs = (req, res, next) => {
 };
 
 
-//A temporary cache to save ip addresses and it will prevent spam comments and replies for 1 minute.
+//A temporary cache to save ip addresses and it will prevent spam comments/replies/posts etc.
 //I can do that by checking each ip with database ip addresses but then it will be too many requests to db
-const ipCache3 = {}
+//Thats why I am using a custom rateLimiter
 app.post("/api/post/serversavead", upload.array("images", 4), authenticateToken, rateLimiter, blockBannedIPs, async (req, res) => {
   //preventing spam comments
   const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
 
   let client;
-  const adData = JSON.parse(req.body.adData);  // ✅ Parse the JSON string
+
+  // ✅ 1. Parse and sanitize input
+  const sanitizeObject = require('./utilsSanitize.js').sanitizeObject;
+  let adData;
+  try {
+    adData = JSON.parse(req.body.adData);
+  } catch (err) {
+    return res.status(400).json({
+      resStatus: false,
+      resMessage: "Invalid ad data format",
+      resErrorCode: 1
+    });
+  }
+  sanitizeObject(adData); // 👈 Sanitize after parsing
+  // ✅ 2. Extract sanitized values
   const { adTitle, adDescription, adPrice, adCity, adName, adTelephone, adCategory, adVisitorNumber } = adData;
 
+
+  if (!adTitle || !adDescription || adTitle.trim().length < 4 || adDescription.trim().length < 10) {
+    return res.status(400).json({
+      resStatus: false,
+      resMessage: "Ad title or description not valid",
+      resErrorCode: 2
+    });
+  }
+  if (!adPrice || !adCity || adPrice.trim().length < 1 || adCity.trim().length < 3) {
+    return res.status(400).json({
+      resStatus: false,
+      resMessage: "City or price info not valid",
+      resErrorCode: 3
+    });
+  }
+  if (!adName || !adTelephone || adName.trim().length < 1 || adTelephone.trim().length < 8 || adTelephone.trim().length > 12) {
+    return res.status(400).json({
+      resStatus: false,
+      resMessage: "Name or telelphone info not valid",
+      resErrorCode: 4
+    });
+  }
+  if (!adVisitorNumber || Number(adVisitorNumber) < 1 || Number(adVisitorNumber) > 1000000) {
+    return res.status(400).json({
+      resStatus: false,
+      resMessage: "Visitor number not valid",
+      resErrorCode: 5
+    });
+  }
+  if (!adCategory || Number(adCategory) < 10 || Number(adCategory) > 99) {
+    return res.status(400).json({
+      resStatus: false,
+      resMessage: "Ad category not valid",
+      resErrorCode: 6
+    });
+  }
   const visitorData = {
     ip: ipVisitor,
     visitDate: new Date().toLocaleDateString('en-GB')
@@ -78,9 +128,26 @@ app.post("/api/post/serversavead", upload.array("images", 4), authenticateToken,
 
   //IMAGE UPLOAD
   const files = req.files;
-  let uploadedImageUrls = [];
+  if (!Array.isArray(files) || files.length < 1 || files.length > 4) {
+    return res.status(400).json({
+      resStatus: false,
+      resMessage: "1 to 4 images required",
+      resErrorCode: 7
+    });
+  }
+  
   // Supported image file types
   const allowedMimeTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+  for (const file of files) {
+    if (!allowedMimeTypes.includes(file.mimetype)) {
+      return res.status(400).json({
+        resStatus: false,
+        resMessage: "Unsupported file type",
+        resErrorCode: 8
+      });
+    }
+  }
+  let uploadedImageUrls = [];
   for (const file of files) {
     const fileName = `${Date.now()}-${file.originalname}`;
     const { data, error } = await supabase.storage
@@ -92,7 +159,11 @@ app.post("/api/post/serversavead", upload.array("images", 4), authenticateToken,
                 });
     if (error) {
         console.error("Supabase Upload Error:", error);
-        return res.status(500).json({ error: "Error uploading file to storage." });
+        return res.status(503).json({
+          resStatus: false,
+          resMessage: "Error uploading file to storage.",
+          resErrorCode: 9
+        });
     }
     const imageUrl = `${process.env.SUPABASE_URL}/storage/v1/object/public/livo/${fileName}`;
     uploadedImageUrls.push(imageUrl);
@@ -111,14 +182,23 @@ app.post("/api/post/serversavead", upload.array("images", 4), authenticateToken,
       (title, description, price, city, name, telephone, ip, date, image_url, main_group, sub_group, user_id) 
       values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
       [adTitle, adDescription, adPrice, adCity, adName, adTelephone, visitorData.ip, 
-        visitorData.visitDate, JSON.stringify(uploadedImageUrls), mainCategoryNum, sectionCategoryNum, adVisitorNumber]
+        visitorData.visitDate, JSON.stringify(uploadedImageUrls), mainCategoryNum, 
+        sectionCategoryNum, Number(adVisitorNumber)]
     );
-    res.status(201).json({myMessage: "Ad saved"});
+    return res.status(201).json({
+      resStatus: true,
+      resMessage: "Ad saved",
+      resOkCode: 1
+    });
   } catch (error) {
     console.log(error.message);
-    res.status(500).json({myMessage: "Error while saving ad"})
+    return res.status(503).json({
+      resStatus: false,
+      resMessage: "Database connection failed",
+      resErrorCode: 10
+    });
   } finally {
-    client.release();
+    if (client) client.release();
   } 
 
 }); 
@@ -2077,7 +2157,8 @@ Add small screen style
 resultArea style improve on big screen
 Add input validations signup and login and password change and  password renewal components
 change input types for passwords from "text" to "password"
-add useRef logic to all components and add dynamic text display if needed
+Add returning to all db requests to prevent data leak
+
 
 GENERAL SECURITY
   *Done: verify token middleware: backend
@@ -2097,6 +2178,9 @@ BEFORE DEPLOYING:
   remove all localhost words from api endpoints in frontend
   convert all error, success and alert messages to Latvian, also buttons and any other text
   change all xxxxx things in the footer component 
+
+DONE
+add useRef logic to all components and add dynamic text display if needed
 */
 
 //A temporary cache to save ip addresses and it will prevent saving same ip addresses for 1 hour.

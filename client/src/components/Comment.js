@@ -52,7 +52,7 @@ function Comment({ commentReceiver, refreshComments }) {
             });
             setTextComment(res1?.data?.resMessage);
             refreshComments();
-        } catch (error) {
+        } catch (error) { 
             const code = error.response?.data?.resErrorCode; //"response" is a keyword/field name of error object.
             if (code === 1) {
                 setErrorText("Database error, please try again later.");

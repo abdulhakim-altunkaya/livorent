@@ -29,9 +29,7 @@ function BtmVisitor({ sellerId, itemId, itemMainCategory, itemSubCategory, handl
         handleVisitorsItem(res1.data.resVisitCount);
       } catch (error) {
         console.log(error) 
-      } finally {
-        
-      }
+      } 
     }
     const saveSellerVisit = async () => {
       // prevent duplicates
@@ -43,10 +41,9 @@ function BtmVisitor({ sellerId, itemId, itemMainCategory, itemSubCategory, handl
             visitedSeller: Number(sellerId)
         };
         const res1 = await axios.post("http://localhost:5000/api/post/visitor/seller", visitorObject);
-
       } catch (error) {
         console.log(error)
-      } finally {
+      } finally { 
         isSaving.current = false;
       }
     }

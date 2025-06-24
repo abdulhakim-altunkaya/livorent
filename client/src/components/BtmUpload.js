@@ -129,12 +129,36 @@ function BtmUpload() {
             "Content-Type": "multipart/form-data",
             Authorization: `Bearer ${token}`
           },
-      });
-      setResultArea(`${res1.data.myMessage} ✅`);  // Emoji U+2705
+      }); 
+      setResultArea(`${res1.data.resMessage} ✅`);  // Emoji U+2705
       alert("ad saved");
     } catch (error) {
-      if (error.response) {
-        setResultArea(error.response.data.myMessage);
+      if (error.response && error.response.data) {
+        const errCode = error.response.data.resErrorCode;
+        if (errCode === 1) {
+          setResultArea("Invalid ad data format ❌"); // emoji \u274C
+        } else if (errCode === 2) {
+          setResultArea("Ad title or description not valid ❌");
+        } else if (errCode === 3) {
+          setResultArea("City or price info not valid ❌");
+        } else if (errCode === 4) {
+          setResultArea("Name or telephone info not valid ❌");
+        } else if (errCode === 5) {
+          setResultArea("Visitor number not valid ❌");
+        } else if (errCode === 6) {
+          setResultArea("Ad category not valid ❌");
+        } else if (errCode === 7) {
+          setResultArea("1 to 4 images required ❌");
+        } else if (errCode === 8) {
+          setResultArea("Unsupported file type ❌");
+        } else if (errCode === 9) {
+          setResultArea("Error uploading file to storage ❌");
+        } else if (errCode === 10) {
+          setResultArea("Database connection failed ❌");
+        } else {
+          // Unknown error code
+          setResultArea(error.response.data.resMessage || "An unknown error occurred ❌");
+        }
         console.log(error.message);
       } else {
         setResultArea("An error happened while saving the news");
