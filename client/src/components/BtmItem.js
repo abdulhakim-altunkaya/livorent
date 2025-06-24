@@ -232,7 +232,7 @@ function BtmItem() {
                     <br/>
                     <BtmLikeItem itemId={itemNumber}  />
                     <div className='smallText'><span>Datums:</span><span>    {message.date}</span></div>
-                    <div className='smallText'><span>Skatījumu skaits: {visitorsItem}</span><span></span></div>
+                    <div className='smallText'><span>Skatījumu skaits: {visitorsItem}</span></div>
                   </div>
                 </>
               ) : (

@@ -1,4 +1,4 @@
-import {useEffect, useState, useRef } from 'react';
+import {useEffect, useRef } from 'react';
 import axios from 'axios';
 
 function BtmVisitor({ sellerId, itemId, itemMainCategory, itemSubCategory, handleVisitorsSeller, handleVisitorsItem }) {
@@ -51,15 +51,15 @@ function BtmVisitor({ sellerId, itemId, itemMainCategory, itemSubCategory, handl
       }
     }
     const getSellerVisit = async () => {
+      const parsedId = Number(String(sellerId).trim());
       try {
-        const res1 = await axios.get(`http://localhost:5000/api/get/visits/seller/${sellerId}`);
+        const res1 = await axios.get(`http://localhost:5000/api/get/visits/seller/${parsedId}`);
         handleVisitorsSeller(res1.data.resVisitCount);
       } catch (error) {
-        console.log(error) 
-      } finally {
-        
+        console.log(error);
       }
-    }
+    };
+
     useEffect(() => {
         if (itemId && sellerId) {
             console.warn("Both itemId and sellerId provided. Aborting to prevent conflict.");

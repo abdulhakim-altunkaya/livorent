@@ -93,6 +93,7 @@ function BtmSeller() {
                       <></>
                     }
                   </div>
+                  <div >Skatījumu skaits: <strong>{visitorsSeller}</strong></div>
                   <div className='lastDivProfile'>Since: <strong>{sellerData.date}</strong></div>
                   <BtmLikeSeller sellerId={sellerNumber}  />
                 </div>

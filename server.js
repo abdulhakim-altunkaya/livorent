@@ -1865,7 +1865,7 @@ app.get("/api/get/visits/seller/:sellerId", rateLimiter, blockBannedIPs, async (
       `SELECT COUNT(*) FROM livorent_visits WHERE seller_id = $1`,
       [sellerId2]
     );
-    const count = Number(result.rows[0].length);
+    const count = Number(result.rows[0].count);
 
     if (count < 1) { 
       //Seller does not exist. It means first visit for that seller. Sending ok message.
