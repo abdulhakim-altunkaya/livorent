@@ -16,6 +16,8 @@ function BtmUpload() {
   const myNum = userIdData.userNumber; // Get the actual number
 
   const navigate = useNavigate();
+  const isSaving = useRef(false);  // flag to prevent repetitive requests and duplicates
+  const [isSavingButton, setIsSavingButton] = useState(false); //used to display dynamic text in saving button
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -28,9 +30,6 @@ function BtmUpload() {
   const [selectedCategory, setSelectedCategory] = useState("");
   const visitorNumberFromStorage = Number(localStorage.getItem("visitorNumber"));
   const token = localStorage.getItem("token_livorent");
-
-  const isSaving = useRef(false);  // flag to prevent repetitive requests and duplicates
-  const [isSavingButton, setIsSavingButton] = useState(false); //used to display dynamic text in saving button
 
   useEffect(() => {
       //Check 1: Only people with token can open upload page. 

@@ -1,15 +1,16 @@
-import {useState} from 'react';
+import {useState, useRef} from 'react';
 import axios from "axios";
 import "../styles/CommentReply.css";
 
 function RewiewReply({ reviewReceiver, cancelReply, parentId, refreshReplies }) {
+    const isSaving = useRef(false);  // flag to prevent repetitive requests and duplicates
+
     const [inputName, setInputName] = useState("");
     const [inputReply, setInputReply] = useState("");
-    const [isSaving, setIsSaving] = useState(false);
     const [errorText, setErrorText] = useState("");
 
     const saveReply = async () => {
-        if (isSaving) return; //prevent double submissions
+        
         
         const token = localStorage.getItem("token_livorent");
         const visitorNumber = localStorage.getItem("visitorNumber");
@@ -30,7 +31,9 @@ function RewiewReply({ reviewReceiver, cancelReply, parentId, refreshReplies }) 
             return;
         }
 
-        setIsSaving(true);
+        // prevent duplicates
+        if (isSaving.current) return; 
+        isSaving.current = true;    
         try {
             const replyObject = { 
                 replyText: trimmedReply,
@@ -65,7 +68,7 @@ function RewiewReply({ reviewReceiver, cancelReply, parentId, refreshReplies }) 
                 setErrorText("An unknown error occurred.");
             }
         } finally {
-            setIsSaving(false);
+            isSaving.current = false;
         }
     };
 
@@ -77,8 +80,8 @@ function RewiewReply({ reviewReceiver, cancelReply, parentId, refreshReplies }) 
                 <textarea  className='replyInputText' placeholder="Comment" value={inputReply}
                     onChange={ (e) => setInputReply(e.target.value)}/>
                 <div>
-                    <button className='replyButtonChild' onClick={saveReply} disabled={isSaving} >
-                        {isSaving ? "Saglabā..." : "Saglabāt"}
+                    <button className='replyButtonChild' onClick={saveReply} disabled={isSaving.current}>
+                        {isSaving.current ? "Saglabā..." : "Saglabāt"}
                     </button> &nbsp;&nbsp;&nbsp;
                     <button className='replyButtonChild' onClick={cancelReply} >
                         Atcelt

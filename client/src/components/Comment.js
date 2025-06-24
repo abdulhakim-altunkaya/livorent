@@ -3,12 +3,12 @@ import axios from "axios";
 import "../styles/Comment.css";
 
 function Comment({ commentReceiver, refreshComments }) {
+    const isSaving = useRef(false);  // flag to prevent repetitive requests and duplicates
+    const [isSavingButton, setIsSavingButton] = useState(false); //used to display dynamic text in saving button
+
     const [textComment, setTextComment] = useState("");
     const [commentorName, setCommentorName] = useState("");
     const [errorText, setErrorText] = useState("");
-
-    const isSaving = useRef(false);  // flag to prevent repetitive requests and duplicates
-    const [isSavingButton, setIsSavingButton] = useState(false); //used to display dynamic text in saving button
 
     const escapeHtml = str => str.replace(/[<>]/g, t => t === '<' ? '&lt;' : '&gt;');
 

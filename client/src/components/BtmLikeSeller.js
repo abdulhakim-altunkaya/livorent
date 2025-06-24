@@ -26,6 +26,7 @@ function BtmLikeSeller({ sellerId }) {
     const [isLikeAllowed, setIsLikeAllowed] = useState(true);
     const [likeMessage, setLikeMessage] = useState("");
 
+    const isSaving = useRef(false);  // flag to prevent repetitive requests and duplicates
     const timeoutRef = useRef(null); // to store debounce timer
     const latestLikeStatus = useRef(hasLiked); // to store the latest like state
 
@@ -97,6 +98,10 @@ function BtmLikeSeller({ sellerId }) {
     }
 
     const saveLike = async (likeSta) => {
+      
+      // prevent duplicates
+      if (isSaving.current) return; 
+      isSaving.current = true;
       try {
         const likeObject = { 
             likerId: visitorNumberFromStorage,
@@ -112,6 +117,8 @@ function BtmLikeSeller({ sellerId }) {
         
       } catch (error) {
         console.log(error.message);
+      } finally {
+        isSaving.current = false;
       }
     }
 

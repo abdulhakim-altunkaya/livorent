@@ -1,19 +1,18 @@
-import {useState} from 'react';
+import {useState, useRef} from 'react';
 import axios from "axios";
 import "../styles/Comment.css";
 
 function Review({ reviewReceiver, refreshReplies }) {
+    const isSaving = useRef(false);  // flag to prevent repetitive requests and duplicates
+
     const [textReview, setTextReview] = useState("");
     const [reviewerName, setReviewerName] = useState("") 
-    const [isSaving, setIsSaving] = useState(false);
     const [errorText, setErrorText] = useState("");
     const [selectedRating, setSelectedRating] = useState(null);
 
     const escapeHtml = str => str.replace(/[<>]/g, t => t === '<' ? '&lt;' : '&gt;');
 
     const saveReview = async () => {
-        if (isSaving) return; //prevent double submissions
-
         const token = localStorage.getItem("token_livorent");
         const visitorNumber = localStorage.getItem("visitorNumber");
 
@@ -45,7 +44,9 @@ function Review({ reviewReceiver, refreshReplies }) {
             return;
         }
 
-        setIsSaving(true);
+        // prevent duplicates
+        if (isSaving.current) return; 
+        isSaving.current = true;
         try {
             const reviewObject = {
                 reviewText: safeReview,
@@ -81,7 +82,7 @@ function Review({ reviewReceiver, refreshReplies }) {
             }
             console.log(error);
         } finally {
-            setIsSaving(false);
+            isSaving.current = false;
             setTextReview("");
             setReviewerName("");
         }
@@ -111,8 +112,8 @@ function Review({ reviewReceiver, refreshReplies }) {
                     onChange={ (e) => setReviewerName(e.target.value)}/>
                 <textarea  className='commentInputText' placeholder="Review"
                     onChange={ (e) => setTextReview(e.target.value)} value={textReview} />
-                <button className='commentSaveBtn' onClick={saveReview} disabled={isSaving} >
-                    {isSaving ? "Saglabā..." : "Saglabāt"}
+                <button className='commentSaveBtn' onClick={saveReview} disabled={isSaving.current} >
+                    {isSaving.current ? "Saglabā..." : "Saglabāt"}
                 </button>
                 {errorText && <div className="commentError">{errorText}</div>}
             </div>

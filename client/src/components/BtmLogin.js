@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from "react";
+import {useState, useEffect, useRef} from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../styles/Login.css";
@@ -7,7 +7,8 @@ import useUserStore from '../store/userStore'; // Adjust path accordingly
  
 function BtmLogin() { 
   const navigate = useNavigate();
-  
+  const isSaving = useRef(false);  // flag to prevent repetitive requests and duplicates
+
   const [email, setEmail] = useState("");
   const [passtext, setPasstext] = useState("");
   const [resultArea, setResultArea] = useState("");
@@ -49,7 +50,9 @@ function BtmLogin() {
     }
     setResultArea(""); // Clear previous result before submitting
     setLoading(true);
-
+    // prevent duplicates
+    if (isSaving.current) return; 
+    isSaving.current = true;
     try { 
       const loginObject = {
         loginEmail: email.toLowerCase().trim(), 
@@ -102,6 +105,7 @@ function BtmLogin() {
         }
     } finally {
       setLoading(false);
+      isSaving.current = false;
     }  
   }
 

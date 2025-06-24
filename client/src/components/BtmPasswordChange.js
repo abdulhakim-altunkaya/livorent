@@ -1,10 +1,11 @@
-import React, {useState, useEffect} from "react";
+import {useState, useRef} from "react";
 import axios from "axios";
 import "../styles/Login.css";
 import Footer from "./Footer";
 import useUserStore from '../store/userStore'; // Adjust path accordingly
 
 function BtmPasswordChange() { 
+  const isSaving = useRef(false);  // flag to prevent repetitive requests and duplicates
 
   const [email, setEmail] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
@@ -29,6 +30,9 @@ function BtmPasswordChange() {
       return;
     }
     setLoading(true);
+    // prevent duplicates
+    if (isSaving.current) return; 
+    isSaving.current = true;
     try {  
       const changeObject = {
         changeEmail: email.trim(),
@@ -73,6 +77,7 @@ function BtmPasswordChange() {
       }
     } finally {
       setLoading(false);
+      isSaving.current = false;
     }
   }
 
