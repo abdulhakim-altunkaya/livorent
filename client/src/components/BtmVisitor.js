@@ -1,7 +1,7 @@
-import {useEffect, useRef } from 'react';
+import {useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 
-function BtmVisitor({ sellerId, itemId, itemMainCategory, itemSubCategory }) {
+function BtmVisitor({ sellerId, itemId, itemMainCategory, itemSubCategory, handleVisitorsSeller, handleVisitorsItem }) {
 
     const isSaving = useRef(false);  // flag to prevent repetitive requests and duplicates
   
@@ -25,8 +25,8 @@ function BtmVisitor({ sellerId, itemId, itemMainCategory, itemSubCategory }) {
     }
     const getItemVisit = async () => {
       try {
-        const res1 = await axios.get(`http://localhost:5000/api/get/visits/seller/${itemId}`);
-        console.log(res1.data.resVisitCount);
+        const res1 = await axios.get(`http://localhost:5000/api/get/visits/item/${itemId}`);
+        handleVisitorsItem(res1.data.resVisitCount);
       } catch (error) {
         console.log(error) 
       } finally {
@@ -43,6 +43,7 @@ function BtmVisitor({ sellerId, itemId, itemMainCategory, itemSubCategory }) {
             visitedSeller: Number(sellerId)
         };
         const res1 = await axios.post("http://localhost:5000/api/post/visitor/seller", visitorObject);
+
       } catch (error) {
         console.log(error)
       } finally {
@@ -51,8 +52,8 @@ function BtmVisitor({ sellerId, itemId, itemMainCategory, itemSubCategory }) {
     }
     const getSellerVisit = async () => {
       try {
-        const res1 = await axios.get(`http://localhost:5000/api/get/visits/item/${sellerId}`);
-        console.log(res1.data.resVisitCount);
+        const res1 = await axios.get(`http://localhost:5000/api/get/visits/seller/${sellerId}`);
+        handleVisitorsSeller(res1.data.resVisitCount);
       } catch (error) {
         console.log(error) 
       } finally {

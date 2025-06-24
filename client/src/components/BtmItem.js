@@ -29,6 +29,8 @@ function BtmItem() {
   const [sectionNum, setSectionNum] = useState(0);
   //we need this to authenticate token on protected endpoints
   const token = localStorage.getItem("token_livorent");
+  //visitors count set by the child BtmVisitor component
+  const [visitorsItem, setVisitorsItem] = useState(null);
 
   useEffect(() => {
     const getData = async () => {
@@ -156,6 +158,10 @@ function BtmItem() {
     }
   }
 
+  const handleVisitorsItem = (num) => {
+    setVisitorsItem(num)
+  }
+
   return ( 
     <div>
       <div className='itemMainContainer'>
@@ -226,9 +232,7 @@ function BtmItem() {
                     <br/>
                     <BtmLikeItem itemId={itemNumber}  />
                     <div className='smallText'><span>Datums:</span><span>    {message.date}</span></div>
-                    <div className='smallText'><span>Unikālo apmeklējumu skaits:</span><span></span></div>
-                    
-                  
+                    <div className='smallText'><span>Skatījumu skaits: {visitorsItem}</span><span></span></div>
                   </div>
                 </>
               ) : (
@@ -248,6 +252,7 @@ function BtmItem() {
           itemId={itemNumber}
           itemMainCategory={mainCategoryNum}
           itemSubCategory={sectionNum}
+          handleVisitorsItem={handleVisitorsItem}
         />
       )}
     </div>

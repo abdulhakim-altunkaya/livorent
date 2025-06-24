@@ -1784,7 +1784,7 @@ app.post("/api/post/save-like-item", authenticateToken, rateLimiter, blockBanned
 const ipCache = new Map();
 function setIpCache(ip) {
   ipCache.set(ip, Date.now());
-  setTimeout(() => ipCache.delete(ip), 19 * 1000); // auto-delete after 19s to ensure a single visit per IP every 20 seconds
+  setTimeout(() => ipCache.delete(ip), 38 * 1000); // auto-delete after 38s to ensure a single visit per IP every 20 seconds
 }
 app.post("/api/post/visitor/seller", blockBannedIPs, async (req, res) => {
   //Here we could basically say "const ipVisitor = req.ip" but my app is running on Render platform
@@ -1792,12 +1792,12 @@ app.post("/api/post/visitor/seller", blockBannedIPs, async (req, res) => {
   //this line below
   const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
   
-  // ⏱ Limit same IP to one visit per 19 seconds
+  // ⏱ Limit same IP to one visit per 38 seconds
   if (ipCache.has(ipVisitor)) {
-    return res.status(429).json({
+    return res.status(200).json({
       resStatus: false,
       resMessage: "Too many request from same ip",
-      resErrorCode: 1
+      resOkCode: 1
     });
   }
   setIpCache(ipVisitor); // Save to cache with auto-cleanup
@@ -1812,7 +1812,7 @@ app.post("/api/post/visitor/seller", blockBannedIPs, async (req, res) => {
     return res.status(400).json({
       resStatus: false,
       resMessage: "Seller id is not valid",
-      resErrorCode: 2
+      resErrorCode: 1
     });
   }
   try {
@@ -1831,14 +1831,14 @@ app.post("/api/post/visitor/seller", blockBannedIPs, async (req, res) => {
     return res.status(200).json({
       resStatus: true,
       resMessage: "Visit registered",
-      resOkCode: 1
+      resOkCode: 2
     });
   } catch (error) {
     console.error('Error logging visit:', error);
     return res.status(500).json({
       resStatus: false,
       resMessage: "Database connection error",
-      resErrorCode: 3
+      resErrorCode: 2
     });
   } finally {
     if(client) client.release();
@@ -1865,7 +1865,7 @@ app.get("/api/get/visits/seller/:sellerId", rateLimiter, blockBannedIPs, async (
       `SELECT COUNT(*) FROM livorent_visits WHERE seller_id = $1`,
       [sellerId2]
     );
-    const count = Number(result.rows.length);
+    const count = Number(result.rows[0].length);
 
     if (count < 1) { 
       //Seller does not exist. It means first visit for that seller. Sending ok message.
@@ -1875,7 +1875,6 @@ app.get("/api/get/visits/seller/:sellerId", rateLimiter, blockBannedIPs, async (
         resOkCode: 1
       });
     }
-    console.log("Backend count for seller: ", count);
     return res.status(200).json({
       //Seller exists and has been visited before. Sending ok message.
       resMessage: "Seller exists and has been visited before",
@@ -1898,7 +1897,7 @@ app.get("/api/get/visits/seller/:sellerId", rateLimiter, blockBannedIPs, async (
 const ipCache2 = new Map();
 function setIpCache2(ip) {
   ipCache2.set(ip, Date.now());
-  setTimeout(() => ipCache2.delete(ip), 19 * 1000); // auto-delete after 19 seconds
+  setTimeout(() => ipCache2.delete(ip), 38 * 1000); // auto-delete after 38 seconds
 }
 app.post("/api/post/visitor/item", blockBannedIPs, async (req, res) => {
   //Here we could basically say "const ipVisitor = req.ip" but my app is running on Render platform
@@ -1906,12 +1905,12 @@ app.post("/api/post/visitor/item", blockBannedIPs, async (req, res) => {
   //this line below
   const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
   
-  // ⏱ Limit same IP to one visit per 19 seconds
+  // ⏱ Limit same IP to one visit per 38 seconds
   if (ipCache2.has(ipVisitor)) {
-    return res.status(429).json({
+    return res.status(200).json({
       resStatus: false,
       resMessage: "Too many requests from the same IP",
-      resErrorCode: 1
+      resOkCode: 1
     });
   }
   setIpCache2(ipVisitor); // Save to ipCache2 with auto-cleanup
@@ -1925,21 +1924,21 @@ app.post("/api/post/visitor/item", blockBannedIPs, async (req, res) => {
     return res.status(400).json({
       resStatus: false,
       resMessage: "Ad id is not valid",
-      resErrorCode: 2
+      resErrorCode: 1
     });
   }
   if (!visitedMainGroup || visitedMainGroup < 1 || visitedMainGroup > 10) {
     return res.status(400).json({
       resStatus: false,
       resMessage: "Main Category id is not valid",
-      resErrorCode: 3
+      resErrorCode: 2
     });
   }
   if (!visitedSubGroup || visitedSubGroup < 10 || visitedSubGroup > 100) {
     return res.status(400).json({
       resStatus: false,
       resMessage: "Sub Category id is not valid",
-      resErrorCode: 4
+      resErrorCode: 3
     });
   }
   try {
@@ -1959,14 +1958,14 @@ app.post("/api/post/visitor/item", blockBannedIPs, async (req, res) => {
     return res.status(200).json({
       resStatus: true,
       resMessage: "Visit registered",
-      resOkCode: 1
+      resOkCode: 2
     });
   } catch (error) {
     console.error('Error logging visit:', error);
     return res.status(500).json({
       resStatus: false,
       resMessage: "Database connection error",
-      resErrorCode: 5
+      resErrorCode: 4
     });
   } finally {
     if(client) client.release();
@@ -1993,8 +1992,7 @@ app.get("/api/get/visits/item/:itemId", rateLimiter, blockBannedIPs, async (req,
       `SELECT COUNT(*) FROM livorent_visits WHERE ad_id = $1`,
       [itemId2]
     );
-    const count = Number(result.rows.count);
-
+    const count = Number(result.rows[0].count);
     if (count < 1) { 
       //Item does not exist. It means first visit for that item. Sending ok message.
       return res.status(200).json({
@@ -2003,7 +2001,7 @@ app.get("/api/get/visits/item/:itemId", rateLimiter, blockBannedIPs, async (req,
         resOkCode: 1
       });
     }
-    console.log("Backend count for item: ", count);
+    
     return res.status(200).json({
       //Item exists and has been visited before. Sending ok message.
       resMessage: "Item exists and has been visited before",

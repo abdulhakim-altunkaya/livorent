@@ -26,6 +26,7 @@ function BtmSeller() {
 
   const [rating, setRating] = useState(null);
   const [raters, setRaters] = useState(null);
+  const [visitorsSeller, setVisitorsSeller] = useState(null);
 
   useEffect(() => {
     const getData = async () => {
@@ -61,6 +62,9 @@ function BtmSeller() {
   };
   const handleRaters = (num) => {
     setRaters(num);
+  }
+  const handleVisitorsSeller = (num) => {
+    setVisitorsSeller(num);
   }
 
   return (
@@ -148,7 +152,7 @@ function BtmSeller() {
       <div className='FooterContainer'>
         <Footer />
       </div>
-      <BtmVisitor sellerId={sellerNumber}  />
+      <BtmVisitor sellerId={sellerNumber} handleVisitorsSeller={handleVisitorsSeller} />
     </div>
   )
 }
