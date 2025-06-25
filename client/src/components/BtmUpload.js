@@ -131,7 +131,6 @@ function BtmUpload() {
           },
       }); 
       setResultArea(`${res1.data.resMessage} ✅`);  // Emoji U+2705
-      alert("ad saved");
     } catch (error) {
       if (error.response && error.response.data) {
         const errCode = error.response.data.resErrorCode;
@@ -375,6 +374,7 @@ function BtmUpload() {
               </div>
               <button className="button7007" type="submit">{isSavingButton ? "Augšupielādē..." : "Augšupielādēt"}</button>
             </form>
+            <br/>
             <div>{resultArea}</div>
           </div>
           <br /><br /><br /><br /><br /><br /><br /><br /> 

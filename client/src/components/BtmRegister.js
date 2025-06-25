@@ -56,7 +56,7 @@ function BtmRegister() {
 
     setLoading(true);
     setResultArea("");
-    
+     
     // prevent duplicates
     if (isSaving.current) return; 
     isSaving.current = true;
@@ -95,19 +95,30 @@ function BtmRegister() {
         const resMessage = error.response.data.resMessage;
 
         if (errorCode === 1) {
-          setResultArea("Lūdzu, aizpildiet visus laukus.");
+          setResultArea("Nepareizs pieprasījuma formāts. ❌");
         } else if (errorCode === 2) {
-          setResultArea("Šis e-pasts jau ir reģistrēts. Mēģiniet pieteikties vai izmantot citu e-pastu.");
+          setResultArea("Lūdzu, aizpildiet visus laukus. ❌");
         } else if (errorCode === 3) {
-          setResultArea("Radās servera kļūda. Mēģiniet vēlreiz vēlāk.");
+          setResultArea("Nederīgs e-pasta formāts. ❌");
+        } else if (errorCode === 4) {
+          setResultArea("Parolei jābūt vismaz 6 simbolu garai. ❌");
+        } else if (errorCode === 5) {
+          setResultArea("Slepenais vārds ir par īsu. ❌");
+        } else if (errorCode === 6) {
+          setResultArea("Vārds ir obligāts. ❌");
+        } else if (errorCode === 7) {
+          setResultArea("Nederīgs tālruņa numurs. ❌");
+        } else if (errorCode === 8) {
+          setResultArea("Šis e-pasts jau ir reģistrēts. Mēģiniet pieteikties vai izmantot citu e-pastu. ❌");
+        } else if (errorCode === 9) {
+          setResultArea("Radās servera kļūda. Mēģiniet vēlreiz vēlāk. ❌");
         } else {
-          // fallback if unknown code or no code at all
-          setResultArea(resMessage || "Nezināma kļūda pie reģistrācijas.");
+          setResultArea(resMessage || "Nezināma kļūda pie reģistrācijas. ❌");
         }
 
         console.warn("Kļūda pie reģistrācijas:", resMessage);
       } else {
-        setResultArea("Reģistrācijas kļūda: serveris neatbild.");
+        setResultArea("Reģistrācijas kļūda: serveris neatbild. ❌");
         console.error("Unhandled signup error:", error.message);
       }
     } finally {
@@ -182,7 +193,8 @@ function BtmRegister() {
             {loading ? "Lūdzu uzgaidiet..." : "Reģistrēties"}
           </button>
         </form>
-        <div>{resultArea}</div>
+        <br/>
+        <div className="resultAreaRegister">{resultArea}</div>
       </div>
       <br /><br /><br /><br /><br /><br /><br /><br />
       <Footer />

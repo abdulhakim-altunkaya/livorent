@@ -19,7 +19,11 @@ app.use(express.json()); //we need this to read the data is coming from frontend
 //app.use(express.static(path.join(__dirname, "client/build")));
 
 // 🔒 MIDDLEWARE 1: Custom input sanitization
-const sanitizeInputs = require('./utilsSanitize.js');
+// sanitizeInput will be used to process all data coming from frontend in req.body, query, params.
+// However, for upload endpoint sanitizeInput will not be enough because upload data is coming inside 
+// multipart form data. That is why we need custom sanitizeObject function to sanitize the data there.
+// For all the other data coming from frontend sanitizeInputs will automatically process as it is a middleware.
+const { sanitizeInputs, sanitizeObject } = require('./utilsSanitize.js');
 app.use(sanitizeInputs);
 
 // 🔐 MIDDLEWARE 2: Token verification
@@ -70,7 +74,6 @@ app.post("/api/post/serversavead", upload.array("images", 4), authenticateToken,
   let client;
 
   // ✅ 1. Parse and sanitize input
-  const sanitizeObject = require('./utilsSanitize.js').sanitizeObject;
   let adData;
   try {
     adData = JSON.parse(req.body.adData);
@@ -213,6 +216,13 @@ app.post("/api/register", rateLimiter, blockBannedIPs, async (req, res) => {
   const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
 
   let client;
+  if (!req.body || typeof req.body !== 'object') {
+  return res.status(400).json({
+    resStatus: false,
+    resMessage: 'Invalid request body',
+    resErrorCode: 1
+  });
+}
   const registerObject = req.body;
   const registerLoad = {
     name1: registerObject.registerName.trim(),
@@ -228,13 +238,45 @@ app.post("/api/register", rateLimiter, blockBannedIPs, async (req, res) => {
 
   if (!registerLoad.email1 || !registerLoad.passtext1 || !registerLoad.secretWord1
       || !registerLoad.name1 || !registerLoad.telephone1) {
-    return res.status(400).json({ 
+    return res.status(400).json({  
       resStatus: false,
       resMessage: 'Missing fields', 
-      resVisitorNumber: 0, 
-      resToken: "",
-      resUser: null,
-      resErrorCode: 1
+      resErrorCode: 2
+    });
+  }
+  if (registerLoad.email1.length < 5 || !registerLoad.email1.includes('@')) {
+    return res.status(400).json({
+      resStatus: false,
+      resMessage: 'Invalid email format',
+      resErrorCode: 3
+    });
+  }
+  if (registerLoad.passtext1.length < 6) {
+    return res.status(400).json({
+      resStatus: false,
+      resMessage: 'Password must be at least 6 characters',
+      resErrorCode: 4
+    });
+  }
+  if (registerLoad.secretWord1.length < 3) {
+    return res.status(400).json({
+      resStatus: false,
+      resMessage: 'Secret word too short',
+      resErrorCode: 5
+    });
+  }
+  if (registerLoad.name1.trim().length < 1) {
+    return res.status(400).json({
+      resStatus: false,
+      resMessage: 'Name is required',
+      resErrorCode: 6
+    });
+  }
+  if (registerLoad.telephone1.length < 8 || registerLoad.telephone1.length > 12) {
+    return res.status(400).json({
+      resStatus: false,
+      resMessage: 'Invalid telephone number',
+      resErrorCode: 7
     });
   }
 
@@ -255,10 +297,7 @@ app.post("/api/register", rateLimiter, blockBannedIPs, async (req, res) => {
       return res.status(409).json({ 
         resStatus: false,
         resMessage: 'User exists', 
-        resVisitorNumber: 0, 
-        resToken: "",
-        resUser: null,
-        resErrorCode: 2
+        resErrorCode: 8
       });
     }
 
@@ -285,11 +324,8 @@ app.post("/api/register", rateLimiter, blockBannedIPs, async (req, res) => {
     console.log(error.message);
     res.status(500).json({
       resStatus: false,
-      resMessage: 'Profile creation failed', 
-      resVisitorNumber: 0, 
-      resToken: "",
-      resUser: null,
-      resErrorCode: 3
+      resMessage: 'DB connection error', 
+      resErrorCode: 9
     });
   } finally {
     if (client) client.release();
