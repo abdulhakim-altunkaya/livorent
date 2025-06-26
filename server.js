@@ -434,7 +434,7 @@ app.post("/api/login", rateLimiter, blockBannedIPs, async (req, res) => {
     res.status(200).json({
       resStatus: true,
       resMessage: "Autorizācija veiksmīga.",
-      resUser: user,
+      resUser: user, 
       resVisitorNumber: user.id, 
       resToken: token,
       resErrorCode: 0
@@ -466,7 +466,16 @@ app.post("/api/post/password-renewal", rateLimiter, blockBannedIPs, async (req, 
     passtext1: renewalObject.renewalPasstext?.trim() || "", 
     secretWord1: renewalObject.renewalSecretWord?.trim() || "",
   };
-  
+  if (!renewalLoad.email1 || !renewalLoad.passtext1 || !renewalLoad.secretWord1) {
+    return res.status(400).json({
+      responseMessage: "All fields are required.",
+      responseStatus: false,
+      responseNumber: 0,
+      responseUser: null,
+      responseToken: "",
+      resErrorCode: 6
+    });
+  }
 
   try {
     const hashedNewPassword = await bcrypt.hash(renewalLoad.passtext1, SALT_ROUNDS);
@@ -482,7 +491,8 @@ app.post("/api/post/password-renewal", rateLimiter, blockBannedIPs, async (req, 
         responseStatus: false,
         responseNumber: 0,
         responseUser: null,
-        responseToken:""
+        responseToken:"",
+        resErrorCode: 1
       });
     }
     const user = users[0];
@@ -494,7 +504,8 @@ app.post("/api/post/password-renewal", rateLimiter, blockBannedIPs, async (req, 
         responseStatus: false,
         responseNumber: 0,
         responseUser: null,
-        responseToken:""
+        responseToken:"",
+        resErrorCode: 2
       });
     }
 
@@ -509,7 +520,8 @@ app.post("/api/post/password-renewal", rateLimiter, blockBannedIPs, async (req, 
         responseStatus: false,
         responseNumber: 0,
         responseUser: null,
-        responseToken: ""
+        responseToken: "",
+        resErrorCode: 3
       });
     }
     //Control Check: verify if tokenversion exists
@@ -519,7 +531,8 @@ app.post("/api/post/password-renewal", rateLimiter, blockBannedIPs, async (req, 
         responseMessage: "Invalid user data: Contact the website support or create a new profile.", 
         responseNumber: 0, 
         responseToken: "",
-        responseUser: null
+        responseUser: null,
+        resErrorCode: 4
       });
     }
     //generating JWT for authenticated users
@@ -542,7 +555,8 @@ app.post("/api/post/password-renewal", rateLimiter, blockBannedIPs, async (req, 
       responseStatus: false,
       responseNumber: 0,
       responseUser: null,
-      responseToken:""
+      responseToken:"",
+      resErrorCode: 5
     })
   } finally {
     if (client) client.release();
@@ -565,7 +579,7 @@ app.post("/api/post/password-change", rateLimiter, blockBannedIPs, async (req, r
   
   if (!changeLoad.email1 || !changeLoad.newPassword1 || !changeLoad.currentPassword1) {
     return res.status(400).json({
-      resMessage: "All fields are required", 
+      resMessage: "All fields are required",  
       resStatus: false,
       resNumber: 0,
       resUser: null,

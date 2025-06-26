@@ -106,4 +106,13 @@
     .resultAreaRegister {
         margin-left: 20px;
     }
+    .resultAreaRenewal {
+        margin-left: 20px;
+    }
+    .resultAreaChange {
+        margin-left: 20px;
+    }
+    .resultAreaLogin {
+        margin-left: 20px;
+    }
 }

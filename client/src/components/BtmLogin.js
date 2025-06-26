@@ -68,7 +68,7 @@ function BtmLogin() {
       localStorage.setItem("visitorNumber", Number(res1.data.resVisitorNumber));
       // set also the cache
       useUserStore.getState().setCachedUserData(res1.data.resUser);
-      setResultArea(res1.data.resMessage);
+      setResultArea(`${res1.data.resMessage} ✅`);
       // Small delay before navigation to allow store update
       // Later when people visit profile component, it will get data from zustand cache.
       setTimeout(() => {
@@ -83,24 +83,24 @@ function BtmLogin() {
           const { resErrorCode, resMessage } = error.response.data;
 
           if (resErrorCode === 1) {
-            setResultArea("Lietotājs ar šo e-pastu nav atrasts.");
+            setResultArea("Lietotājs ar šo e-pastu nav atrasts. ❌");
           } else if (resErrorCode === 2) {
-            setResultArea("Nepareizs e-pasts vai parole.");
+            setResultArea("Nepareizs e-pasts vai parole. ❌");
           } else if (resErrorCode === 3) {
-            setResultArea("Neizdevās pieslēgties datubāzei. Lūdzu, mēģiniet vēlāk.");
+            setResultArea("Neizdevās pieslēgties datubāzei. Lūdzu, mēģiniet vēlāk. ❌");
           } else if (resErrorCode === 4) {
-            setResultArea("Lūdzu, aizpildiet visus laukus.");
+            setResultArea("Lūdzu, aizpildiet visus laukus. ❌");
           } else if (resErrorCode === 5) {
-            setResultArea("Token version does not exists.");
+            setResultArea("Token version does not exists. ❌");
           } else if (resErrorCode === 6) {
-            setResultArea("Login temporarily blocked. Try again later or reset password.");
+            setResultArea("Login temporarily blocked. Try again later or reset password. ❌");
           } else {
-            setResultArea(resMessage || "Nezināma kļūda. Mēģiniet vēlreiz.");
+            setResultArea(resMessage || "Nezināma kļūda. Mēģiniet vēlreiz. ❌");
           }
 
           console.warn(`Login error: code ${resErrorCode} – ${resMessage}`);
         } else {
-          setResultArea("Neizdevās izveidot savienojumu ar serveri.");
+          setResultArea("Neizdevās izveidot savienojumu ar serveri. ❌");
           console.error("Unhandled login error:", error.message);
         }
     } finally {
@@ -143,8 +143,8 @@ function BtmLogin() {
               {loading ? "Pārbauda..." : "Ieiet"}
             </button>
           </form>
-
-          <div>{resultArea}</div>
+          <br/>
+          <div className="resultAreaLogin">{resultArea}</div>
         </div>
         <br /><br /><br /><br /><br /><br /><br /><br />
         <Footer />

@@ -43,7 +43,7 @@ function BtmPasswordChange() {
 
       const { resToken, resNumber, resStatus, resUser, resMessage } = res1.data;
       if (resStatus === true) {
-        setResultArea(resMessage);
+        setResultArea(`${resMessage} ✅`);
         // Small delay before navigation to allow store update
         setEmail("");
         setCurrentPassword("");
@@ -53,27 +53,29 @@ function BtmPasswordChange() {
     } catch (error) {
       if (error.response) {
         const { resMessage, resErrorCode } = error.response.data || {};
-        let message = "Unexpected error occurred.";
+        let message = "Radās neparedzēta kļūda. ❌";
+        
         if (resErrorCode === 1) {
-          message = "User not found with this email.";
+          message = "Lietotājs ar šo e-pasta adresi nav atrasts. ❌";
         } else if (resErrorCode === 2) {
-          message = "Current password is incorrect.";
+          message = "Pašreizējā parole ir nepareiza. ❌";
         } else if (resErrorCode === 3) {
-          message = "Failed to update password. Try again.";
+          message = "Neizdevās atjaunināt paroli. Mēģiniet vēlreiz. ❌";
         } else if (resErrorCode === 4) {
-          message = "Server error. Try again later.";
+          message = "Servera kļūda. Mēģiniet vēlāk. ❌";
         } else if (resErrorCode === 5) {
-          message = "All fields are required.";
+          message = "Visi lauki ir obligāti aizpildāmi. ❌";
         } else if (resErrorCode === 6) {
-          message = "New password must differ from the current password.";
+          message = "Jaunajai parolei jāatšķiras no pašreizējās. ❌";
         } else if (resMessage) {
           message = resMessage;
         }
+
         setResultArea(message);
-        console.error("Server error response:", error.response.data);
+        console.error("Servera kļūdas atbilde:", error.response.data);
       } else {
-        setResultArea("Network or server connection error.");
-        console.error("Request failed:", error.message);
+        setResultArea("Tīkla vai servera savienojuma kļūda. ❌");
+        console.error("Pieprasījums neizdevās:", error.message);
       }
     } finally {
       setLoading(false);
@@ -135,7 +137,8 @@ function BtmPasswordChange() {
               {loading ? "Apstrādā..." : "Saglabāt"}
             </button>
           </form>
-          <div>{resultArea}</div>
+          <br/>
+          <div className="resultAreaChange">{resultArea}</div>
         </div>
         <br /><br /><br /><br /><br /><br /><br /><br />
         <Footer />

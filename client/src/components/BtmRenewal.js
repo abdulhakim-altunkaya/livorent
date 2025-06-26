@@ -59,7 +59,7 @@ function BtmRenewal() {
         localStorage.setItem("token_livorent", responseToken);// save the token 
         localStorage.setItem("visitorNumber", Number(responseNumber));// save the user id
         useUserStore.getState().setCachedUserData(responseUser);// set also the cache
-        setResultArea(responseMessage);
+        setResultArea(`${responseMessage} ✅`);
 
         setLoading(false);
         // Small delay before navigation to allow store update
@@ -77,14 +77,29 @@ function BtmRenewal() {
       }
     } catch (error) {
         if (error.response) {
-          // Use structured backend message if available
-          const serverMessage = error.response.data?.responseMessage || "Unexpected server error.";
-          setResultArea(serverMessage);
+          const errorCode = error.response.data?.resErrorCode;
+
+          if (errorCode === 1) {
+            setResultArea("Lietotājs ar šo e-pasta adresi netika atrasts. ❌");
+          } else if (errorCode === 2) {
+            setResultArea("Slepenais vārds nesakrīt. ❌");
+          } else if (errorCode === 3) {
+            setResultArea("Paroles maiņa neizdevās. Mēģini vēlreiz vēlāk. ❌");
+          } else if (errorCode === 4) {
+            setResultArea("Profila dati bojāti. Lūdzu, sazinies ar atbalstu. ❌");
+          } else if (errorCode === 5) {
+            setResultArea("Datubāzes savienojuma kļūda. Mēģini vēlreiz vēlāk. ❌");
+          } else if (errorCode === 6) {
+            setResultArea("Visi lauki ir obligāti aizpildāmi. ❌");
+          } else {
+            const serverMessage = error.response.data?.responseMessage || "Negaidīta servera kļūda. ❌";
+            setResultArea(serverMessage);
+          }
+
           console.error("Server responded with error:", error.response.data);
           setLoading(false);
         } else {
-          // Network error, timeout, or no response
-          setResultArea("Network or server connection error.");
+          setResultArea("Tīkla vai servera savienojuma kļūda. ❌");
           console.error("Request failed:", error.message);
           setLoading(false);
         }
@@ -144,7 +159,8 @@ function BtmRenewal() {
               {loading ? "Apstrādā..." : "Saglabāt"}
             </button>
           </form>
-          <div>{resultArea}</div>
+          <br/>
+          <div className="resultAreaRenewal">{resultArea}</div>
         </div>
         <br /><br /><br /><br /><br /><br /><br /><br />
         <Footer />
