@@ -244,35 +244,35 @@ app.post("/api/register", rateLimiter, blockBannedIPs, async (req, res) => {
       resErrorCode: 2
     });
   }
-  if (registerLoad.email1.length < 5 || !registerLoad.email1.includes('@')) {
+  if (registerLoad.email1.length < 10 || !registerLoad.email1.includes('@')) {
     return res.status(400).json({
       resStatus: false,
       resMessage: 'Invalid email format',
       resErrorCode: 3
     });
   }
-  if (registerLoad.passtext1.length < 6) {
+  if (registerLoad.passtext1.length < 10) {
     return res.status(400).json({
       resStatus: false,
       resMessage: 'Password must be at least 6 characters',
       resErrorCode: 4
     });
   }
-  if (registerLoad.secretWord1.length < 3) {
+  if (registerLoad.secretWord1.length < 10) {
     return res.status(400).json({
       resStatus: false,
       resMessage: 'Secret word too short',
       resErrorCode: 5
     });
   }
-  if (registerLoad.name1.trim().length < 1) {
+  if (registerLoad.name1.trim().length < 10) {
     return res.status(400).json({
       resStatus: false,
       resMessage: 'Name is required',
       resErrorCode: 6
     });
   }
-  if (registerLoad.telephone1.length < 8 || registerLoad.telephone1.length > 12) {
+  if (registerLoad.telephone1.length < 10 || registerLoad.telephone1.length > 12) {
     return res.status(400).json({
       resStatus: false,
       resMessage: 'Invalid telephone number',
@@ -662,7 +662,8 @@ app.post("/api/post/password-change", rateLimiter, blockBannedIPs, async (req, r
   } finally {
     if (client) client.release();
   } 
-})
+});
+
 app.get("/api/get/adsbycategory/:idcategory", rateLimiter, blockBannedIPs, async (req, res) => {
   const { idcategory } = req.params; 
   let client;
@@ -801,27 +802,73 @@ app.post("/api/update", authenticateToken, rateLimiter, blockBannedIPs, async (r
     id1: updateObject.updateId,
     name1: updateObject.updateName.trim(),
     telephone1: updateObject.updateTelephone.trim(),     // Ensure text values are trimmed
-    email1: updateObject.updateEmail.trim(),     // Ensure date is trimmed (still stored as text in DB),
-    passtext1: updateObject.updatePasstext.trim()
+    email1: updateObject.updateEmail.trim()     // Ensure date is trimmed (still stored as text in DB),
   };
 
-  try {
-    // Hash the password
-    const hashedPassword = await bcrypt.hash(updateLoad.passtext1, SALT_ROUNDS);
+  // Input checks
+  if (!updateLoad.id1) {
+    return res.status(400).json({
+      resStatus: false,
+      resMessage: "User ID is required.",
+      resErrorCode: 1
+    });
+  }
 
+  if (!updateLoad.name1 || updateLoad.name1.length < 10) {
+    return res.status(400).json({
+      resStatus: false,
+      resMessage: "Name is not valid",
+      resErrorCode: 2
+    });
+  }
+
+  if (!updateLoad.telephone1 || updateLoad.telephone1.length < 10) {
+    return res.status(400).json({
+      resStatus: false,
+      resMessage: "Telephone number is not valid.",
+      resErrorCode: 3
+    });
+  }
+
+  if (!updateLoad.email1 || !updateLoad.email1.includes("@") || updateLoad.email1.length < 10) {
+    return res.status(400).json({
+      resStatus: false,
+      resMessage: "Valid email is required.",
+      resErrorCode: 4
+    });
+  }
+
+  try {
     client = await pool.connect(); 
     const { rows: updatedUser } = await client.query(
-      `UPDATE livorent_users SET name = $1, telephone = $2, email = $3, passtext = $4 WHERE id = $5 
-      RETURNING id, tokenversion`,
-      [updateLoad.name1, updateLoad.telephone1, updateLoad.email1, hashedPassword, updateLoad.id1]
+      `UPDATE livorent_users SET name = $1, telephone = $2, email = $3 WHERE id = $4 
+      RETURNING id, name, telephone, email`,
+      [updateLoad.name1, updateLoad.telephone1, updateLoad.email1, updateLoad.id1]
     );
-    // Generate a JWT for the new user and send it to frontend
-    const token = jwt.sign(
-      {userId: updatedUser[0].id, tokenVersion: updatedUser[0].tokenversion }, JWT_SEC, { expiresIn: '100d' });
-    res.status(201).json({ myMessage: 'Profile updated', visitorNumber:updatedUser[0].id, token });
+    if (updatedUser.length === 0) {
+      return res.status(404).json({
+        resStatus: false,
+        resMessage: "User not found or update failed.",
+        resErrorCode: 5
+      });
+    }
+    return res.status(201).json({
+      resStatus: true,
+      resMessage: "Profile updated",
+      resVisitorNum: updatedUser[0].id,
+      resUpdatedUser: {
+        name: updatedUser[0].name,
+        telephone: updatedUser[0].telephone,
+        email: updatedUser[0].email
+      }
+    })
   } catch (error) {
     console.log(error.message);
-    res.status(500).json({myMessage: "Error while updating the profile"})
+    return res.status(500).json({
+      resStatus: false,
+      resMessage: "DB connection error",
+      resErrorCode: 6
+    })
   } finally {
     client.release();
   } 

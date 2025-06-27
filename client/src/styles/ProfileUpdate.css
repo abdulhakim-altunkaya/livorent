@@ -81,4 +81,7 @@
                 0 6px 12px rgba(0, 0, 0, 0.15);
         transition: all 0.3s ease; /* Smooth animation */
     }
+    .resultAreaProfileUpdate {
+        margin-left: 20px;
+    }
 }

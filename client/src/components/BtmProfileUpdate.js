@@ -3,8 +3,8 @@ import { useNavigate, useParams, useLocation  } from "react-router-dom";
 import axios from "axios";
 import "../styles/ProfileUpdate.css";
 import Footer from "./Footer";
-import useUserStore from '../store/userStore';
 import { jwtDecode } from 'jwt-decode';
+import useUserStore from '../store/userStore';
 
 function BtmProfileUpdate() { 
   const navigate = useNavigate();
@@ -20,7 +20,6 @@ function BtmProfileUpdate() {
   const [name, setName] = useState(userData.name);
   const [telephone, setTelephone] = useState(userData.telephone);
   const [email, setEmail] = useState(userData.email);
-  const [passtext, setPasstext] = useState("");
   const [resultArea, setResultArea] = useState("");
   const token = localStorage.getItem("token_livorent");
   
@@ -48,38 +47,86 @@ function BtmProfileUpdate() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+
+      
+    // === Validation checks (similar to register endpoint) ===
+    if (!name || !telephone || !email) {
+      setResultArea("Neizpildīti lauki ❌"); // Missing fields
+      return;
+    }
+    if (email.length < 10 || !email.includes("@")) {
+      setResultArea("Nederīgs e-pasts ❌"); // Invalid email
+      return;
+    }
+    if (name.trim().length < 2) {
+      setResultArea("Nepieciešams vārds ❌"); // Name too short
+      return;
+    }
+    if (telephone.length < 8 || telephone.length > 12) {
+      setResultArea("Nederīgs tālruņa numurs ❌"); // Invalid phone
+      return;
+    }
+
     // prevent duplicates
     if (isSaving.current) return; 
     isSaving.current = true;
+
     try {
       const updateObject = {
         updateId: Number(visitorNumber),
         updateName: name, 
         updateTelephone: telephone, 
-        updateEmail: email, 
-        updatePasstext: passtext
+        updateEmail: email
       }; 
-
       const res1 = await axios.post("http://localhost:5000/api/update", updateObject, 
         {headers: {Authorization: `Bearer ${token}`}}
       );
-      setResultArea(res1.data.myMessage);
-      // Servers sends ok message and token upon successful update,
-      // and we save token in localStorage
-      if (res1.data.token) {
-        localStorage.setItem("token_livorent", res1.data.token); // Save the token 
-        localStorage.setItem("visitorNumber", Number(res1.data.visitorNumber)); //save the user id
-        alert("atjaunināšana ir veiksmīga")
-        navigate(`/profile/${res1.data.visitorNumber}`); // Include visitorNumber in the URL
+      // Servers sends ok message upon successful update
+      if (res1.data.resStatus) {
+        setResultArea(`${res1.data.resMessage} ✅`);
+        // Optional: Sync frontend state with DB-updated values (if needed)
+        const { resUpdatedUser } = res1.data;
+        if (resUpdatedUser) {
+          setName(resUpdatedUser.name);
+          setTelephone(resUpdatedUser.telephone);
+          setEmail(resUpdatedUser.email);
+        }
+        useUserStore.getState().setCachedUserData({
+          ...useUserStore.getState().cachedUserData, // keep existing fields
+          name: resUpdatedUser.name,//name of cachedUserData is set to name of resUpdatedUser 
+          telephone: resUpdatedUser.telephone,
+          email: resUpdatedUser.email
+        });
+      } else {
+        setResultArea("Atjaunināšana neizdevās ❌");
       }
 
     } catch (error) {
       if (error.response) {
-        setResultArea(error.response.data.myMessage);
-        console.log(error.message);
+        const { resMessage, resErrorCode } = error.response.data || {};
+        let message = "Kļūda atjaunināšanā.";
+
+        if (resErrorCode === 1) {
+          message = "Lietotāja ID nav norādīts. ❌";
+        } else if (resErrorCode === 2) {
+          message = "Vārds nav derīgs. ❌";
+        } else if (resErrorCode === 3) {
+          message = "Telefona numurs nav derīgs. ❌";
+        } else if (resErrorCode === 4) {
+          message = "Nepieciešams derīgs e-pasts. ❌";
+        } else if (resErrorCode === 5) {
+          message = "Lietotājs nav atrasts vai atjaunināšana neizdevās. ❌";
+        } else if (resErrorCode === 6) {
+          message = "Datu bāzes kļūda. ❌";
+        } else if (resMessage) {
+          message = resMessage;
+        }
+
+        setResultArea(message);
+        console.error("Server error response:", error.response.data);
       } else {
-        setResultArea("Error happened while signup, no data from backend");
-        console.log(error.message);
+        setResultArea("Tīkls vai servera savienojuma kļūda. ❌");
+        console.error("Request failed:", error.message);
       }
     } finally {
       isSaving.current = false;
@@ -110,17 +157,13 @@ function BtmProfileUpdate() {
               <input className="loginInputShort1" type="text" id="inputEmail1" 
                 value={email} onChange={(e) => setEmail(e.target.value)} required />
             </div>
-            <div className="loginInputs1">
-              <label htmlFor="inputPasstext1">Parole:</label>
-              <input className="loginInputShort1" type="text" id="inputPasstext1" autoComplete="off"
-                value={passtext} onChange={(e) => setPasstext(e.target.value)} required  />
-            </div>
           <button className="btnSelectCategory3" type="submit" disabled={isSaving.current} >
             {isSaving.current ? "Saglabā..." : "Atjaunināt"}
           </button>
           <span className="btnSelectCategory4" onClick={cancelUpdate}>Atcelt</span>
         </form>
-        <div>{resultArea}</div>
+        <br/>
+        <div className="resultAreaProfileUpdate">{resultArea}</div>
       </div>
       <br /><br /><br /><br /><br /><br /><br /><br />
       <Footer />
