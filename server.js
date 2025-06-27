@@ -86,7 +86,8 @@ app.post("/api/post/serversavead", upload.array("images", 4), authenticateToken,
   }
   sanitizeObject(adData); // 👈 Sanitize after parsing
   // ✅ 2. Extract sanitized values
-  const { adTitle, adDescription, adPrice, adCity, adName, adTelephone, adCategory, adVisitorNumber } = adData;
+  const { adTitle, adDescription, adPrice, adCity, adName, 
+    adTelephone, adCategory, adVisitorNumber } = adData;
 
 
   if (!adTitle || !adDescription || adTitle.trim().length < 4 || adDescription.trim().length < 10) {
@@ -789,7 +790,7 @@ app.get("/api/get/item/:itemNumber", rateLimiter, blockBannedIPs, async (req, re
   } finally {
     if(client) client.release();
   }
-});
+}); 
  
 app.post("/api/update", authenticateToken, rateLimiter, blockBannedIPs, async (req, res) => {
   //preventing spam signups
@@ -903,10 +904,51 @@ app.patch("/api/profile/update-ad", upload.array("adUpdateImages", 5), authentic
   const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
  
   let client;
-  const adData = JSON.parse(req.body.adUpdateData);  // ✅ Parse the JSON string
+  let adData;
+  try {
+    adData = JSON.parse(req.body.adUpdateData);// ✅ Parse the JSON string
+  } catch (error) {
+    return res.status(400).json({
+      resStatus: false,
+      resMessage: "Invalid ad data format",
+      resErrorCode: 1
+    });
+  }
+  sanitizeObject(adData); // 👈 Sanitize after parsing
+
   const { adNumber, adTitle, adDescription, adPrice, adCity, 
     adCategory, adVisitorNumber, adOldImages, adRemovedImages } = adData;
   const adNumber2 = Number(adNumber);
+
+
+  if (!adTitle || !adDescription || adTitle.trim().length < 4 || adDescription.trim().length < 10) {
+    return res.status(400).json({
+      resStatus: false,
+      resMessage: "Ad title or description not valid",
+      resErrorCode: 2
+    });
+  }
+  if (!adPrice || !adCity || adPrice.trim().length < 1 || adCity.trim().length < 3) {
+    return res.status(400).json({
+      resStatus: false,
+      resMessage: "City or price info not valid",
+      resErrorCode: 3
+    });
+  }
+  if (!adVisitorNumber || Number(adVisitorNumber) < 1 || Number(adVisitorNumber) > 1000000) {
+    return res.status(400).json({
+      resStatus: false,
+      resMessage: "Visitor number not valid",
+      resErrorCode: 4
+    });
+  }
+  if (!adCategory || Number(adCategory) < 10 || Number(adCategory) > 99) {
+    return res.status(400).json({
+      resStatus: false,
+      resMessage: "Ad category not valid",
+      resErrorCode: 5
+    });
+  }
   const visitorData = {
     ip: ipVisitor,
     visitDate: formatDateReverse(new Date())
@@ -925,12 +967,10 @@ app.patch("/api/profile/update-ad", upload.array("adUpdateImages", 5), authentic
   const sectionCategoryNum = parseInt(adCategory); // Convert second character back to number
 
   // 1. DELETE REMOVED IMAGES FROM STORAGE
-  console.log("full path of images before function: ", adRemovedImages)
   if (adRemovedImages && adRemovedImages.length > 0) {
     const filePathsToDelete = adRemovedImages.map(url => url.split("/livo/")[1]);
     //supabase returns data and error after remove method is called. data will contain data if deletion is ok.
     //error will contain error if deletion fails.
-    console.log("filepaths of images before deletion: ", filePathsToDelete);
     /*
     check if spaces at the beginning and at the end are causing error
     check if missing image type is causing error. If so, you can add it. like "1744834152595-PTJGL00094.jpeg"
@@ -938,8 +978,6 @@ app.patch("/api/profile/update-ad", upload.array("adUpdateImages", 5), authentic
     ['folder/avatar1.png']
     */
     const { data, error } = await supabase.storage.from("livo").remove(filePathsToDelete);
-    console.log(error);
-    console.log(data)
     if (error) {
       console.error("Deletion failed:", error);
     } else {
@@ -948,10 +986,19 @@ app.patch("/api/profile/update-ad", upload.array("adUpdateImages", 5), authentic
   }
 
   //UPLOAD IMAGES TO SUPABASE STORAGE
-  const files = req.files; 
+  const files = req.files || []; 
   let uploadedImageUrls = [];
   // Supported image file types
   const allowedMimeTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+  for (const file of files) {
+    if (!allowedMimeTypes.includes(file.mimetype)) {
+      return res.status(400).json({
+        resStatus: false,
+        resMessage: "Unsupported file type",
+        resErrorCode: 8
+      });
+    }
+  }
   if (files.length > 0) {
     for (const file of files) {
       const fileName = `${Date.now()}-${file.originalname}`;
@@ -964,15 +1011,16 @@ app.patch("/api/profile/update-ad", upload.array("adUpdateImages", 5), authentic
                   });
       if (error) {
           console.error("Supabase Upload Error:", error);
-          return res.status(500).json({ error: "Error uploading file to storage." });
+          return res.status(503).json({
+            resStatus: false,
+            resMessage: "Error uploading file to storage.",
+            resErrorCode: 6
+          });
       }
       const imageUrl = `${process.env.SUPABASE_URL}/storage/v1/object/public/livo/${fileName}`;
       uploadedImageUrls.push(imageUrl);
     }
   }
-  //WRITE DATA TO SUPABASE DATABASE
-  client = await pool.connect();
-
   const allImageUrls = [...adOldImages, ...uploadedImageUrls];
 
   try {
@@ -993,14 +1041,21 @@ app.patch("/api/profile/update-ad", upload.array("adUpdateImages", 5), authentic
        sectionCategoryNum, JSON.stringify(allImageUrls), adNumber2]
     );
     //,
-    res.status(201).json({myMessage: "Ad updated"});
+    return res.status(201).json({
+      resStatus: true,
+      resMessage: "Ad saved",
+      resOkCode: 1
+    });
   } catch (error) {
     console.log(error.message);
-    res.status(500).json({myMessage: error.message})
+    return res.status(503).json({
+      resStatus: false,
+      resMessage: "Database connection failed",
+      resErrorCode: 7
+    });
   } finally {
-    client.release();
-  } 
-
+    if (client) client.release();
+  }
 });
 app.get("/api/search", rateLimiter, blockBannedIPs, async (req, res) => {
 
