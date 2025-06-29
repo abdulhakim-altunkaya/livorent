@@ -50,8 +50,40 @@ function BtmRegister() {
       
     // Check if passwords match
     if (passtext !== passtextControl) {
-      alert("passwords do not match") 
-      return; // Stop form submission
+      alert("Paroles nesakrīt ❌");
+      return;
+    }
+    if (!email || email.length > 50 || email.length < 10) {
+      setResultArea("E-pasta garums nav derīgs. ❌");
+      return;
+    }
+    if (passtext.length > 50 || passtext.length < 6) {
+      setResultArea("Paroles garumam jābūt no 6 līdz 50 rakstzīmēm. ❌");
+      return;
+    }
+    if (passtextControl.length > 50 || passtextControl.length < 6) {
+      setResultArea("Paroles apstiprinājuma garums nav derīgs. ❌");
+      return;
+    }
+    if (secretWord.length > 50 || secretWord.length < 6) {
+      setResultArea("Slepenā vārda garumam jābūt no 6 līdz 50 rakstzīmēm. ❌");
+      return;
+    }
+    if (name.trim().length < 2 || name.trim().length > 50) {
+      setResultArea("Vārda garumam jābūt no 2 līdz 50 rakstzīmēm. ❌");
+      return;
+    }
+    if (telephone.length < 8 || telephone.length > 12) {
+      setResultArea("Tālruņa numuram jābūt no 8 līdz 12 cipariem. ❌");
+      return;
+    }
+    if (!name || !telephone || !email) {
+      setResultArea("Lūdzu, aizpildiet visus obligātos laukus. ❌");
+      return;
+    }
+    if (email.length < 10 || email.length > 50 || !email.includes("@")) {
+      setResultArea("Nederīgs e-pasta formāts. ❌");
+      return;
     }
 
     setLoading(true);
@@ -63,11 +95,11 @@ function BtmRegister() {
     
     try {
       const registerObject = {
-        registerName: name, 
+        registerName: name.trim(), 
         registerTelephone: telephone, 
-        registerEmail: email, 
-        registerPasstext: passtext,
-        registerSecretWord: secretWord
+        registerEmail: email.trim(), 
+        registerPasstext: passtext.trim(),
+        registerSecretWord: secretWord.trim()
       };
 
       const res1 = await axios.post("http://localhost:5000/api/register", registerObject);

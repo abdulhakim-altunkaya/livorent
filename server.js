@@ -90,21 +90,24 @@ app.post("/api/post/serversavead", upload.array("images", 4), authenticateToken,
     adTelephone, adCategory, adVisitorNumber } = adData;
 
 
-  if (!adTitle || !adDescription || adTitle.trim().length < 4 || adDescription.trim().length < 10) {
+  if (!adTitle || !adDescription || adTitle.trim().length < 4 || adDescription.trim().length < 10 ||
+    adTitle.trim().length > 400 || adDescription.trim().length > 2000) {
     return res.status(400).json({
       resStatus: false,
       resMessage: "Ad title or description not valid",
       resErrorCode: 2
     });
   }
-  if (!adPrice || !adCity || adPrice.trim().length < 1 || adCity.trim().length < 3) {
+  if (!adPrice || !adCity || adPrice.trim().length < 1 || adCity.trim().length < 3 || 
+  adCity.trim().length > 40 || adPrice.trim().length > 40) {
     return res.status(400).json({
       resStatus: false,
       resMessage: "City or price info not valid",
       resErrorCode: 3
     });
   }
-  if (!adName || !adTelephone || adName.trim().length < 1 || adTelephone.trim().length < 8 || adTelephone.trim().length > 12) {
+  if (!adName || !adTelephone || adName.trim().length < 1 || 
+  adTelephone.trim().length < 8 || adTelephone.trim().length > 12) {
     return res.status(400).json({
       resStatus: false,
       resMessage: "Name or telelphone info not valid",
@@ -252,21 +255,21 @@ app.post("/api/register", rateLimiter, blockBannedIPs, async (req, res) => {
       resErrorCode: 3
     });
   }
-  if (registerLoad.passtext1.length < 10) {
+  if (registerLoad.passtext1.length < 6 || registerLoad.passtext1.length > 50) {
     return res.status(400).json({
       resStatus: false,
       resMessage: 'Password must be at least 6 characters',
       resErrorCode: 4
     });
   }
-  if (registerLoad.secretWord1.length < 10) {
+  if (registerLoad.secretWord1.length < 6 || registerLoad.secretWord1.length > 50) {
     return res.status(400).json({
       resStatus: false,
-      resMessage: 'Secret word too short',
+      resMessage: 'Secret word too short or too long',
       resErrorCode: 5
     });
   }
-  if (registerLoad.name1.trim().length < 10) {
+  if (registerLoad.name1.trim().length < 4) {
     return res.status(400).json({
       resStatus: false,
       resMessage: 'Name is required',
@@ -346,7 +349,9 @@ app.post("/api/login", rateLimiter, blockBannedIPs, async (req, res) => {
   };
 
   // Early field check
-  if (!loginLoad.email1 || !loginLoad.passtext1) {
+  if (!loginLoad.email1 || !loginLoad.passtext1 || 
+    loginLoad.passtext1.length < 6 || loginLoad.email1.length < 10 ||
+    loginLoad.passtext1.length > 50 || loginLoad.email1.length > 50) {
     return res.status(400).json({
       resStatus: false,
       resMessage: 'Lauki nevar būt tukši.', 
@@ -467,7 +472,10 @@ app.post("/api/post/password-renewal", rateLimiter, blockBannedIPs, async (req, 
     passtext1: renewalObject.renewalPasstext?.trim() || "", 
     secretWord1: renewalObject.renewalSecretWord?.trim() || "",
   };
-  if (!renewalLoad.email1 || !renewalLoad.passtext1 || !renewalLoad.secretWord1) {
+  if (!renewalLoad.email1 || !renewalLoad.passtext1 || !renewalLoad.secretWord1 ||
+    renewalLoad.passtext1 < 6 || renewalLoad.email1 < 10 || renewalLoad.secretWord1 < 6 ||
+    renewalLoad.passtext1 > 50 || renewalLoad.email1 > 50 || renewalLoad.secretWord1 > 50
+  ) {
     return res.status(400).json({
       responseMessage: "All fields are required.",
       responseStatus: false,
@@ -578,9 +586,12 @@ app.post("/api/post/password-change", rateLimiter, blockBannedIPs, async (req, r
     currentPassword1: changeObject.changeCurrentPassword?.trim() || "", //old password
   };
   
-  if (!changeLoad.email1 || !changeLoad.newPassword1 || !changeLoad.currentPassword1) {
+  if (!changeLoad.email1 || !changeLoad.newPassword1 || !changeLoad.currentPassword1 ||
+    changeLoad.email1 < 10 || changeLoad.newPassword1 < 6 ||
+    changeLoad.email1 > 50 || changeLoad.newPassword1 > 50
+  ) {
     return res.status(400).json({
-      resMessage: "All fields are required",  
+      resMessage: "Password and email required and must be valid length",  
       resStatus: false,
       resNumber: 0,
       resUser: null,
@@ -2294,11 +2305,8 @@ app.listen(PORT, () => {
 add two more comment section to each part
 check time limits on post routes . They are not 1 minute, if so, convert them to 1 minute
 ip check to make sure same ip can upload once in 5 minutes and twice in 24 hour 
-//Add comment system
 //search text should approximately match the word. 
-//Add password renewal logic
-//add security check for repetitive wrong login attemps
-//Add visit counter to each ad page
+//add security check for repetitive wrong login attempt
 //Only last 10 records will be uploaded to the main pages. How to add a button to add another 10 when user clicks?
 //And another 10 if user clicks again and so on?
 //prevent spam uploads by putting a time limit
@@ -2306,24 +2314,21 @@ ip check to make sure same ip can upload once in 5 minutes and twice in 24 hour
 //Add a loading circle when uploading an ad and waiting for reply if ad is saved
 Add date column to ads
 Remove ipVisitor data from endpoints if they are not used. Wait for counter and visitor log code before removing it.
-After password change, a new is sent to frontend and it is ok. What if user has account open on another computer?
-In that case, as there will be a valid token on another computer, he will have two different logins to the same account.
-How to prevent that?
-Maybe you can update the endpoints to send comprehensive data like in the case of password renewal
 Maybe you can limit resUser to specific fields to prevent sending hashed password and secret words
 Add small screen style
 resultArea style improve on big screen
 Add input validations signup and login and password change and  password renewal components
-change input types for passwords from "text" to "password"
 Add returning to all db requests to prevent data leak
-
+Maybe another carousel to the main page?
 
 GENERAL SECURITY
+  input validation and checks: frontend and backend, with max and min numbers,
+  Check each endpoint and component with chatgpt to see if any mistake or sth to fix
   *Done: verify token middleware: backend
   *Done: input sanitization: backend
-  input validation and checks: frontend and backend
   *Done: rate limiter: backend
   *Done: password reset: done with token version update
+  *Done: token version added to password reset but not to password change
   *Done: password change: token version remains the same 
 
 BEFORE DEPLOYING:
@@ -2339,6 +2344,11 @@ BEFORE DEPLOYING:
 
 DONE
 add useRef logic to all components and add dynamic text display if needed
+all password inputs hidden with *
+Add password renewal logic
+Add comment system
+Add visit counter to each ad page
+Maybe you can update the endpoints to send comprehensive data like in the case of password renewal
 */
 
 //A temporary cache to save ip addresses and it will prevent saving same ip addresses for 1 hour.

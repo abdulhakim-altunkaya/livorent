@@ -29,13 +29,24 @@ function BtmRenewal() {
   const handleSubmit = async (e) => {
     e.preventDefault(); 
 
-    if (passtext !== passtextControl) {
-      setResultArea("Passwords do not match.");
-      return;
-    }
-
     if (!email || !secretWord) {
       setResultArea("Please enter both email and secret word.");
+      return;
+    }
+    if (email.length < 10 || email.length > 50 || !email.includes("@")) {
+      setResultArea("Nederīgs e-pasta formāts. ❌");
+      return;
+    }
+    if (secretWord.length > 50 || secretWord.length < 6) {
+      setResultArea("Slepenā vārda garumam jābūt no 6 līdz 50 rakstzīmēm. ❌");
+      return;
+    }
+    if (passtext.length > 50 || passtext.length < 6) {
+      setResultArea("Paroles garumam jābūt no 6 līdz 50 rakstzīmēm. ❌");
+      return;
+    }
+    if (passtext !== passtextControl) {
+      setResultArea("Passwords do not match.");
       return;
     }
     setLoading(true);

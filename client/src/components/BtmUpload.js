@@ -90,6 +90,39 @@ function BtmUpload() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (!title || title.trim().length < 4 || title.trim().length > 400) {
+      setResultArea("Virsraksts ir pārāk īss. Minimums 4 rakstzīmes. ❌");
+      return;
+    }
+    if (!description || description.trim().length < 10 || description.trim().length > 2000) {
+      setResultArea("Apraksts ir pārāk īss. Minimums 10 rakstzīmes. ❌");
+      return;
+    }
+    if (!price || price.trim().length < 1 || price.trim().length > 40) {
+      setResultArea("Lūdzu, ievadiet derīgu cenu. ❌");
+      return;
+    }
+    if (!city || city.trim().length < 3 || city.trim().length > 40) {
+      setResultArea("Lūdzu, ievadiet derīgu pilsētas nosaukumu (min 3 rakstzīmes). ❌");
+      return;
+    }
+    if (!selectedCategory || Number(selectedCategory) < 10 || Number(selectedCategory) > 99) {
+      setResultArea("Nederīga kategorija izvēlēta. ❌");
+      return;
+    }
+    if (!visitorNumberFromStorage || Number(visitorNumberFromStorage) < 1 || Number(visitorNumberFromStorage) > 1000000) {
+      setResultArea("Nederīgs lietotāja ID. ❌");
+      return;
+    }
+    if (name.trim().length < 2 || name.trim().length > 50) {
+      setResultArea("Vārda garumam jābūt no 2 līdz 50 rakstzīmēm. ❌");
+      return;
+    }
+    if (telephone.length < 8 || telephone.length > 12) {
+      setResultArea("Tālruņa numuram jābūt no 8 līdz 12 cipariem. ❌");
+      return;
+    }
+
     // prevent duplicates
     if (isSaving.current) return; 
     isSaving.current = true;
@@ -97,11 +130,11 @@ function BtmUpload() {
 
     try {
       const adObject = {
-        adTitle: title, 
-        adDescription: description, 
+        adTitle: title.trim(), 
+        adDescription: description.trim(), 
         adPrice: price, 
-        adCity: city, 
-        adName: name, 
+        adCity: city.trim(), 
+        adName: name.trim(), 
         adTelephone: telephone,
         adCategory: selectedCategory,
         adVisitorNumber: visitorNumberFromStorage,

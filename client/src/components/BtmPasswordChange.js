@@ -21,14 +21,30 @@ function BtmPasswordChange() {
     e.preventDefault();
     setResultArea("");
     if (passtext !== passtextControl) {
-      setResultArea("Passwords do not match.");
+      setResultArea("Paroles nesakrīt. ❌");
       return;
     }
 
     if (!email || !currentPassword) {
-      setResultArea("Please enter both email and current password.");
+      setResultArea("Lūdzu, ievadiet gan e-pastu, gan pašreizējo paroli. ❌");
       return;
     }
+
+    if (email.length > 50 || email.length < 10) {
+      setResultArea("E-pasta garums nav derīgs. ❌");
+      return;
+    }
+
+    if (passtext.length > 50 || passtext.length < 6) {
+      setResultArea("Jaunās paroles garums nav derīgs. ❌");
+      return;
+    }
+
+    if (currentPassword.length > 50 || currentPassword.length < 6) {
+      setResultArea("Vecās paroles garums nav derīgs. ❌");
+      return;
+    }
+
     setLoading(true);
     // prevent duplicates
     if (isSaving.current) return; 

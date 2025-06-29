@@ -48,6 +48,31 @@ function BtmLogin() {
       setResultArea("Please enter both email and password.");
       return;
     }
+    // Email format check
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setResultArea("Invalid email format.");
+      return;
+    }
+
+    // Password minimum length
+    if (passtext.length < 6) {
+      setResultArea("Password must be at least 6 characters.");
+      return;
+    }
+
+    // Prevent overly long input
+    if (email.length > 50 || passtext.length > 50) {
+      setResultArea("Email or password is too long.");
+      return;
+    }
+
+    // Trim spaces
+    if (email.trim() !== email || passtext.trim() !== passtext) {
+      setResultArea("Email or password contains invalid leading/trailing spaces.");
+      return;
+    }
+
     setResultArea(""); // Clear previous result before submitting
     setLoading(true);
     // prevent duplicates
