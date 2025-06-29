@@ -871,7 +871,7 @@ app.post("/api/update", authenticateToken, rateLimiter, blockBannedIPs, async (r
       resErrorCode: 6
     })
   } finally {
-    client.release();
+    if (client) client.release();
   } 
 });
 app.delete("/api/delete/item/:itemNumber", authenticateToken, rateLimiter, blockBannedIPs, async (req, res) => {
@@ -898,7 +898,7 @@ app.delete("/api/delete/item/:itemNumber", authenticateToken, rateLimiter, block
   } finally {
     if(client) client.release();
   }
-});
+}); 
 app.patch("/api/profile/update-ad", upload.array("adUpdateImages", 5), authenticateToken, rateLimiter, blockBannedIPs, async (req, res) => { 
   //preventing spam comments
   const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
@@ -995,7 +995,7 @@ app.patch("/api/profile/update-ad", upload.array("adUpdateImages", 5), authentic
       return res.status(400).json({
         resStatus: false,
         resMessage: "Unsupported file type",
-        resErrorCode: 8
+        resErrorCode: 6
       });
     }
   }
@@ -1014,7 +1014,7 @@ app.patch("/api/profile/update-ad", upload.array("adUpdateImages", 5), authentic
           return res.status(503).json({
             resStatus: false,
             resMessage: "Error uploading file to storage.",
-            resErrorCode: 6
+            resErrorCode: 7
           });
       }
       const imageUrl = `${process.env.SUPABASE_URL}/storage/v1/object/public/livo/${fileName}`;
@@ -1022,7 +1022,13 @@ app.patch("/api/profile/update-ad", upload.array("adUpdateImages", 5), authentic
     }
   }
   const allImageUrls = [...adOldImages, ...uploadedImageUrls];
-
+  if (allImageUrls.length > 6) {
+    return res.status(400).json({
+      resStatus: false,
+      resMessage: "Cannot have more than 5 images",
+      resErrorCode: 8
+    });
+  }
   try {
     client = await pool.connect();
     const result = await client.query(
@@ -1051,7 +1057,7 @@ app.patch("/api/profile/update-ad", upload.array("adUpdateImages", 5), authentic
     return res.status(503).json({
       resStatus: false,
       resMessage: "Database connection failed",
-      resErrorCode: 7
+      resErrorCode: 9
     });
   } finally {
     if (client) client.release();

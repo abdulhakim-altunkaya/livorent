@@ -36,3 +36,6 @@
     height: auto; /* Maintain aspect ratio */
     cursor: pointer;
 }
+.resultAreaAdUpdate {
+    margin-left: 20px;
+}

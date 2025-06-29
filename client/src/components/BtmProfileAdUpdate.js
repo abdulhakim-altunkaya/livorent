@@ -130,6 +130,32 @@ function BtmProfileAdUpdate() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+    if (!title || title.trim().length < 4) {
+      setResultArea("Title is too short. Minimum 4 characters.");
+      return;
+    }
+    if (!description || description.trim().length < 10) {
+      setResultArea("Description is too short. Minimum 10 characters.");
+      return;
+    }
+    if (!price || price.trim().length < 1) {
+      setResultArea("Please provide a valid price.");
+      return;
+    }
+    if (!city || city.trim().length < 3) {
+      setResultArea("Please enter a valid city name (min 3 characters).");
+      return;
+    }
+    if (!selectedCategory || Number(selectedCategory) < 10 || Number(selectedCategory) > 99) {
+      setResultArea("Invalid category selected.");
+      return;
+    }
+    if (!visitorNumberFromStorage || Number(visitorNumberFromStorage) < 1 || Number(visitorNumberFromStorage) > 1000000) {
+      setResultArea("Invalid visitor ID.");
+      return;
+    }
+
+
     // prevent duplicates
     if (isSaving.current) return; 
     isSaving.current = true;
@@ -165,20 +191,42 @@ function BtmProfileAdUpdate() {
       const res1 = await axios.patch("http://localhost:5000/api/profile/update-ad", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`, // ✅ Add the token here
+          Authorization: `Bearer ${token}`, // Add the token here
         },
       });
       setResultArea(`${res1.data.myMessage} ✅`);  // Emoji U+2705
       alert("ad updated");
       navigate(`/profile/${adUpdateObject.adVisitorNumber}`)
     } catch (error) {
-      if (error.response) {
-        setResultArea(error.response.data.myMessage);
-        console.log(error.message);
+      if (error.response && error.response.data) {
+        const { resMessage, resErrorCode } = error.response.data;
+
+        if (resErrorCode === 1) {
+          setResultArea("Nederīgs sludinājuma datu formāts ❌");
+        } else if (resErrorCode === 2) {
+          setResultArea("Virsraksts vai apraksts nav derīgs ❌");
+        } else if (resErrorCode === 3) {
+          setResultArea("Pilsētas vai cenas informācija nav derīga ❌");
+        } else if (resErrorCode === 4) {
+          setResultArea("Apmeklētāja numurs nav derīgs ❌");
+        } else if (resErrorCode === 5) {
+          setResultArea("Sludinājuma kategorija nav derīga ❌");
+        } else if (resErrorCode === 6) {
+          setResultArea("Nepieļaujams faila tips ❌");
+        } else if (resErrorCode === 7) {
+          setResultArea("Kļūda augšupielādējot failu glabātuvē ❌");
+        } else if (resErrorCode === 8) {
+          setResultArea("Nevar būt vairāk par 5 attēliem ❌");
+        } else if (resErrorCode === 9) {
+          setResultArea("Neizdevās izveidot savienojumu ar datubāzi ❌");
+        } else {
+          setResultArea((resMessage || "Nezināma kļūda") + " ❌");
+          console.log(error);
+        }
       } else {
-        setResultArea("An error happened while saving the news");
-        console.log(error.message);
-      } 
+        setResultArea("Tīkls vai neparedzēta kļūda ❌");
+        console.log(error);
+      }
     } finally {
       isSaving.current = false;
     }
@@ -431,6 +479,7 @@ function BtmProfileAdUpdate() {
                   {isSaving.current ? "Saglabā..." : "Atjaunināt"}
                 </button>
               </form>
+              <br/>
               <div>{resultArea}</div>
             </div>
             <br /><br /><br /><br /><br /><br /><br /><br />
