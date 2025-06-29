@@ -9,7 +9,7 @@ function BtmSearch() {
   const [message, setMessage] = useState(null);
   const [errorFrontend, setErrorFrontend] = useState(null);
   const [loading, setLoading] = useState(true);
-
+  const [resultArea, setResultArea] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
@@ -34,7 +34,7 @@ function BtmSearch() {
         const { responseStatus, responseMessage, responseResult } = response.data;
 
         if (responseStatus === false) {
-          alert(responseMessage || "Meklēšana neizdevās.");
+          setResultArea(responseMessage || "Meklēšana neizdevās.");
           setMessage([]);
           return;
         }
@@ -95,10 +95,10 @@ function BtmSearch() {
             </table>
           </div>
         ) : (
-          <p className="errorFieldAdsMain">No advertisement with that word</p>
+          <p className="errorFieldAdsMain">{resultArea}</p>
         )}
       </div>
-
+      <br /><br /><br /><br /><br /><br /><br /><br />
       <br /><br /><br /><br /><br /><br /><br /><br />
       <Footer />
     </div>
