@@ -83,6 +83,17 @@ function BtmProfile() {
   const deleteAd = async (n) => {
     // This will show a browser confirmation dialog with OK/Cancel buttons
     const adNumber = Number(n)
+      // Check if n is a valid number
+    if (!adNumber || isNaN(adNumber)) {
+      setResultArea("Nederīgs sludinājuma ID");
+      return;
+    }
+    // Check if user is authenticated
+    if (!token) {
+      setResultArea("Nepieciešama autorizācija");
+      return;
+    }
+
     const userConfirmed = window.confirm(
       "Jūsu konts tiks dzēsts pēc 6 mēnešu neaktivitātes\n\nVai vēlaties turpināt?"
     );

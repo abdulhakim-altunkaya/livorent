@@ -10,7 +10,7 @@ function BtmRegister() {
   const isSaving = useRef(false);  // flag to prevent repetitive requests and duplicates
 
   const [name, setName] = useState("");
-  const [telephone, setTelephone] = useState("");
+  const [telephone, setTelephone] = useState(null);
   const [email, setEmail] = useState("");
   const [passtext, setPasstext] = useState("");
   const [resultArea, setResultArea] = useState("");
@@ -49,42 +49,39 @@ function BtmRegister() {
     e.preventDefault();
       
     // Check if passwords match
-    if (passtext !== passtextControl) {
-      alert("Paroles nesakrīt ❌");
-      return;
-    }
-    if (!email || email.length > 50 || email.length < 10) {
-      setResultArea("E-pasta garums nav derīgs. ❌");
-      return;
-    }
-    if (passtext.length > 50 || passtext.length < 6) {
-      setResultArea("Paroles garumam jābūt no 6 līdz 50 rakstzīmēm. ❌");
-      return;
-    }
-    if (passtextControl.length > 50 || passtextControl.length < 6) {
-      setResultArea("Paroles apstiprinājuma garums nav derīgs. ❌");
-      return;
-    }
-    if (secretWord.length > 50 || secretWord.length < 6) {
-      setResultArea("Slepenā vārda garumam jābūt no 6 līdz 50 rakstzīmēm. ❌");
-      return;
-    }
-    if (name.trim().length < 2 || name.trim().length > 50) {
-      setResultArea("Vārda garumam jābūt no 2 līdz 50 rakstzīmēm. ❌");
-      return;
-    }
-    if (telephone.length < 8 || telephone.length > 12) {
-      setResultArea("Tālruņa numuram jābūt no 8 līdz 12 cipariem. ❌");
-      return;
-    }
     if (!name || !telephone || !email) {
       setResultArea("Lūdzu, aizpildiet visus obligātos laukus. ❌");
       return;
     }
-    if (email.length < 10 || email.length > 50 || !email.includes("@")) {
-      setResultArea("Nederīgs e-pasta formāts. ❌");
+    if (passtext !== passtextControl) {
+      alert("Paroles nesakrīt ❌");
+      return;
+    } 
+    if (email.length < 10 || email.length > 40 || !email.includes("@"))  {
+      setResultArea("E-pasta garums nav derīgs. ❌");
       return;
     }
+    if (passtext.length > 40 || passtext.length < 6) {
+      setResultArea("Paroles garumam jābūt no 6 līdz 50 rakstzīmēm. ❌");
+      return;
+    }
+    if (passtextControl.length > 40 || passtextControl.length < 6) {
+      setResultArea("Paroles apstiprinājuma garums nav derīgs. ❌");
+      return;
+    }
+    if (secretWord.length > 40 || secretWord.length < 4) {
+      setResultArea("Slepenā vārda garumam jābūt no 6 līdz 50 rakstzīmēm. ❌");
+      return;
+    }
+    if (name.trim().length < 2 || name.trim().length > 40) {
+      setResultArea("Vārda garumam jābūt no 2 līdz 50 rakstzīmēm. ❌");
+      return;
+    }
+    if (String(telephone).length < 7 || String(telephone).length > 15) {
+      setResultArea("Tālruņa numuram jābūt no 8 līdz 15 cipariem. ❌");
+      return;
+    }
+
 
     setLoading(true);
     setResultArea("");
@@ -96,7 +93,7 @@ function BtmRegister() {
     try {
       const registerObject = {
         registerName: name.trim(), 
-        registerTelephone: telephone, 
+        registerTelephone: Number(telephone), 
         registerEmail: email.trim(), 
         registerPasstext: passtext.trim(),
         registerSecretWord: secretWord.trim()

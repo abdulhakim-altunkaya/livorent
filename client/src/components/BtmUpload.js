@@ -114,11 +114,11 @@ function BtmUpload() {
       setResultArea("Nederīgs lietotāja ID. ❌");
       return;
     }
-    if (name.trim().length < 2 || name.trim().length > 50) {
-      setResultArea("Vārda garumam jābūt no 2 līdz 50 rakstzīmēm. ❌");
+    if (name.trim().length < 2 || name.trim().length > 40) {
+      setResultArea("Vārda garumam jābūt no 2 līdz 40 rakstzīmēm. ❌");
       return;
     }
-    if (telephone.length < 8 || telephone.length > 12) {
+    if (String(telephone).length < 8 || String(telephone).length > 15) {
       setResultArea("Tālruņa numuram jābūt no 8 līdz 12 cipariem. ❌");
       return;
     }

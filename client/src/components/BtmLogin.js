@@ -56,8 +56,8 @@ function BtmLogin() {
     }
 
     // Password minimum length
-    if (passtext.length < 6) {
-      setResultArea("Password must be at least 6 characters.");
+    if (passtext.length < 6 || passtext.length < 10) {
+      setResultArea("Password must be at least 6 characters. Emails must be at least 10");
       return;
     }
 
@@ -69,7 +69,7 @@ function BtmLogin() {
 
     // Trim spaces
     if (email.trim() !== email || passtext.trim() !== passtext) {
-      setResultArea("Email or password contains invalid leading/trailing spaces.");
+      setResultArea("Email or password contains empty spaces.");
       return;
     }
 

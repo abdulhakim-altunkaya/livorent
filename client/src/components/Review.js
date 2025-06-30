@@ -20,10 +20,6 @@ function Review({ reviewReceiver, refreshReplies }) {
             alert("You are not authorized to review.");
             return;
         }
-         if (!token || !visitorNumber) {
-            alert("You are not authorized to review.");
-            return;
-        }
         if (selectedRating < 1 || selectedRating > 10 || selectedRating === null) {
             alert("Choose rating score from 1 to 10");
             return;
@@ -35,11 +31,11 @@ function Review({ reviewReceiver, refreshReplies }) {
         const safeReview = escapeHtml(trimmedTextReview);
         const safeName = escapeHtml(trimmedName);
 
-        if (trimmedTextReview.length < 4 || trimmedTextReview.length > 3000) {
+        if (trimmedTextReview.length < 4 || trimmedTextReview.length > 800) {
             alert("Review is too short or too long");
             return;
         }
-        if (trimmedName.length < 3 || trimmedName.length > 100 ) {
+        if (trimmedName.length < 3 || trimmedName.length > 40 ) {
             alert("Name is too short or too long");
             return;
         }

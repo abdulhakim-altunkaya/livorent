@@ -33,15 +33,15 @@ function BtmRenewal() {
       setResultArea("Please enter both email and secret word.");
       return;
     }
-    if (email.length < 10 || email.length > 50 || !email.includes("@")) {
+    if (email.length < 10 || email.length > 40 || !email.includes("@"))  {
       setResultArea("Nederīgs e-pasta formāts. ❌");
       return;
     }
-    if (secretWord.length > 50 || secretWord.length < 6) {
+    if (secretWord.length > 40 || secretWord.length < 4) {
       setResultArea("Slepenā vārda garumam jābūt no 6 līdz 50 rakstzīmēm. ❌");
       return;
     }
-    if (passtext.length > 50 || passtext.length < 6) {
+    if (passtext.length > 40 || passtext.length < 6) {
       setResultArea("Paroles garumam jābūt no 6 līdz 50 rakstzīmēm. ❌");
       return;
     }

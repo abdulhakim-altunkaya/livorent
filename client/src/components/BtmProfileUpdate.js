@@ -54,15 +54,15 @@ function BtmProfileUpdate() {
       setResultArea("Neizpildīti lauki ❌"); // Missing fields
       return;
     }
-    if (email.length < 10 || !email.includes("@")) {
+    if (email.length < 10 || !email.includes("@") || email.trim().length > 40) {
       setResultArea("Nederīgs e-pasts ❌"); // Invalid email
       return;
     }
-    if (name.trim().length < 2) {
+    if (name.trim().length < 2 ||  name.trim().length > 40) {
       setResultArea("Nepieciešams vārds ❌"); // Name too short
       return;
     }
-    if (telephone.length < 8 || telephone.length > 12) {
+    if (String(telephone).length < 7 || String(telephone).length > 15) {
       setResultArea("Nederīgs tālruņa numurs ❌"); // Invalid phone
       return;
     }
@@ -75,7 +75,7 @@ function BtmProfileUpdate() {
       const updateObject = {
         updateId: Number(visitorNumber),
         updateName: name, 
-        updateTelephone: telephone, 
+        updateTelephone: Number(telephone), 
         updateEmail: email
       }; 
       const res1 = await axios.post("http://localhost:5000/api/update", updateObject, 

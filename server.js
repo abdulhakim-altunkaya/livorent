@@ -89,7 +89,6 @@ app.post("/api/post/serversavead", upload.array("images", 4), authenticateToken,
   const { adTitle, adDescription, adPrice, adCity, adName, 
     adTelephone, adCategory, adVisitorNumber } = adData;
 
-
   if (!adTitle || !adDescription || adTitle.trim().length < 4 || adDescription.trim().length < 10 ||
     adTitle.trim().length > 400 || adDescription.trim().length > 2000) {
     return res.status(400).json({
@@ -107,7 +106,7 @@ app.post("/api/post/serversavead", upload.array("images", 4), authenticateToken,
     });
   }
   if (!adName || !adTelephone || adName.trim().length < 1 || 
-  adTelephone.trim().length < 8 || adTelephone.trim().length > 12) {
+  String(adTelephone).trim().length < 7 || String(adTelephone).trim().length > 15) {
     return res.status(400).json({
       resStatus: false,
       resMessage: "Name or telelphone info not valid",
@@ -188,7 +187,7 @@ app.post("/api/post/serversavead", upload.array("images", 4), authenticateToken,
       `INSERT INTO livorent_ads 
       (title, description, price, city, name, telephone, ip, date, image_url, main_group, sub_group, user_id) 
       values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
-      [adTitle, adDescription, adPrice, adCity, adName, adTelephone, visitorData.ip, 
+      [adTitle, adDescription, adPrice, adCity, adName, Number(adTelephone), visitorData.ip, 
         visitorData.visitDate, JSON.stringify(uploadedImageUrls), mainCategoryNum, 
         sectionCategoryNum, Number(adVisitorNumber)]
     );
@@ -230,7 +229,7 @@ app.post("/api/register", rateLimiter, blockBannedIPs, async (req, res) => {
   const registerObject = req.body;
   const registerLoad = {
     name1: registerObject.registerName.trim(),
-    telephone1: registerObject.registerTelephone.trim(),     // Ensure text values are trimmed
+    telephone1: registerObject.registerTelephone,
     email1: registerObject.registerEmail.trim().toLowerCase(),     // Ensure date is trimmed and lowercased,
     passtext1: registerObject.registerPasstext.trim(),
     secretWord1: registerObject.registerSecretWord.trim(),
@@ -255,14 +254,14 @@ app.post("/api/register", rateLimiter, blockBannedIPs, async (req, res) => {
       resErrorCode: 3
     });
   }
-  if (registerLoad.passtext1.length < 6 || registerLoad.passtext1.length > 50) {
+  if (registerLoad.passtext1.length < 6 || registerLoad.passtext1.length > 40) {
     return res.status(400).json({
       resStatus: false,
       resMessage: 'Password must be at least 6 characters',
       resErrorCode: 4
     });
   }
-  if (registerLoad.secretWord1.length < 6 || registerLoad.secretWord1.length > 50) {
+  if (registerLoad.secretWord1.length < 4 || registerLoad.secretWord1.length > 40) {
     return res.status(400).json({
       resStatus: false,
       resMessage: 'Secret word too short or too long',
@@ -276,7 +275,7 @@ app.post("/api/register", rateLimiter, blockBannedIPs, async (req, res) => {
       resErrorCode: 6
     });
   }
-  if (registerLoad.telephone1.length < 10 || registerLoad.telephone1.length > 12) {
+  if (String(registerLoad.telephone1).trim().length < 7 || String(registerLoad.telephone1).trim().length > 15) {
     return res.status(400).json({
       resStatus: false,
       resMessage: 'Invalid telephone number',
@@ -309,7 +308,7 @@ app.post("/api/register", rateLimiter, blockBannedIPs, async (req, res) => {
       `INSERT INTO livorent_users 
       (name, telephone, email, passtext, ip, date, secretword, loginattempt, logintime, tokenversion) 
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`,
-      [registerLoad.name1, registerLoad.telephone1, registerLoad.email1, 
+      [registerLoad.name1, Number(registerLoad.telephone1), registerLoad.email1, 
         hashedPassword, visitorData.ip, visitorData.visitDate, 
         hashedSecretWord, 0, new Date().toISOString(), 1]
     );
@@ -473,7 +472,7 @@ app.post("/api/post/password-renewal", rateLimiter, blockBannedIPs, async (req, 
     secretWord1: renewalObject.renewalSecretWord?.trim() || "",
   };
   if (!renewalLoad.email1 || !renewalLoad.passtext1 || !renewalLoad.secretWord1 ||
-    renewalLoad.passtext1 < 6 || renewalLoad.email1 < 10 || renewalLoad.secretWord1 < 6 ||
+    renewalLoad.passtext1 < 6 || renewalLoad.email1 < 10 || renewalLoad.secretWord1 < 4 ||
     renewalLoad.passtext1 > 50 || renewalLoad.email1 > 50 || renewalLoad.secretWord1 > 50
   ) {
     return res.status(400).json({
@@ -810,11 +809,11 @@ app.post("/api/update", authenticateToken, rateLimiter, blockBannedIPs, async (r
   let client;
   const updateObject = req.body;
   
-  const updateLoad = {
+  const updateLoad = { 
     id1: updateObject.updateId,
     name1: updateObject.updateName.trim(),
-    telephone1: updateObject.updateTelephone.trim(),     // Ensure text values are trimmed
-    email1: updateObject.updateEmail.trim()     // Ensure date is trimmed (still stored as text in DB),
+    telephone1: updateObject.updateTelephone,     
+    email1: updateObject.updateEmail.trim()
   };
 
   // Input checks
@@ -834,7 +833,8 @@ app.post("/api/update", authenticateToken, rateLimiter, blockBannedIPs, async (r
     });
   }
 
-  if (!updateLoad.telephone1 || updateLoad.telephone1.length < 10) {
+  if (!updateLoad.telephone1 || String(updateLoad.telephone1).length.trim() < 7 || 
+    String(updateLoad.telephone1).length.trim() > 15) {
     return res.status(400).json({
       resStatus: false,
       resMessage: "Telephone number is not valid.",
@@ -855,7 +855,7 @@ app.post("/api/update", authenticateToken, rateLimiter, blockBannedIPs, async (r
     const { rows: updatedUser } = await client.query(
       `UPDATE livorent_users SET name = $1, telephone = $2, email = $3 WHERE id = $4 
       RETURNING id, name, telephone, email`,
-      [updateLoad.name1, updateLoad.telephone1, updateLoad.email1, updateLoad.id1]
+      [updateLoad.name1, Number(updateLoad.telephone1), updateLoad.email1, Number(updateLoad.id1)]
     );
     if (updatedUser.length === 0) {
       return res.status(404).json({
@@ -1183,18 +1183,18 @@ app.post("/api/post/save-comment", authenticateToken, rateLimiter, blockBannedIP
     });
   }
 
-  if (trimmedText.length < 4 || trimmedText.length > 3000) {
+  if (trimmedText.length < 4 || trimmedText.length > 800) {
     return res.status(400).json({
       resStatus: false,
-      resMessage: "Comment length must be between 4 and 3000 characters",
+      resMessage: "Comment length must be between 4 and 800 characters",
       resErrorCode: 3
     });
   }
 
-  if (trimmedName.length < 4 || trimmedName.length > 100) {
+  if (trimmedName.length < 4 || trimmedName.length > 40) {
     return res.status(400).json({
       resStatus: false,
-      resMessage: "Name length must be between 4 and 100 characters",
+      resMessage: "Name length must be between 4 and 40 characters",
       resErrorCode: 4
     });
   }
@@ -1397,18 +1397,18 @@ app.post("/api/post/save-review", authenticateToken, rateLimiter, blockBannedIPs
     });
   }
 
-  if (trimmedText.length < 4 || trimmedText.length > 3000) {
+  if (trimmedText.length < 4 || trimmedText.length > 800) {
     return res.status(400).json({
       resStatus: false,
-      resMessage: "Review length must be between 4 and 3000 characters",
+      resMessage: "Review length must be between 4 and 800 characters",
       resErrorCode: 3
     });
   }
 
-  if (trimmedName.length < 4 || trimmedName.length > 100) {
+  if (trimmedName.length < 4 || trimmedName.length > 40) {
     return res.status(400).json({
       resStatus: false,
-      resMessage: "Name length must be between 4 and 100 characters",
+      resMessage: "Name length must be between 4 and 40 characters",
       resErrorCode: 4
     });
   }
@@ -2320,6 +2320,7 @@ resultArea style improve on big screen
 Add input validations signup and login and password change and  password renewal components
 Add returning to all db requests to prevent data leak
 Maybe another carousel to the main page?
+Fix margin left of all resultArea and errorFrontend areas 
 
 GENERAL SECURITY
   input validation and checks: frontend and backend, with max and min numbers,

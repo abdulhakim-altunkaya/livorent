@@ -25,7 +25,7 @@ function BtmPasswordChange() {
       return;
     }
 
-    if (!email || !currentPassword) {
+    if (!email || !currentPassword || !passtext) {
       setResultArea("Lūdzu, ievadiet gan e-pastu, gan pašreizējo paroli. ❌");
       return;
     }

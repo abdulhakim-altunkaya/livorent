@@ -18,7 +18,7 @@ function AdsHobi() {
         const response = await axios.get(`http://localhost:5000/api/get/adsbycategory/5`);
         setMessage(response.data);
       } catch (error) {
-        setErrorFrontend("Error: ads could not be fetched. Check internet connection");
+        setErrorFrontend("Kļūda: neizdevās ielādēt sludinājumus. Pārbaudiet interneta savienojumu.");
         console.log(error.message)
       } finally {
         setLoading(false);
@@ -46,12 +46,12 @@ function AdsHobi() {
       <br/><br/><br/>
       <div>
         { loading ? 
-            <div aria-live="polite">Loading...</div> 
+            <div aria-live="polite">Notiek ielāde...</div> 
           : errorFrontend ? ( // Check for error first
             <p className='errorFieldAdsMain'>{errorFrontend}</p>
           ) :
             <>
-              {message ? (
+              {Array.isArray(message) && message.length > 0 ? (
                 <>
                   <div className='tableMainCategoryArea'>
                     <table className='tableMainCategory'>
@@ -85,7 +85,7 @@ function AdsHobi() {
                   </div>
                 </>
               ) : (
-                <p>No data available</p> // Handle case where message is null or empty
+                <p>Nav pieejamu datu</p> // Handle case where message is null or empty
               )}
             </>
         }
