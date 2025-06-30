@@ -105,7 +105,7 @@ app.post("/api/post/serversavead", upload.array("images", 4), authenticateToken,
       resErrorCode: 3
     });
   }
-  if (!adName || !adTelephone || adName.trim().length < 1 || 
+  if (!adName || !adTelephone || adName.trim().length < 1 || adName.trim().length > 40 ||
   String(adTelephone).trim().length < 7 || String(adTelephone).trim().length > 15) {
     return res.status(400).json({
       resStatus: false,
@@ -247,10 +247,10 @@ app.post("/api/register", rateLimiter, blockBannedIPs, async (req, res) => {
       resErrorCode: 2
     });
   }
-  if (registerLoad.email1.length < 10 || !registerLoad.email1.includes('@')) {
+  if (registerLoad.email1.length < 10 || !registerLoad.email1.includes('@') || registerLoad.email1.length > 40) {
     return res.status(400).json({
       resStatus: false,
-      resMessage: 'Invalid email format',
+      resMessage: 'Invalid email length or format',
       resErrorCode: 3
     });
   }
@@ -268,7 +268,7 @@ app.post("/api/register", rateLimiter, blockBannedIPs, async (req, res) => {
       resErrorCode: 5
     });
   }
-  if (registerLoad.name1.trim().length < 4) {
+  if (registerLoad.name1.trim().length < 4 || registerLoad.name1.trim().length > 40) {
     return res.status(400).json({
       resStatus: false,
       resMessage: 'Name is required',
@@ -350,7 +350,7 @@ app.post("/api/login", rateLimiter, blockBannedIPs, async (req, res) => {
   // Early field check
   if (!loginLoad.email1 || !loginLoad.passtext1 || 
     loginLoad.passtext1.length < 6 || loginLoad.email1.length < 10 ||
-    loginLoad.passtext1.length > 50 || loginLoad.email1.length > 50) {
+    loginLoad.passtext1.length > 40 || loginLoad.email1.length > 40) {
     return res.status(400).json({
       resStatus: false,
       resMessage: 'Lauki nevar būt tukši.', 
@@ -473,7 +473,7 @@ app.post("/api/post/password-renewal", rateLimiter, blockBannedIPs, async (req, 
   };
   if (!renewalLoad.email1 || !renewalLoad.passtext1 || !renewalLoad.secretWord1 ||
     renewalLoad.passtext1 < 6 || renewalLoad.email1 < 10 || renewalLoad.secretWord1 < 4 ||
-    renewalLoad.passtext1 > 50 || renewalLoad.email1 > 50 || renewalLoad.secretWord1 > 50
+    renewalLoad.passtext1 > 40 || renewalLoad.email1 > 40 || renewalLoad.secretWord1 > 40
   ) {
     return res.status(400).json({
       responseMessage: "All fields are required.",
@@ -825,7 +825,7 @@ app.post("/api/update", authenticateToken, rateLimiter, blockBannedIPs, async (r
     });
   }
 
-  if (!updateLoad.name1 || updateLoad.name1.length < 10) {
+  if (!updateLoad.name1 || updateLoad.name1.length < 4 || updateLoad.name1.length > 40) {
     return res.status(400).json({
       resStatus: false,
       resMessage: "Name is not valid",
@@ -842,7 +842,8 @@ app.post("/api/update", authenticateToken, rateLimiter, blockBannedIPs, async (r
     });
   }
 
-  if (!updateLoad.email1 || !updateLoad.email1.includes("@") || updateLoad.email1.length < 10) {
+  if (!updateLoad.email1 || !updateLoad.email1.includes("@") || updateLoad.email1.length < 10 ||
+    updateLoad.email1.length > 40) {
     return res.status(400).json({
       resStatus: false,
       resMessage: "Valid email is required.",
