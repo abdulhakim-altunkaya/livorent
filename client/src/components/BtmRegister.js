@@ -62,7 +62,7 @@ function BtmRegister() {
       return;
     }
     if (passtext.length > 40 || passtext.length < 6) {
-      setResultArea("Paroles garumam jābūt no 6 līdz 50 rakstzīmēm. ❌");
+      setResultArea("Paroles garumam jābūt no 6 līdz 40 rakstzīmēm. ❌");
       return;
     }
     if (passtextControl.length > 40 || passtextControl.length < 6) {
@@ -70,11 +70,11 @@ function BtmRegister() {
       return;
     }
     if (secretWord.length > 40 || secretWord.length < 4) {
-      setResultArea("Slepenā vārda garumam jābūt no 6 līdz 50 rakstzīmēm. ❌");
+      setResultArea("Slepenā vārda garumam jābūt no 6 līdz 40 rakstzīmēm. ❌");
       return;
     }
-    if (name.trim().length < 2 || name.trim().length > 40) {
-      setResultArea("Vārda garumam jābūt no 2 līdz 50 rakstzīmēm. ❌");
+    if (name.trim().length < 3 || name.trim().length > 40) {
+      setResultArea("Vārda garumam jābūt no 3 līdz 40 rakstzīmēm. ❌");
       return;
     }
     if (String(telephone).length < 7 || String(telephone).length > 15) {

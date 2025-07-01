@@ -30,17 +30,17 @@ function BtmPasswordChange() {
       return;
     }
 
-    if (email.length > 50 || email.length < 10) {
+    if (email.length > 40 || email.length < 10) {
       setResultArea("E-pasta garums nav derīgs. ❌");
       return;
     }
 
-    if (passtext.length > 50 || passtext.length < 6) {
+    if (passtext.length > 40 || passtext.length < 6) {
       setResultArea("Jaunās paroles garums nav derīgs. ❌");
       return;
     }
 
-    if (currentPassword.length > 50 || currentPassword.length < 6) {
+    if (currentPassword.length > 40 || currentPassword.length < 6) {
       setResultArea("Vecās paroles garums nav derīgs. ❌");
       return;
     }

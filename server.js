@@ -67,7 +67,7 @@ const blockBannedIPs = (req, res, next) => {
 //A temporary cache to save ip addresses and it will prevent spam comments/replies/posts etc.
 //I can do that by checking each ip with database ip addresses but then it will be too many requests to db
 //Thats why I am using a custom rateLimiter
-app.post("/api/post/serversavead", upload.array("images", 4), authenticateToken, rateLimiter, blockBannedIPs, async (req, res) => {
+app.post("/api/post/serversavead", upload.array("images", 5), authenticateToken, rateLimiter, blockBannedIPs, async (req, res) => {
   //preventing spam comments
   const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
 
@@ -88,8 +88,8 @@ app.post("/api/post/serversavead", upload.array("images", 4), authenticateToken,
   // ✅ 2. Extract sanitized values
   const { adTitle, adDescription, adPrice, adCity, adName, 
     adTelephone, adCategory, adVisitorNumber } = adData;
-
-  if (!adTitle || !adDescription || adTitle.trim().length < 4 || adDescription.trim().length < 10 ||
+ 
+  if (!adTitle || !adDescription || adTitle.trim().length < 20 || adDescription.trim().length < 50 ||
     adTitle.trim().length > 400 || adDescription.trim().length > 2000) {
     return res.status(400).json({
       resStatus: false,
@@ -105,7 +105,7 @@ app.post("/api/post/serversavead", upload.array("images", 4), authenticateToken,
       resErrorCode: 3
     });
   }
-  if (!adName || !adTelephone || adName.trim().length < 1 || adName.trim().length > 40 ||
+  if (!adName || !adTelephone || adName.trim().length < 3 || adName.trim().length > 40 ||
   String(adTelephone).trim().length < 7 || String(adTelephone).trim().length > 15) {
     return res.status(400).json({
       resStatus: false,
@@ -134,10 +134,10 @@ app.post("/api/post/serversavead", upload.array("images", 4), authenticateToken,
 
   //IMAGE UPLOAD
   const files = req.files;
-  if (!Array.isArray(files) || files.length < 1 || files.length > 4) {
+  if (!Array.isArray(files) || files.length < 1 || files.length > 5) {
     return res.status(400).json({
       resStatus: false,
-      resMessage: "1 to 4 images required",
+      resMessage: "1 to 5 images required",
       resErrorCode: 7
     });
   }
@@ -268,7 +268,7 @@ app.post("/api/register", rateLimiter, blockBannedIPs, async (req, res) => {
       resErrorCode: 5
     });
   }
-  if (registerLoad.name1.trim().length < 4 || registerLoad.name1.trim().length > 40) {
+  if (registerLoad.name1.trim().length < 3 || registerLoad.name1.trim().length > 40) {
     return res.status(400).json({
       resStatus: false,
       resMessage: 'Name is required',
@@ -825,7 +825,7 @@ app.post("/api/update", authenticateToken, rateLimiter, blockBannedIPs, async (r
     });
   }
 
-  if (!updateLoad.name1 || updateLoad.name1.length < 4 || updateLoad.name1.length > 40) {
+  if (!updateLoad.name1 || updateLoad.name1.length < 3 || updateLoad.name1.length > 40) {
     return res.status(400).json({
       resStatus: false,
       resMessage: "Name is not valid",
@@ -933,7 +933,7 @@ app.patch("/api/profile/update-ad", upload.array("adUpdateImages", 5), authentic
   const adNumber2 = Number(adNumber);
 
 
-  if (!adTitle || !adDescription || adTitle.trim().length < 4 || adDescription.trim().length < 10) {
+  if (!adTitle || !adDescription || adTitle.trim().length < 20 || adDescription.trim().length < 50) {
     return res.status(400).json({
       resStatus: false,
       resMessage: "Ad title or description not valid",
@@ -1034,7 +1034,7 @@ app.patch("/api/profile/update-ad", upload.array("adUpdateImages", 5), authentic
     }
   }
   const allImageUrls = [...adOldImages, ...uploadedImageUrls];
-  if (allImageUrls.length > 6) {
+  if (allImageUrls.length > 5) {
     return res.status(400).json({
       resStatus: false,
       resMessage: "Cannot have more than 5 images",
@@ -1184,18 +1184,18 @@ app.post("/api/post/save-comment", authenticateToken, rateLimiter, blockBannedIP
     });
   }
 
-  if (trimmedText.length < 4 || trimmedText.length > 800) {
+  if (trimmedText.length < 10 || trimmedText.length > 800) {
     return res.status(400).json({
       resStatus: false,
-      resMessage: "Comment length must be between 4 and 800 characters",
+      resMessage: "Comment length must be between 10 and 800 characters",
       resErrorCode: 3
     });
   }
 
-  if (trimmedName.length < 4 || trimmedName.length > 40) {
+  if (trimmedName.length < 3 || trimmedName.length > 40) {
     return res.status(400).json({
       resStatus: false,
-      resMessage: "Name length must be between 4 and 40 characters",
+      resMessage: "Name length must be between 3 and 40 characters",
       resErrorCode: 4
     });
   }
@@ -1318,15 +1318,15 @@ app.post("/api/post/save-reply", authenticateToken, rateLimiter, blockBannedIPs,
     });
   }
 
-  if (trimmedName.length < 4 || trimmedName.length > 100) {
+  if (trimmedName.length < 3 || trimmedName.length > 40) {
     return res.status(400).json({
       resStatus: false,
-      resMessage: "Name length must be between 4 and 100 characters",
+      resMessage: "Name length must be between 3 and 40 characters",
       resErrorCode: 4
     });
   }
 
-  if (!Number.isInteger(replierNum2) || replierNum2 <= 0) {
+  if (!Number.isInteger(replierNum2) || replierNum2 <= 0 || replierNum2 > 1000000) {
     return res.status(400).json({
       resStatus: false,
       resMessage: "Invalid user ID",
@@ -1334,7 +1334,7 @@ app.post("/api/post/save-reply", authenticateToken, rateLimiter, blockBannedIPs,
     });
   }
 
-  if (!Number.isInteger(replyReceiverNum2) || replyReceiverNum2 <= 0) {
+  if (!Number.isInteger(replyReceiverNum2) || replyReceiverNum2 <= 0 || replyReceiverNum2 > 1000000) {
     return res.status(400).json({
       resStatus: false,
       resMessage: "Invalid receiver ID",
@@ -1398,18 +1398,18 @@ app.post("/api/post/save-review", authenticateToken, rateLimiter, blockBannedIPs
     });
   }
 
-  if (trimmedText.length < 4 || trimmedText.length > 800) {
+  if (trimmedText.length < 10 || trimmedText.length > 800) {
     return res.status(400).json({
       resStatus: false,
-      resMessage: "Review length must be between 4 and 800 characters",
+      resMessage: "Review length must be between 10 and 800 characters",
       resErrorCode: 3
     });
   }
 
-  if (trimmedName.length < 4 || trimmedName.length > 40) {
+  if (trimmedName.length < 3 || trimmedName.length > 40) {
     return res.status(400).json({
       resStatus: false,
-      resMessage: "Name length must be between 4 and 40 characters",
+      resMessage: "Name length must be between 3 and 40 characters",
       resErrorCode: 4
     });
   }
@@ -1479,23 +1479,23 @@ app.post("/api/post/save-review-reply", authenticateToken, rateLimiter, blockBan
     });
   }
 
-  if (trimmedReply.length < 4 || trimmedReply.length > 300) {
+  if (trimmedReply.length < 5 || trimmedReply.length > 300) {
     return res.status(400).json({
       resStatus: false,
-      resMessage: "Reply length must be between 4 and 300 characters",
+      resMessage: "Reply length must be between 5 and 300 characters",
       resErrorCode: 3
     });
   }
 
-  if (trimmedName.length < 4 || trimmedName.length > 100) {
+  if (trimmedName.length < 3 || trimmedName.length > 40) {
     return res.status(400).json({
       resStatus: false,
-      resMessage: "Name length must be between 4 and 100 characters",
+      resMessage: "Name length must be between 3 and 40 characters",
       resErrorCode: 4
     });
   }
 
-  if (!Number.isInteger(replierNum2) || replierNum2 <= 0) {
+  if (!Number.isInteger(replierNum2) || replierNum2 <= 0 || replierNum2 > 1000000) {
     return res.status(400).json({
       resStatus: false,
       resMessage: "Invalid user ID",
@@ -1503,7 +1503,7 @@ app.post("/api/post/save-review-reply", authenticateToken, rateLimiter, blockBan
     });
   }
 
-  if (!Number.isInteger(replyReceiverNum2) || replyReceiverNum2 <= 0) {
+  if (!Number.isInteger(replyReceiverNum2) || replyReceiverNum2 <= 0 || replyReceiverNum2 > 1000000) {
     return res.status(400).json({
       resStatus: false,
       resMessage: "Invalid receiver ID",

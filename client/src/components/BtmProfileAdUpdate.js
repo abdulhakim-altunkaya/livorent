@@ -130,19 +130,19 @@ function BtmProfileAdUpdate() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!title || title.trim().length < 4 || title.trim().length > 400) {
-      setResultArea("Title is too short or too long. Minimum , max 4000 characters.");
+    if (!title || title.trim().length < 20 || title.trim().length > 400) {
+      setResultArea("Title is too short or too long. Minimum 20, max 4000 characters.");
       return;
     }
-    if (!description || description.trim().length < 10 || description.trim().length > 2000) {
-      setResultArea("Description is too short or too long. Minimum 10, max 2000 characters.");
+    if (!description || description.trim().length < 50 || description.trim().length > 2000) {
+      setResultArea("Description is too short or too long. Minimum 50, max 2000 characters.");
       return;
     }
-    if (!price || price.trim().length < 1 || price.length > 30) {
+    if (!price || price.trim().length < 1 || price.length > 40) {
       setResultArea("Please provide a valid price.");
       return;
     }
-    if (!city || city.trim().length < 3 || city.length > 30) {
+    if (!city || city.trim().length < 3 || city.length > 40) {
       setResultArea("Please enter a valid city name (min 3 characters).");
       return;
     }

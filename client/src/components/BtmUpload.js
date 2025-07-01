@@ -61,8 +61,8 @@ function BtmUpload() {
 
   const handleImageChange = (e) => {
     const selectedFiles = Array.from(e.target.files);
-    if (selectedFiles.length > 4) {
-      alert("You can upload a maximum of 4 images.");
+    if (selectedFiles.length > 5) {
+      alert("You can upload a maximum of 5 images.");
       return;
     }
     // ✅ Check individual file size (max 4MB)
@@ -90,12 +90,12 @@ function BtmUpload() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!title || title.trim().length < 4 || title.trim().length > 400) {
-      setResultArea("Virsraksts ir pārāk īss. Minimums 4 rakstzīmes. ❌");
+    if (!title || title.trim().length < 20 || title.trim().length > 400) {
+      setResultArea("Virsraksts ir pārāk īss. Minimums 20 rakstzīmes. ❌");
       return;
     }
-    if (!description || description.trim().length < 10 || description.trim().length > 2000) {
-      setResultArea("Apraksts ir pārāk īss. Minimums 10 rakstzīmes. ❌");
+    if (!description || description.trim().length < 50 || description.trim().length > 2000) {
+      setResultArea("Apraksts ir pārāk īss. Minimums 50 rakstzīmes. ❌");
       return;
     }
     if (!price || price.trim().length < 1 || price.trim().length > 40) {
@@ -114,11 +114,11 @@ function BtmUpload() {
       setResultArea("Nederīgs lietotāja ID. ❌");
       return;
     }
-    if (name.trim().length < 2 || name.trim().length > 40) {
-      setResultArea("Vārda garumam jābūt no 2 līdz 40 rakstzīmēm. ❌");
+    if (name.trim().length < 3 || name.trim().length > 40) {
+      setResultArea("Vārda garumam jābūt no 3 līdz 40 rakstzīmēm. ❌");
       return;
     }
-    if (String(telephone).length < 8 || String(telephone).length > 15) {
+    if (String(telephone).length < 7 || String(telephone).length > 15) {
       setResultArea("Tālruņa numuram jābūt no 8 līdz 12 cipariem. ❌");
       return;
     }
@@ -145,15 +145,15 @@ function BtmUpload() {
       const formData = new FormData();
       formData.append("adData", JSON.stringify(adObject)); // Send ad data as JSON string
 
-        // ✅ Check if images array has between 1 and 4 images
-        if (images.length >= 1 && images.length <= 4) {
+        // ✅ Check if images array has between 1 and 5 images
+        if (images.length > 0 && images.length < 6) {
           images.forEach((image) => {
             const uniqueFileName = generateUniqueFileName();
             const renamedFile = new File([image], uniqueFileName, { type: image.type });
             formData.append("images", renamedFile);
           });
         } else {
-          alert("Lūdzu, augšupielādējiet vismaz 1 un ne vairāk kā 4 attēlus.");  // Latvian: Please upload at least 1 and no more than 4 images.
+          alert("Lūdzu, augšupielādējiet vismaz 1 un ne vairāk kā 5 attēlus.");  // Latvian: Please upload at least 1 and no more than 4 images.
           return;
         }
 
@@ -405,7 +405,9 @@ function BtmUpload() {
     
                     </div>
               </div>
-              <button className="button7007" type="submit">{isSavingButton ? "Augšupielādē..." : "Augšupielādēt"}</button>
+              <button className="button7007" type="submit" disabled={isSavingButton}>
+                {isSavingButton ? "Augšupielādē..." : "Augšupielādēt"}
+              </button>
             </form>
             <br/>
             <div>{resultArea}</div>

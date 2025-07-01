@@ -58,7 +58,7 @@ function BtmProfileUpdate() {
       setResultArea("Nederīgs e-pasts ❌"); // Invalid email
       return;
     }
-    if (name.trim().length < 2 ||  name.trim().length > 40) {
+    if (name.trim().length < 3 ||  name.trim().length > 40) {
       setResultArea("Nepieciešams vārds ❌"); // Name too short
       return;
     }

@@ -27,11 +27,11 @@ function Comment({ commentReceiver, refreshComments }) {
         const safeComment = escapeHtml(trimmedTextComment);
         const safeName = escapeHtml(trimmedName);
 
-        if (trimmedTextComment.length < 4 || trimmedTextComment.length > 800) {
+        if (trimmedTextComment.length < 10 || trimmedTextComment.length > 800) {
             alert("Comment is too short or too long");
             return;
         }
-        if (trimmedName.length < 4 || trimmedName.length > 100 ) {
+        if (trimmedName.length < 3 || trimmedName.length > 40 ) {
             alert("Name is too short or too long");
             return;
         }

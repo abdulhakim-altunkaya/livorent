@@ -31,7 +31,7 @@ function Review({ reviewReceiver, refreshReplies }) {
         const safeReview = escapeHtml(trimmedTextReview);
         const safeName = escapeHtml(trimmedName);
 
-        if (trimmedTextReview.length < 4 || trimmedTextReview.length > 800) {
+        if (trimmedTextReview.length < 10 || trimmedTextReview.length > 800) {
             alert("Review is too short or too long");
             return;
         }

@@ -62,7 +62,7 @@ function BtmLogin() {
     }
 
     // Prevent overly long input
-    if (email.length > 50 || passtext.length > 50) {
+    if (email.length > 40 || passtext.length > 40) {
       setResultArea("Email or password is too long.");
       return;
     }

@@ -28,7 +28,11 @@ function BtmRenewal() {
  
   const handleSubmit = async (e) => {
     e.preventDefault(); 
-
+    
+    if (passtext !== passtextControl) {
+      setResultArea("Passwords do not match.");
+      return;
+    }
     if (!email || !secretWord) {
       setResultArea("Please enter both email and secret word.");
       return;
@@ -45,10 +49,7 @@ function BtmRenewal() {
       setResultArea("Paroles garumam jābūt no 6 līdz 50 rakstzīmēm. ❌");
       return;
     }
-    if (passtext !== passtextControl) {
-      setResultArea("Passwords do not match.");
-      return;
-    }
+
     setLoading(true);
 
     // prevent duplicates
