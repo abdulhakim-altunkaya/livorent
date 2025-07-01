@@ -405,8 +405,8 @@ function BtmUpload() {
     
                     </div>
               </div>
-              <button className="button7007" type="submit" disabled={isSavingButton}>
-                {isSavingButton ? "Augšupielādē..." : "Augšupielādēt"}
+              <button className="button7007" type="submit" disabled={isSaving.current}>
+                {isSaving.current ? "Augšupielādē..." : "Augšupielādēt"}
               </button>
             </form>
             <br/>

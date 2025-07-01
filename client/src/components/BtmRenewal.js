@@ -30,11 +30,11 @@ function BtmRenewal() {
     e.preventDefault(); 
     
     if (passtext !== passtextControl) {
-      setResultArea("Passwords do not match.");
+      setResultArea("Paroles nesakrīt.");
       return;
     }
     if (!email || !secretWord) {
-      setResultArea("Please enter both email and secret word.");
+      setResultArea("Lūdzu, ievadi gan e-pastu, gan slepeno vārdu.");
       return;
     }
     if (email.length < 10 || email.length > 40 || !email.includes("@"))  {

@@ -21,7 +21,7 @@ function BtmSection() {
         const response = await axios.get(`http://localhost:5000/api/get/adsbysubsection/${sectionNumber}`);
         setMessage(response.data);
       } catch (error) {
-        setErrorFrontend("Error: ads could not be fetched");
+        setErrorFrontend("Kļūda: sludinājumus nevarēja ielādēt");
         console.log(error.message)
       } finally {
         setLoading(false);
@@ -40,7 +40,7 @@ function BtmSection() {
       <br/><br/><br/>
       <div>
         { loading ? 
-            <div aria-live="polite">Loading...</div> 
+            <div aria-live="polite">Ielādē...</div> 
           : errorFrontend ? ( // Check for error first
             <p className='errorFieldSection'>{errorFrontend}</p>
           ) :
@@ -81,7 +81,7 @@ function BtmSection() {
                 </div>
                 </>
               ) : (
-                <p>No data available</p> // Handle case where message is null or empty
+                <p>Dati nav pieejami</p> // Handle case where message is null or empty
               )}
             </>
         }

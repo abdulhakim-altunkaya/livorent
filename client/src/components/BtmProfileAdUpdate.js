@@ -79,7 +79,7 @@ function BtmProfileAdUpdate() {
 
   useEffect(() => {
     if (missingData) {
-      alert("Data lost because of page refresh. Do not page refresh while updating the ad. Go to profile page again.");
+      alert("Dati zuduši lapas atsvaidzināšanas dēļ. Neatsvaidziniet lapu, kamēr atjaunojat sludinājumu. Atgriezieties profilā.");
       navigate("/"); // or wherever your profile page is
     }
   }, [missingData, navigate]);
@@ -94,11 +94,11 @@ function BtmProfileAdUpdate() {
     //selected images arrive, control checks and add them to newImages array
     const selectedFiles = Array.from(e.target.files);
     if (selectedFiles.length + oldImages.length > 5) {
-      alert("Max 5 images");
+      alert("Maksimāli 5 bildes");
       return;
     }
     if (selectedFiles.length + oldImages.length < 1) {
-      alert("Min 1 image");
+      alert("Vismaz 1 bilde");
       return;
     }
     setNewImages(selectedFiles); // Only tracks newly added files 
@@ -131,30 +131,29 @@ function BtmProfileAdUpdate() {
     e.preventDefault();
     
     if (!title || title.trim().length < 20 || title.trim().length > 400) {
-      setResultArea("Title is too short or too long. Minimum 20, max 4000 characters.");
+      setResultArea("Virsraksts ir pārāk īss vai pārāk garš. Minimums 20, maksimums 400 rakstzīmes.");
       return;
     }
     if (!description || description.trim().length < 50 || description.trim().length > 2000) {
-      setResultArea("Description is too short or too long. Minimum 50, max 2000 characters.");
+      setResultArea("Apraksts ir pārāk īss vai pārāk garš. Minimums 50, maksimums 2000 rakstzīmes.");
       return;
     }
     if (!price || price.trim().length < 1 || price.length > 40) {
-      setResultArea("Please provide a valid price.");
+      setResultArea("Lūdzu, norādiet derīgu cenu.");
       return;
     }
     if (!city || city.trim().length < 3 || city.length > 40) {
-      setResultArea("Please enter a valid city name (min 3 characters).");
+      setResultArea("Lūdzu, ievadiet derīgu pilsētas nosaukumu (vismaz 3 rakstzīmes).");
       return;
     }
     if (!selectedCategory || Number(selectedCategory) < 10 || Number(selectedCategory) > 99) {
-      setResultArea("Invalid category selected.");
+      setResultArea("Izvēlēta nederīga kategorija.");
       return;
     }
     if (!visitorNumberFromStorage || Number(visitorNumberFromStorage) < 1 || Number(visitorNumberFromStorage) > 1000000) {
-      setResultArea("Invalid visitor ID.");
+      setResultArea("Nederīgs apmeklētāja ID.");
       return;
     }
-
 
     // prevent duplicates
     if (isSaving.current) return; 
@@ -195,7 +194,8 @@ function BtmProfileAdUpdate() {
         },
       });
       setResultArea(`${res1.data.myMessage} ✅`);  // Emoji U+2705
-      alert("ad updated");
+      setTimeout(() => {
+      }, 2000); // 2 seconds might help
       navigate(`/profile/${adUpdateObject.adVisitorNumber}`)
     } catch (error) {
       if (error.response && error.response.data) {
@@ -234,7 +234,6 @@ function BtmProfileAdUpdate() {
 
   const deleteImg = async (imageLink) => {
     try {
-      console.log("delete function clicked", imageLink)
       setRemovedImages(prev => [...prev, imageLink]);
 
       // 1. Delete from Supabase
@@ -243,7 +242,7 @@ function BtmProfileAdUpdate() {
       setOldImages(oldImages.filter(img => img !== imageLink));
     } catch (error) {
       console.log(error.message);
-      setResultArea("Image could not be deleted");
+      setResultArea("Attēlu nevarēja dzēst");
     }
   }
   const deleteImgDisplay = (imageLink) => {
@@ -253,7 +252,7 @@ function BtmProfileAdUpdate() {
       setDisplayImages(displayImages.filter(img => img.preview !== imageLink.preview));
     } catch (error) {
       console.log(error.message);
-      setResultArea("Image could not be deleted");
+      setResultArea("Attēlu nevarēja dzēst");
     }
   }
 
@@ -307,7 +306,7 @@ function BtmProfileAdUpdate() {
                 <input type="file" id="inputImages" name="adUpdateImages" accept="image/*" multiple 
                   onChange={handleImageChange} />
                 <label htmlFor="inputImages" >
-                  Upload Images <img src='/svg_add_file.svg' className="svgUploadFile" alt='add file icon'/>
+                  Augšupielādēt attēlus <img src='/svg_add_file.svg' className="svgUploadFile" alt='add file icon'/>
                 </label>
               </div>
               <div className="selectedFilesText">
@@ -346,7 +345,7 @@ function BtmProfileAdUpdate() {
               </div>
                 <div>
                   <div className="btnSelectCategory" >
-                    <span>Choose Ad Category</span> &nbsp;&nbsp;<span>▼</span>
+                    <span>Izvēlies sludinājuma kategoriju</span> &nbsp;&nbsp;<span>▼</span>
       
                   </div>
                       <div className="selectCategoryArea">

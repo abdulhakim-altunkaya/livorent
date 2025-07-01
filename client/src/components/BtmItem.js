@@ -39,7 +39,7 @@ function BtmItem() {
         setMessage(response.data);
 
       } catch (error) {
-        setErrorFrontend("Error: item details could not be fetched");
+        setErrorFrontend("Kļūda: neizdevās ielādēt sludinājuma informāciju");
         console.log(error.message)
       } finally {
         setLoading(false);
@@ -97,7 +97,7 @@ function BtmItem() {
   };
 
   const formatPhoneNumber = (phone) => {
-    if (!phone) return 'Not provided';
+    if (!phone) return 'Nav norādīts';
     
     if (showFullPhone) {
       return phone;
@@ -108,7 +108,7 @@ function BtmItem() {
 
   //We dont need to display all the name, just name and if there is surname, the first letter of it.
   const formatName = (name) => {
-    if (!name) return 'Not provided';
+    if (!name) return 'Nav norādīts';
     
     const names = name.trim().split(/\s+/);
     if (names.length === 1) return name;
@@ -166,7 +166,7 @@ function BtmItem() {
     <div>
       <div className='itemMainContainer'>
         { loading ? 
-            <div aria-live="polite">Loading...</div> 
+            <div aria-live="polite">Ielādē...</div> 
           : errorFrontend ? (
             <p className='errorFieldItem'>{errorFrontend}</p>
           ) :
@@ -236,7 +236,7 @@ function BtmItem() {
                   </div>
                 </>
               ) : (
-                <p>No data available</p>
+                <p>Nav pieejamu datu</p>
               )}
             </>
         }

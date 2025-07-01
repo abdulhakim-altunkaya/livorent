@@ -23,7 +23,7 @@ function BtmSearch() {
 
       try {
         if (!searchQuery || searchQuery.trim().length < 3) {
-          alert("Search word is missing or too short.");
+          alert("Meklēšanas vārds trūkst vai ir pārāk īss.");
           return;
         }
 
@@ -42,7 +42,7 @@ function BtmSearch() {
         setMessage(responseResult);
       } catch (error) {
         console.log(error);
-        setErrorFrontend("No ads.");
+        setErrorFrontend("Nav sludinājumu.");
       } finally {
         setLoading(false);
       }
@@ -60,7 +60,7 @@ function BtmSearch() {
 
       <div>
         {loading ? (
-          <div aria-live="polite">Loading...</div>
+          <div aria-live="polite">Ielādē...</div>
         ) : errorFrontend ? (
           <p className="errorFieldAdsMain">{errorFrontend}</p>
         ) : message && message.length > 0 ? (

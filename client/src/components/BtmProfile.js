@@ -50,7 +50,7 @@ function BtmProfile() {
         const response = await axios.get(`http://localhost:5000/api/get/adsbyuser/${visitorNumber}`);
         setMessage(response.data);  
       } catch (error) {
-        setErrorFrontend("Error: ads could not be fetched");
+        setErrorFrontend("Kļūda: reklāmas neizdevās ielādēt");
         console.log(error.message);
       } finally {
         setLoading(false);
@@ -63,7 +63,7 @@ function BtmProfile() {
 
 
   const deleteAccount = () => {
-    alert("Accounts which are inactive for 6 months will be deleted together with their ads if any");
+    alert("Konti, kas nav aktīvi 6 mēnešus, tiks dzēsti kopā ar viņu reklāmām, ja tādas ir");
     return;
   }
 
@@ -161,27 +161,26 @@ function BtmProfile() {
         <div className='userInfoArea'>
           <div className='welcomeMessageProfile'>laipni lūdzam </div> 
 
-          <div><strong>Name:</strong> {cachedUserData.name}</div>
-          <div><strong>E-mail:</strong> {cachedUserData.email}</div>
-          <div><strong>Telephone:</strong> {cachedUserData.telephone}</div>
-          <div className='lastDivProfile'><strong>Member since:</strong> {cachedUserData.date}</div>
-
+          <div><strong>Vārds:</strong> {cachedUserData.name}</div>
+          <div><strong>E-pasts:</strong> {cachedUserData.email}</div>
+          <div><strong>Telefons:</strong> {cachedUserData.telephone}</div>
+          <div className='lastDivProfile'><strong>Dalībnieks kopš:</strong> {cachedUserData.date}</div>
           <div className='profileButtonsArea'>
-            <span><button className='button-54' onClick={signoutAccount}>Sign out</button></span>
-            <span><button className='button-54'
-              onClick={() => navigate(`/profile/update-account/${visitorNumber}`, {state: { userData: cachedUserData } }
-              )}>
-              Update Account</button>
-            </span>
-            <span><button className='button-54' onClick={changePassword}>Change Password</button></span>
-            <span><button className='button-54' onClick={deleteAccount}>Delete Account</button></span>
+              <span><button className='button-54' onClick={signoutAccount}>Izrakstīties</button></span>
+              <span><button className='button-54'
+                onClick={() => navigate(`/profile/update-account/${visitorNumber}`, {state: { userData: cachedUserData } }
+                )}>
+                Atjaunināt kontu</button>
+              </span>
+              <span><button className='button-54' onClick={changePassword}>Mainīt paroli</button></span>
+              <span><button className='button-54' onClick={deleteAccount}>Dzēst kontu</button></span>
           </div>
         </div>
         )
       }
       <div>
         { loading ? 
-            <div aria-live="polite">Loading...</div> 
+            <div aria-live="polite">Ielādē...</div> 
           : errorFrontend ? ( // Check for error first
             <p className='errorFieldProfile'>{errorFrontend}</p>
           ) :

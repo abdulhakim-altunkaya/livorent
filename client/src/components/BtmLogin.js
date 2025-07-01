@@ -45,31 +45,27 @@ function BtmLogin() {
     e.preventDefault();
 
     if (!email || !passtext) {
-      setResultArea("Please enter both email and password.");
+      setResultArea("Lūdzu, ievadi gan e-pastu, gan paroli.");
       return;
     }
     // Email format check
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      setResultArea("Invalid email format.");
+      setResultArea("Nederīgs e-pasta formāts.");
       return;
     }
-
     // Password minimum length
     if (passtext.length < 6 || passtext.length < 10) {
-      setResultArea("Password must be at least 6 characters. Emails must be at least 10");
+      setResultArea("Parolei jābūt vismaz 6 rakstzīmes. E-pastam – vismaz 10.");
       return;
     }
-
     // Prevent overly long input
     if (email.length > 40 || passtext.length > 40) {
-      setResultArea("Email or password is too long.");
+      setResultArea("E-pasts vai parole ir pārāk gara.");
       return;
     }
-
     // Trim spaces
     if (email.trim() !== email || passtext.trim() !== passtext) {
-      setResultArea("Email or password contains empty spaces.");
+      setResultArea("E-pastā vai parolē ir liekas atstarpes.");
       return;
     }
 
@@ -85,7 +81,7 @@ function BtmLogin() {
       };
       const res1 = await axios.post("http://localhost:5000/api/login", loginObject);
       if (!res1.data?.resToken || !res1.data?.resVisitorNumber || !res1.data?.resUser) {
-        setResultArea("Response from Backend is missing required data.");
+        setResultArea("Atbilde no servera nesatur nepieciešamos datus.");
         return;
       }
       
