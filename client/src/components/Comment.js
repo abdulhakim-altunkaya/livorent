@@ -17,7 +17,7 @@ function Comment({ commentReceiver, refreshComments }) {
         const visitorNumber = localStorage.getItem("visitorNumber");
 
         if (!token || !visitorNumber) {
-            alert("You are not authorized to comment.");
+            setErrorText("Jūs neesat pilnvarots komentēt.");
             return;
         }
  
@@ -28,11 +28,11 @@ function Comment({ commentReceiver, refreshComments }) {
         const safeName = escapeHtml(trimmedName);
 
         if (trimmedTextComment.length < 10 || trimmedTextComment.length > 800) {
-            alert("Comment is too short or too long");
+            setErrorText("Komentārs ir pārāk īss vai pārāk garš");
             return;
         }
         if (trimmedName.length < 3 || trimmedName.length > 40 ) {
-            alert("Name is too short or too long");
+            setErrorText("Vārds ir pārāk īss vai pārāk garš");
             return;
         }
         // prevent duplicates
@@ -55,19 +55,19 @@ function Comment({ commentReceiver, refreshComments }) {
         } catch (error) { 
             const code = error.response?.data?.resErrorCode; //"response" is a keyword/field name of error object.
             if (code === 1) {
-                setErrorText("Database error, please try again later.");
+                setErrorText("Datubāzes kļūda, lūdzu, mēģiniet vēlreiz vēlāk.");
             } else if (code === 2) {
-                setErrorText("Comment or name is empty.");
+                setErrorText("Komentārs vai vārds ir tukšs.");
             } else if (code === 3) {
-                setErrorText("Comment must be between 4 and 3000 characters.");
+                setErrorText("Komentāram jābūt no 4 līdz 3000 rakstzīmēm.");
             } else if (code === 4) {
-                setErrorText("Name must be between 4 and 100 characters.");
+                setErrorText("Vārdam jābūt no 4 līdz 100 rakstzīmēm.");
             } else if (code === 5) {
-                setErrorText("Invalid user ID.");
+                setErrorText("Nederīgs lietotāja ID.");
             } else if (code === 6) {
-                setErrorText("Invalid receiver ID.");
+                setErrorText("Nederīgs saņēmēja ID.");
             } else {
-                setErrorText("Unknown error occurred.");
+                setErrorText("Nezināma kļūda.");
             }
             console.log(error);
         } finally {
@@ -84,7 +84,7 @@ function Comment({ commentReceiver, refreshComments }) {
             <div className='commentArea'>
                 <input className='commentInputName' type='text' placeholder='vārds' value={commentorName}
                     onChange={ (e) => setCommentorName(e.target.value)}/>
-                <textarea  className='commentInputText' placeholder="Comment or Question"
+                <textarea  className='commentInputText' placeholder="Komentārs vai jautājums"
                     onChange={ (e) => setTextComment(e.target.value)} value={textComment} />
                 <button className='commentSaveBtn' onClick={saveComment} disabled={isSaving} >
                     {isSavingButton ? "Saglabā..." : "Saglabāt"}

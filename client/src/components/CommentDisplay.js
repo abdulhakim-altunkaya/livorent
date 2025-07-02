@@ -22,13 +22,13 @@ function CommentDisplay({ commentReceiver }) {
             console.log(error.message);
             const code = error?.response?.data?.resErrorCode;
             if (code === 1) {
-                setErrorText("Ad ID is missing or invalid.");
+                setErrorText("Sludinājuma ID nav vai ir nederīgs.");
             } else if (code === 2) {
-                console.log("No comments yet.");
+                console.log("Vēl nav komentāru.");
             } else if (code === 3) {
-                console.log("Failed to connect to the database.");
+                console.log("Neizdevās savienoties ar datubāzi.");
             } else {
-                console.log("An unknown error occurred.");
+                console.log("Nezināma kļūda.");
             }
         } 
     }

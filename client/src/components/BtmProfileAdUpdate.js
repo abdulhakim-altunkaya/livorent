@@ -101,6 +101,13 @@ function BtmProfileAdUpdate() {
       alert("Vismaz 1 bilde");
       return;
     }
+    // ✅ Check individual file size (max 3MB)
+    for (const file of selectedFiles) {
+      if (file.size > 3 * 1024 * 1024) {
+        alert(`Katrs attēls nedrīkst pārsniegt 3 MB: '${file.name}'`);
+        return;
+      }
+    }
     setNewImages(selectedFiles); // Only tracks newly added files 
     
     // 2.DISPLAY THE IMAGES BEFORE UPLOADING

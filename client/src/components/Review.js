@@ -17,11 +17,11 @@ function Review({ reviewReceiver, refreshReplies }) {
         const visitorNumber = localStorage.getItem("visitorNumber");
 
         if (!token || !visitorNumber) {
-            alert("You are not authorized to review.");
+            setErrorText("Jūs neesat pilnvarots veikt atsauksmi.");
             return;
         }
         if (selectedRating < 1 || selectedRating > 10 || selectedRating === null) {
-            alert("Choose rating score from 1 to 10");
+            setErrorText("Izvēlieties vērtējumu no 1 līdz 10");
             return;
         }
  
@@ -32,11 +32,11 @@ function Review({ reviewReceiver, refreshReplies }) {
         const safeName = escapeHtml(trimmedName);
 
         if (trimmedTextReview.length < 10 || trimmedTextReview.length > 800) {
-            alert("Review is too short or too long");
+            setErrorText("Atsauksme ir pārāk īsa vai pārāk gara");
             return;
         }
-        if (trimmedName.length < 3 || trimmedName.length > 40 ) {
-            alert("Name is too short or too long");
+        if (trimmedName.length < 3 || trimmedName.length > 40) {
+            setErrorText("Vārds ir pārāk īss vai pārāk garš");
             return;
         }
 
@@ -60,21 +60,21 @@ function Review({ reviewReceiver, refreshReplies }) {
         } catch (error) {
             const code = error.response?.data?.resErrorCode; //"response" is a keyword/field name of error object.
             if (code === 1) {
-                setErrorText("Database error, please try again later.");
+                setErrorText("Datubāzes kļūda, lūdzu, mēģiniet vēlāk.");
             } else if (code === 2) {
-                setErrorText("Review or name is empty.");
+                setErrorText("Atsauksmes vai vārds ir tukšs.");
             } else if (code === 3) {
-                setErrorText("Review must be between 4 and 3000 characters.");
+                setErrorText("Atsauksmei jābūt no 4 līdz 3000 rakstzīmēm.");
             } else if (code === 4) {
-                setErrorText("Name must be between 4 and 100 characters.");
+                setErrorText("Vārdam jābūt no 4 līdz 100 rakstzīmēm.");
             } else if (code === 5) {
-                setErrorText("Invalid user ID.");
+                setErrorText("Nederīgs lietotāja ID.");
             } else if (code === 6) {
-                setErrorText("Invalid receiver ID.");
+                setErrorText("Nederīgs saņēmēja ID.");
             } else if (code === 7) {
-                setErrorText("Did you choose review score?");
+                setErrorText("Vai izvēlējāties atsauksmes vērtējumu?");
             } else {
-                setErrorText("Unknown error occurred.");
+                setErrorText("Radās nezināma kļūda.");
             }
             console.log(error);
         } finally {
@@ -106,7 +106,7 @@ function Review({ reviewReceiver, refreshReplies }) {
                 </div>
                 <input className='commentInputName' type='text' placeholder='vārds' value={reviewerName}
                     onChange={ (e) => setReviewerName(e.target.value)}/>
-                <textarea  className='commentInputText' placeholder="Review"
+                <textarea  className='commentInputText' placeholder="Atsauksmes"
                     onChange={ (e) => setTextReview(e.target.value)} value={textReview} />
                 <button className='commentSaveBtn' onClick={saveReview} disabled={isSaving.current} >
                     {isSaving.current ? "Saglabā..." : "Saglabāt"}

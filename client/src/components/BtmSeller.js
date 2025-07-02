@@ -45,7 +45,7 @@ function BtmSeller() {
           useUserStore.getState().setCachedSellerData(responseUser.data);
         } 
       } catch (error) {
-        setErrorFrontend("Error: ads could not be fetched");
+        setErrorFrontend("Kļūda: Neizdevās ielādēt reklāmas.");
         console.log(error.message);
         setSellerData({}); // Ensure sellerData is never null
       } finally {
@@ -71,7 +71,7 @@ function BtmSeller() {
     <div>
       <div>
         { loading ? 
-            <div aria-live="polite">Loading...</div> 
+            <div aria-live="polite">Ielādē...</div> 
           : errorFrontend ? ( // Check for error first
             <p className='errorFieldProfile'>{errorFrontend}</p> 
           ) :
@@ -80,10 +80,10 @@ function BtmSeller() {
                   <div>Name: <strong>{sellerData.name}</strong> </div>
                   <div>
                     {rating > 0 ?
-                      <>Rating: <strong><span className="ratingNum">{rating}</span></strong></>
+                      <>Vērtējums: <strong><span className="ratingNum">{rating}</span></strong></>
                     :
                       <span className="raterParent">
-                        <span>Rating:<strong> 0 reviews &nbsp;</strong></span> 
+                        <span>Vērtējums:<strong> 0 atsauksmju &nbsp;</strong></span>
                         <img src='/svg_smiling.svg' className='reviewSmilingIcon' alt='smiling face'/>
                       </span>
                     }
@@ -94,7 +94,7 @@ function BtmSeller() {
                     }
                   </div>
                   <div >Skatījumu skaits: <strong>{visitorsSeller}</strong></div>
-                  <div className='lastDivProfile'>Since: <strong>{sellerData.date}</strong></div>
+                  <div className='lastDivProfile'>Kopš: <strong>{sellerData.date}</strong></div>
                   <BtmLikeSeller sellerId={sellerNumber}  />
                 </div>
 

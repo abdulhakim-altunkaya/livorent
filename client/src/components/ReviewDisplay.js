@@ -33,13 +33,13 @@ function ReviewDisplay({ reviewReceiver, handleRating, handleRaters }) {
             console.log(error.message);
             const code = error?.response?.data?.resErrorCode;
             if (code === 1) {
-                setErrorText("Ad ID is missing or invalid.");
+                setErrorText("Sludinājuma ID trūkst vai ir nederīgs.");
             } else if (code === 2) {
-                console.log("No reviews yet.");
+                console.log("Atsauksmju vēl nav.");
             } else if (code === 3) {
-                console.log("Failed to connect to the database.");
+                console.log("Neizdevās izveidot savienojumu ar datubāzi.");
             } else {
-                console.log("An unknown error occurred.");
+                console.log("Radās nezināma kļūda.");
             }
         } 
     }

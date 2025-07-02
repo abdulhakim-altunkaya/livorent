@@ -62,13 +62,13 @@ function BtmUpload() {
   const handleImageChange = (e) => {
     const selectedFiles = Array.from(e.target.files);
     if (selectedFiles.length > 5) {
-      alert("You can upload a maximum of 5 images.");
+      alert("Jūs varat augšupielādēt maksimāli 5 attēlus.");
       return;
     }
-    // ✅ Check individual file size (max 4MB)
+    // ✅ Check individual file size (max 3MB)
     for (const file of selectedFiles) {
-      if (file.size > 4 * 1024 * 1024) {
-        alert(`Katrs attēls nedrīkst pārsniegt 4 MB: '${file.name}'`);
+      if (file.size > 3 * 1024 * 1024) {
+        alert(`Katrs attēls nedrīkst pārsniegt 3 MB: '${file.name}'`);
         return;
       }
     }
@@ -168,32 +168,31 @@ function BtmUpload() {
       if (error.response && error.response.data) {
         const errCode = error.response.data.resErrorCode;
         if (errCode === 1) {
-          setResultArea("Invalid ad data format ❌"); // emoji \u274C
+          setResultArea("Nederīgs sludinājuma datu formāts ❌");
         } else if (errCode === 2) {
-          setResultArea("Ad title or description not valid ❌");
+          setResultArea("Sludinājuma nosaukums vai apraksts nav derīgs ❌");
         } else if (errCode === 3) {
-          setResultArea("City or price info not valid ❌");
+          setResultArea("Pilsētas vai cenas informācija nav derīga ❌");
         } else if (errCode === 4) {
-          setResultArea("Name or telephone info not valid ❌");
+          setResultArea("Vārds vai tālruņa informācija nav derīga ❌");
         } else if (errCode === 5) {
-          setResultArea("Visitor number not valid ❌");
+          setResultArea("Apmeklētāju skaits nav derīgs ❌");
         } else if (errCode === 6) {
-          setResultArea("Ad category not valid ❌");
+          setResultArea("Sludinājuma kategorija nav derīga ❌");
         } else if (errCode === 7) {
-          setResultArea("1 to 4 images required ❌");
+          setResultArea("Nepieciešami 1 līdz 5 attēli ❌");
         } else if (errCode === 8) {
-          setResultArea("Unsupported file type ❌");
+          setResultArea("Neatbalstīts faila tips ❌");
         } else if (errCode === 9) {
-          setResultArea("Error uploading file to storage ❌");
+          setResultArea("Kļūda, augšupielādējot failu uzglabāšanā ❌");
         } else if (errCode === 10) {
-          setResultArea("Database connection failed ❌");
+          setResultArea("Neizdevās savienoties ar datubāzi ❌");
         } else {
-          // Unknown error code
-          setResultArea(error.response.data.resMessage || "An unknown error occurred ❌");
+          setResultArea(error.response.data.resMessage || "Nezināma kļūda ❌");
         }
         console.log(error.message);
       } else {
-        setResultArea("An error happened while saving the news");
+        setResultArea("Kļūda, saglabājot sludinājumu");
         console.log(error.message);
       }
     } finally {
@@ -264,7 +263,7 @@ function BtmUpload() {
               <input type="file" id="inputImages" name="images" accept="image/*" multiple 
                 onChange={handleImageChange} />
               <label htmlFor="inputImages" >
-                Upload Images <img src='/svg_add_file.svg' className="svgUploadFile" alt='add file icon'/>
+                Augšupielādēt attēlus <img src='/svg_add_file.svg' className="svgUploadFile" alt='add file icon'/>
               </label>
     
             </div>
@@ -277,7 +276,7 @@ function BtmUpload() {
     
               <div>
                 <div className="btnSelectCategory" >
-                  <span>Choose Ad Category</span> &nbsp;&nbsp;<span>▼</span>
+                  <span>Izvēlēties sludinājuma kategoriju</span> &nbsp;&nbsp;<span>▼</span>
     
                 </div>
                     <div className="selectCategoryArea">
