@@ -21,6 +21,7 @@ function BtmProfileUpdate() {
   const [telephone, setTelephone] = useState(userData.telephone);
   const [email, setEmail] = useState(userData.email);
   const [resultArea, setResultArea] = useState("");
+  const [savingButton, setSavingButton] = useState(false);
   const token = localStorage.getItem("token_livorent");
   
   useEffect(() => {
@@ -70,7 +71,7 @@ function BtmProfileUpdate() {
     // prevent duplicates
     if (isSaving.current) return; 
     isSaving.current = true;
-
+    setSavingButton(true);
     try {
       const updateObject = {
         updateId: Number(visitorNumber),
@@ -118,6 +119,8 @@ function BtmProfileUpdate() {
           message = "Lietotājs nav atrasts vai atjaunināšana neizdevās. ❌";
         } else if (resErrorCode === 6) {
           message = "Datu bāzes kļūda. ❌";
+        } else if (resErrorCode === 11) {
+          message = "Lūdzu, mēģiniet vēlreiz pēc 2 minūtēm.  ❌";
         } else if (resMessage) {
           message = resMessage;
         }
@@ -130,6 +133,7 @@ function BtmProfileUpdate() {
       }
     } finally {
       isSaving.current = false;
+      setSavingButton(false);
     }
   }
 
@@ -157,7 +161,7 @@ function BtmProfileUpdate() {
               <input className="loginInputShort1" type="text" id="inputEmail1" 
                 value={email} onChange={(e) => setEmail(e.target.value)} required />
             </div>
-          <button className="btnSelectCategory3" type="submit" disabled={isSaving.current} >
+          <button className="btnSelectCategory3" type="submit" disabled={savingButton} >
             {isSaving.current ? "Saglabā..." : "Atjaunināt"}
           </button>
           <span className="btnSelectCategory4" onClick={cancelUpdate}>Atcelt</span>

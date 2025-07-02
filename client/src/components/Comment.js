@@ -5,7 +5,7 @@ import "../styles/Comment.css";
 function Comment({ commentReceiver, refreshComments }) {
     const isSaving = useRef(false);  // flag to prevent repetitive requests and duplicates
     const [isSavingButton, setIsSavingButton] = useState(false); //used to display dynamic text in saving button
-
+    const [savingButton, setSavingButton] = useState(false);
     const [textComment, setTextComment] = useState("");
     const [commentorName, setCommentorName] = useState("");
     const [errorText, setErrorText] = useState("");
@@ -13,6 +13,7 @@ function Comment({ commentReceiver, refreshComments }) {
     const escapeHtml = str => str.replace(/[<>]/g, t => t === '<' ? '&lt;' : '&gt;');
 
     const saveComment = async () => {
+        console.log("hello")
         const token = localStorage.getItem("token_livorent");
         const visitorNumber = localStorage.getItem("visitorNumber");
 
@@ -38,7 +39,7 @@ function Comment({ commentReceiver, refreshComments }) {
         // prevent duplicates
         if (isSaving.current) return; 
         isSaving.current = true;
-        setIsSavingButton(true);
+        setSavingButton(true);
         try {
             const commentObject = {
                 commentText: safeComment,
@@ -55,24 +56,26 @@ function Comment({ commentReceiver, refreshComments }) {
         } catch (error) { 
             const code = error.response?.data?.resErrorCode; //"response" is a keyword/field name of error object.
             if (code === 1) {
-                setErrorText("Datubāzes kļūda, lūdzu, mēģiniet vēlreiz vēlāk.");
+                setErrorText("Datubāzes kļūda, lūdzu, mēģiniet vēlreiz vēlāk. ❌");
             } else if (code === 2) {
-                setErrorText("Komentārs vai vārds ir tukšs.");
+                setErrorText("Komentārs vai vārds ir tukšs. ❌");
             } else if (code === 3) {
-                setErrorText("Komentāram jābūt no 4 līdz 3000 rakstzīmēm.");
+                setErrorText("Komentāram jābūt no 4 līdz 3000 rakstzīmēm. ❌");
             } else if (code === 4) {
-                setErrorText("Vārdam jābūt no 4 līdz 100 rakstzīmēm.");
+                setErrorText("Vārdam jābūt no 4 līdz 100 rakstzīmēm. ❌");
             } else if (code === 5) {
-                setErrorText("Nederīgs lietotāja ID.");
+                setErrorText("Nederīgs lietotāja ID. ❌");
             } else if (code === 6) {
-                setErrorText("Nederīgs saņēmēja ID.");
+                setErrorText("Nederīgs saņēmēja ID. ❌");
+            } else if (code === 11) {
+                setErrorText("Lūdzu, mēģiniet vēlreiz pēc 2 minūtēm. ❌");
             } else {
-                setErrorText("Nezināma kļūda.");
+                setErrorText("Nezināma kļūda. ❌");
             }
             console.log(error);
         } finally {
             isSaving.current = false;
-            setIsSavingButton(false);
+            setSavingButton(false);
             setTextComment("");
             setCommentorName("");
         }
@@ -86,7 +89,7 @@ function Comment({ commentReceiver, refreshComments }) {
                     onChange={ (e) => setCommentorName(e.target.value)}/>
                 <textarea  className='commentInputText' placeholder="Komentārs vai jautājums"
                     onChange={ (e) => setTextComment(e.target.value)} value={textComment} />
-                <button className='commentSaveBtn' onClick={saveComment} disabled={isSaving} >
+                <button className='commentSaveBtn' onClick={saveComment} disabled={savingButton} >
                     {isSavingButton ? "Saglabā..." : "Saglabāt"}
                 </button>
                 {errorText && <div className="commentError">{errorText}</div>}

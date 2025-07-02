@@ -13,7 +13,7 @@ function BtmRenewal() {
   const [passtext, setPasstext] = useState("");
   const [passtextControl, setPasstextControl] = useState("");
   const [resultArea, setResultArea] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [savingButton, setSavingButton] = useState(false);
   const [showPassword1, setShowPassword1] = useState(false);
   const [showPassword2, setShowPassword2] = useState(false);
   const [showPassword3, setShowPassword3] = useState(false);
@@ -50,12 +50,10 @@ function BtmRenewal() {
       return;
     }
 
-    setLoading(true);
-
     // prevent duplicates
     if (isSaving.current) return; 
     isSaving.current = true;
-
+    setSavingButton(true);
     try { 
       const renewalObject = {
         renewalEmail: email, 
@@ -73,7 +71,6 @@ function BtmRenewal() {
         useUserStore.getState().setCachedUserData(responseUser);// set also the cache
         setResultArea(`${responseMessage} ✅`);
 
-        setLoading(false);
         // Small delay before navigation to allow store update
         // Later when people visit profile component, it will get data from zustand cache.
         setEmail("");
@@ -103,20 +100,21 @@ function BtmRenewal() {
             setResultArea("Datubāzes savienojuma kļūda. Mēģini vēlreiz vēlāk. ❌");
           } else if (errorCode === 6) {
             setResultArea("Visi lauki ir obligāti aizpildāmi. ❌");
+          } else if (errorCode === 11) {
+            setResultArea("Lūdzu, mēģiniet vēlreiz pēc 2 minūtēm. ❌");
           } else {
             const serverMessage = error.response.data?.responseMessage || "Negaidīta servera kļūda. ❌";
             setResultArea(serverMessage);
           }
 
           console.error("Server responded with error:", error.response.data);
-          setLoading(false);
         } else {
           setResultArea("Tīkla vai servera savienojuma kļūda. ❌");
           console.error("Request failed:", error.message);
-          setLoading(false);
         }
     } finally {
       isSaving.current = false;
+      setSavingButton(false);
     }
   }
 
@@ -167,8 +165,8 @@ function BtmRenewal() {
                 <img className="iconEye" src='/svg_eye.svg' onClick={()=> toggleEye(3)} alt='eye to see password'/>
               </div>
             </div>
-            <button className="btnSelectCategory2" type="submit" disabled={loading}>
-              {loading ? "Apstrādā..." : "Saglabāt"}
+            <button className="btnSelectCategory2" type="submit" disabled={savingButton}>
+              {isSaving.current ? "Apstrādā..." : "Saglabāt"}
             </button>
           </form>
           <br/>

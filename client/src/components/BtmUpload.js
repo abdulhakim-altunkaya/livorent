@@ -17,7 +17,7 @@ function BtmUpload() {
 
   const navigate = useNavigate();
   const isSaving = useRef(false);  // flag to prevent repetitive requests and duplicates
-  const [isSavingButton, setIsSavingButton] = useState(false); //used to display dynamic text in saving button
+  const [savingButton, setSavingButton] = useState(false); //used to display dynamic text in saving button
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -126,7 +126,7 @@ function BtmUpload() {
     // prevent duplicates
     if (isSaving.current) return; 
     isSaving.current = true;
-    setIsSavingButton(true);
+    setSavingButton(true);
 
     try {
       const adObject = {
@@ -187,6 +187,8 @@ function BtmUpload() {
           setResultArea("Kļūda, augšupielādējot failu uzglabāšanā ❌");
         } else if (errCode === 10) {
           setResultArea("Neizdevās savienoties ar datubāzi ❌");
+        } else if (errCode === 11) {
+          setResultArea("Jūs varat augšupielādēt tikai vienu sludinājumu ik pēc 10 minūtēm ❌");
         } else {
           setResultArea(error.response.data.resMessage || "Nezināma kļūda ❌");
         }
@@ -197,7 +199,7 @@ function BtmUpload() {
       }
     } finally {
       isSaving.current = false;
-      setIsSavingButton(false);
+      setSavingButton(false);
     }
   }
 
@@ -404,7 +406,7 @@ function BtmUpload() {
     
                     </div>
               </div>
-              <button className="button7007" type="submit" disabled={isSaving.current}>
+              <button className="button7007" type="submit" disabled={savingButton}>
                 {isSaving.current ? "Augšupielādē..." : "Augšupielādēt"}
               </button>
             </form>

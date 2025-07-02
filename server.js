@@ -63,11 +63,50 @@ const blockBannedIPs = (req, res, next) => {
   next();
 };
 
+// 🔒 MIDDLEWARE 5: Custom ip block for spam uploads. Only to be used on "serversavead" endpoint.
+const lastUploadTimes = new Map();
+const checkUploadCooldown = (req, res, next) => {
+  const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
+
+  const lastTime = lastUploadTimes.get(ipVisitor);
+  const now = Date.now();
+
+  if (lastTime && now - lastTime < 10 * 60 * 1000) {
+    return res.status(429).json({
+      resStatus: false,
+      resMessage: "You can only upload one ad every 10 minutes",
+      resErrorCode: 11
+    });
+  }
+
+  lastUploadTimes.set(ipVisitor, now);
+  next(); // passes control to your upload handler
+}
+// 🔒 MIDDLEWARE 6: Custom ip block for spam comments, reviews etc. Resets once in 3 minutes
+const lastUploadTimes2 = new Map();
+const checkCooldown = (req, res, next) => {
+  const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
+
+  const lastTime = lastUploadTimes2.get(ipVisitor);
+  const now = Date.now();
+
+  if (lastTime && now - lastTime < 2 * 60 * 1000) {
+    return res.status(429).json({
+      resStatus: false,
+      resMessage: "You can do this once every 2 minutes",
+      resErrorCode: 11
+    });
+  }
+
+  lastUploadTimes2.set(ipVisitor, now);
+  next(); // passes control to your upload handler
+}
 
 //A temporary cache to save ip addresses and it will prevent spam comments/replies/posts etc.
 //I can do that by checking each ip with database ip addresses but then it will be too many requests to db
 //Thats why I am using a custom rateLimiter
-app.post("/api/post/serversavead", upload.array("images", 5), authenticateToken, rateLimiter, blockBannedIPs, async (req, res) => {
+app.post("/api/post/serversavead", checkUploadCooldown, authenticateToken, 
+  rateLimiter, blockBannedIPs, upload.array("images", 5), async (req, res) => {
   //preventing spam comments
   const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
 
@@ -214,7 +253,7 @@ app.post("/api/post/serversavead", upload.array("images", 5), authenticateToken,
 const ipCache4 = {}
 const JWT_SEC = process.env.JWT_SECRET; // Ensure you have this in your .env file
 const SALT_ROUNDS = 5; // For password hashing, normally 10 would be safe. I am not storing sensitive data. So, 5 is enough.
-app.post("/api/register", rateLimiter, blockBannedIPs, async (req, res) => {
+app.post("/api/register", checkCooldown, rateLimiter, blockBannedIPs, async (req, res) => {
   //preventing spam signups
   const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
 
@@ -459,7 +498,7 @@ app.post("/api/login", rateLimiter, blockBannedIPs, async (req, res) => {
   } 
 });
 
-app.post("/api/post/password-renewal", rateLimiter, blockBannedIPs, async (req, res) => {
+app.post("/api/post/password-renewal", checkCooldown, rateLimiter, blockBannedIPs, async (req, res) => {
   //preventing spam logins
   const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
 
@@ -571,7 +610,7 @@ app.post("/api/post/password-renewal", rateLimiter, blockBannedIPs, async (req, 
   } 
 })
 
-app.post("/api/post/password-change", rateLimiter, blockBannedIPs, async (req, res) => {
+app.post("/api/post/password-change", checkCooldown, rateLimiter, blockBannedIPs, async (req, res) => {
   //preventing spam logins
   const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
 
@@ -802,7 +841,7 @@ app.get("/api/get/item/:itemNumber", rateLimiter, blockBannedIPs, async (req, re
   }
 }); 
  
-app.post("/api/update", authenticateToken, rateLimiter, blockBannedIPs, async (req, res) => {
+app.post("/api/update", checkCooldown, authenticateToken, rateLimiter, blockBannedIPs, async (req, res) => {
   //preventing spam signups
   const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
 
@@ -833,8 +872,8 @@ app.post("/api/update", authenticateToken, rateLimiter, blockBannedIPs, async (r
     });
   }
 
-  if (!updateLoad.telephone1 || String(updateLoad.telephone1).length.trim() < 7 || 
-    String(updateLoad.telephone1).length.trim() > 15) {
+  if (!updateLoad.telephone1 || String(updateLoad.telephone1).trim().length < 7 || 
+    String(updateLoad.telephone1).trim().length > 15) {
     return res.status(400).json({
       resStatus: false,
       resMessage: "Telephone number is not valid.",
@@ -1084,7 +1123,7 @@ app.get("/api/search", rateLimiter, blockBannedIPs, async (req, res) => {
   if(!searchText) {
     return res.status(200).json({
       responseStatus: false, //false mean search failed, it brought zero result.
-      responseMessage: "search text is missing",
+      responseMessage: "Meklēšanas teksts trūkst",
       responseResult: []
     });
   }
@@ -1092,24 +1131,36 @@ app.get("/api/search", rateLimiter, blockBannedIPs, async (req, res) => {
     return res.status(200).json({ //we are saying 200 here because I want below values to display 
       //If I say 400, only the catch error statement will display.
       responseStatus: false, //false mean search failed, it brought zero result.
-      responseMessage: "search text is too small",
+      responseMessage: "Meklēšanas teksts ir pārāk īss",
       responseResult: []
     });
   }
 
   try {
     client = await pool.connect();
+    /*The one below is for fuzzy-approximate search but it does not work.
+    const result = await client.query(
+      `SELECT * FROM livorent_ads
+      WHERE similarity(title, $1) > 0.3 OR similarity(description, $1) > 0.3
+      ORDER BY GREATEST(similarity(title, $1), similarity(description, $1)) DESC
+      LIMIT 20`,
+      [searchText.trim()]
+    );
+    */
+    // this code below is for case insensitive exact word search. 
+    //we will limit result by 20 records. No need to bring all records. Also, newest one comes first. 
     const result = await client.query(
       `SELECT * FROM livorent_ads WHERE title ILIKE $1 OR description ILIKE $1 ORDER BY id DESC LIMIT 20`,
       [`%${searchText.trim()}%`]
-    );//we will limit result by 20 records. No need to bring all records. Also, newest one comes first. 
+    );
+
 
     if (result.rows.length < 1) {
       return res.status(200).json({
         //Frontend is expecting these reply fields. So even if backend reply is negative,
         //it should still contain these false and 0 values to prevent errors on the frontend.
         responseStatus: false, //false mean search failed, it brought zero result.
-        responseMessage: "No ad with that word",
+        responseMessage: "Nav sludinājumu ar šo vārdu",
         responseResult: []
       });
     }
@@ -1124,7 +1175,7 @@ app.get("/api/search", rateLimiter, blockBannedIPs, async (req, res) => {
     console.error("Database error:", error);
     return res.status(500).json({
       responseStatus: false,
-      responseMessage: "",
+      responseMessage: "Datu bāzes savienojuma kļūda",
       responseResult: []
     })
   } finally {
@@ -1162,7 +1213,7 @@ app.get('/api/verify-token', rateLimiter, blockBannedIPs, async (req, res) => {
   }
 });
 
-app.post("/api/post/save-comment", authenticateToken, rateLimiter, blockBannedIPs, async (req, res) => {
+app.post("/api/post/save-comment", checkCooldown, authenticateToken, rateLimiter, blockBannedIPs, async (req, res) => {
   //preventing spam likes
   const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
 
@@ -1287,7 +1338,7 @@ app.get("/api/get/comments/:commentReceiver", rateLimiter, blockBannedIPs, async
     if(client) client.release();
   } 
 });
-app.post("/api/post/save-reply", authenticateToken, rateLimiter, blockBannedIPs, async (req, res) => {
+app.post("/api/post/save-reply", checkCooldown, authenticateToken, rateLimiter, blockBannedIPs, async (req, res) => {
   //preventing spam likes
   const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
 
@@ -1368,7 +1419,7 @@ app.post("/api/post/save-reply", authenticateToken, rateLimiter, blockBannedIPs,
     if (client) client.release();
   }
 });
-app.post("/api/post/save-review", authenticateToken, rateLimiter, blockBannedIPs, async (req, res) => {
+app.post("/api/post/save-review", checkCooldown, authenticateToken, rateLimiter, blockBannedIPs, async (req, res) => {
   //preventing spam likes
   const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
 
@@ -1456,7 +1507,7 @@ app.post("/api/post/save-review", authenticateToken, rateLimiter, blockBannedIPs
     if (client) client.release();
   }
 });
-app.post("/api/post/save-review-reply", authenticateToken, rateLimiter, blockBannedIPs, async (req, res) => {
+app.post("/api/post/save-review-reply", checkCooldown, authenticateToken, rateLimiter, blockBannedIPs, async (req, res) => {
   //preventing spam likes
   const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
 
@@ -2298,40 +2349,19 @@ app.listen(PORT, () => {
 })
 
   /* 
-  In like logic, we will display all liked sellers or items to the user on profile page.
-  A seller or ad will be deleted after some time. And user who liked those, will still have deleted id 
-  numbers in his liked ads or sellers array. Make sure you skip the deleted id numbers while mapping array.
-  We will map array to display favourite sellers or ad to the user.
-  Also develop isLikeAllowed state to improve security on like logic code. state is in BtmItem and BtmSeller components
-add two more comment section to each part
-check time limits on post routes . They are not 1 minute, if so, convert them to 1 minute
-ip check to make sure same ip can upload once in 5 minutes and twice in 24 hour 
-//search text should approximately match the word. 
-//add security check for repetitive wrong login attempt
-//Only last 10 records will be uploaded to the main pages. How to add a button to add another 10 when user clicks?
-//And another 10 if user clicks again and so on?
-//prevent spam uploads by putting a time limit
-//People should not upload many images and long inputs
-//Add a loading circle when uploading an ad and waiting for reply if ad is saved
+add security check for repetitive wrong login attempt
+Only last 10 records will be uploaded to the main pages. How to add a button to add another 10 when user clicks?
+And another 10 if user clicks again and so on?
 Add date column to ads
 Remove ipVisitor data from endpoints if they are not used. Wait for counter and visitor log code before removing it.
 Maybe you can limit resUser to specific fields to prevent sending hashed password and secret words
 Add small screen style
-resultArea style improve on big screen
-Add input validations signup and login and password change and  password renewal components
 Add returning to all db requests to prevent data leak
-Maybe another carousel to the main page?
 Fix margin left of all resultArea and errorFrontend areas 
-
-GENERAL SECURITY
-  input validation and checks: frontend and backend, with max and min numbers,
-  Check each endpoint and component with chatgpt to see if any mistake or sth to fix
-  *Done: verify token middleware: backend
-  *Done: input sanitization: backend
-  *Done: rate limiter: backend
-  *Done: password reset: done with token version update
-  *Done: token version added to password reset but not to password change
-  *Done: password change: token version remains the same 
+Check each endpoint and component with chatgpt to see if any mistake or sth to fix
+convert all error, success and alert messages to Latvian, also buttons and any other text
+change all xxxxx things in the footer component 
+create or remove kontakti component
 
 BEFORE DEPLOYING:
   Delete images from storage too   
@@ -2341,8 +2371,10 @@ BEFORE DEPLOYING:
   remove console.log statements from all components and server.js
   also check server file to uncomment relevant code
   remove all localhost words from api endpoints in frontend
-  convert all error, success and alert messages to Latvian, also buttons and any other text
-  change all xxxxx things in the footer component 
+
+
+DEFERRED:
+Fuzzy search
 
 DONE
 add useRef logic to all components and add dynamic text display if needed
@@ -2350,11 +2382,22 @@ all password inputs hidden with *
 Add password renewal logic
 Add comment system
 Add visit counter to each ad page
-Maybe you can update the endpoints to send comprehensive data like in the case of password renewal
-*/
+update the endpoints for expanded responses
+Add like logic
+isSaving.current-useRef added to all relevant components to display dynamic button text
 
-//A temporary cache to save ip addresses and it will prevent saving same ip addresses for 1 hour.
-//I can do that by checking each ip with database ip addresses but then it will be too many requests to db
-//We will save each visitor data to database. 
+
+*Security: button disabled attribute tied to a tracking variable to prevent duplicates
+*Security: Input validations check on both frontend and backend
+*Security: each ip can upload once in 10 minutes
+*Security: wait time middleware added to upload and other important endpoints to prevent spam
+*Security: verify token middleware: backend
+*Security: input sanitization: backend
+*Security: rate limiter: backend
+*Security: password reset: done with token version update
+*Security: token version added to password reset but not to password change
+*Security: password change: token version remains the same 
+
+*/
 
 

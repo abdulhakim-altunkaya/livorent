@@ -12,7 +12,7 @@ function BtmPasswordChange() {
   const [passtext, setPasstext] = useState("");
   const [passtextControl, setPasstextControl] = useState("");
   const [resultArea, setResultArea] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [savingButton, setSavingButton] = useState(false);
   const [showPassword1, setShowPassword1] = useState(false);
   const [showPassword2, setShowPassword2] = useState(false);
   const [showPassword3, setShowPassword3] = useState(false);
@@ -45,10 +45,10 @@ function BtmPasswordChange() {
       return;
     }
 
-    setLoading(true);
     // prevent duplicates
     if (isSaving.current) return; 
     isSaving.current = true;
+    setSavingButton(true);
     try {  
       const changeObject = {
         changeEmail: email.trim(),
@@ -83,6 +83,8 @@ function BtmPasswordChange() {
           message = "Visi lauki ir obligāti aizpildāmi. ❌";
         } else if (resErrorCode === 6) {
           message = "Jaunajai parolei jāatšķiras no pašreizējās. ❌";
+        } else if (resErrorCode === 11) {
+          message = "Lūdzu, mēģiniet vēlreiz pēc 2 minūtēm.  ❌";
         } else if (resMessage) {
           message = resMessage;
         }
@@ -94,8 +96,8 @@ function BtmPasswordChange() {
         console.error("Pieprasījums neizdevās:", error.message);
       }
     } finally {
-      setLoading(false);
       isSaving.current = false;
+      setSavingButton(false);
     }
   }
 
@@ -149,8 +151,8 @@ function BtmPasswordChange() {
                   role="button" tabIndex="0" alt='eye to see password'/>
               </div>
             </div>
-            <button className="btnSelectCategory2" type="submit" disabled={loading}>
-              {loading ? "Apstrādā..." : "Saglabāt"}
+            <button className="btnSelectCategory2" type="submit" disabled={savingButton}>
+              {isSaving.current ? "Apstrādā..." : "Saglabāt"}
             </button>
           </form>
           <br/>

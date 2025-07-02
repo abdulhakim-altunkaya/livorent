@@ -16,7 +16,7 @@ function BtmRegister() {
   const [resultArea, setResultArea] = useState("");
   const [passtextControl, setPasstextControl] = useState("");
   const [secretWord, setSecretWord] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [savingButton, setSavingButton] = useState(false);
   const [showPassword1, setShowPassword1] = useState(false);
   const [showPassword2, setShowPassword2] = useState(false);
   const [showPassword3, setShowPassword3] = useState(false);
@@ -81,15 +81,12 @@ function BtmRegister() {
       setResultArea("Tālruņa numuram jābūt no 8 līdz 15 cipariem. ❌");
       return;
     }
-
-
-    setLoading(true);
-    setResultArea("");
-     
     // prevent duplicates
     if (isSaving.current) return; 
     isSaving.current = true;
-    
+    setSavingButton(true);
+    setResultArea("");
+
     try {
       const registerObject = {
         registerName: name.trim(), 
@@ -141,6 +138,8 @@ function BtmRegister() {
           setResultArea("Šis e-pasts jau ir reģistrēts. Mēģiniet pieteikties vai izmantot citu e-pastu. ❌");
         } else if (errorCode === 9) {
           setResultArea("Radās servera kļūda. Mēģiniet vēlreiz vēlāk. ❌");
+        } else if (errorCode === 11) {
+          setResultArea("Lūdzu, mēģiniet vēlreiz pēc 2 minūtēm.  ❌");
         } else {
           setResultArea(resMessage || "Nezināma kļūda pie reģistrācijas. ❌");
         }
@@ -151,8 +150,8 @@ function BtmRegister() {
         console.error("Unhandled signup error:", error.message);
       }
     } finally {
-      setLoading(false);
       isSaving.current = false;
+      setSavingButton(false);
     }
   }
 
@@ -218,8 +217,8 @@ function BtmRegister() {
               </div>
               <small><em>Šo atbildi izmantosim, lai pārbaudītu jūsu identitāti, ja aizmirstat paroli.</em></small>
             </div>
-          <button className="btnSelectCategory2" type="submit" disabled={loading} >
-            {loading ? "Lūdzu uzgaidiet..." : "Reģistrēties"}
+          <button className="btnSelectCategory2" type="submit" disabled={savingButton} >
+            {isSaving.current ? "Lūdzu uzgaidiet..." : "Reģistrēties"}
           </button>
         </form>
         <br/>

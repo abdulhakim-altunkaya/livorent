@@ -5,7 +5,7 @@ import "../styles/CommentReply.css";
 
 function CommentReply({ commentReceiver, cancelReply, parentId, refreshReplies }) {
     const isSaving = useRef(false);  // flag to prevent repetitive requests and duplicates
-
+    const [savingButton, setSavingButton] = useState(false);
     const [inputName, setInputName] = useState("");
     const [inputReply, setInputReply] = useState("");
     const [errorText, setErrorText] = useState("");
@@ -33,6 +33,7 @@ function CommentReply({ commentReceiver, cancelReply, parentId, refreshReplies }
         // prevent duplicates
         if (isSaving.current) return; 
         isSaving.current = true;
+        setSavingButton(true);
         try {
             const replyObject = { 
                 replyText: trimmedReply,
@@ -52,22 +53,25 @@ function CommentReply({ commentReceiver, cancelReply, parentId, refreshReplies }
             console.error('Error:', error);
             const code = error?.response?.data?.resErrorCode;
             if (code === 1) {
-                setErrorText("Neizdevās savienoties ar datubāzi.");
+                setErrorText("Neizdevās savienoties ar datubāzi. ❌");
             } else if (code === 2) {
-                setErrorText("Atbilde vai vārds ir tukšs.");
+                setErrorText("Atbilde vai vārds ir tukšs. ❌");
             } else if (code === 3) {
-                setErrorText("Atbildei jābūt no 4 līdz 300 rakstzīmēm.");
+                setErrorText("Atbildei jābūt no 4 līdz 300 rakstzīmēm. ❌");
             } else if (code === 4) {
-                setErrorText("Vārdam jābūt no 4 līdz 100 rakstzīmēm.");
+                setErrorText("Vārdam jābūt no 4 līdz 100 rakstzīmēm. ❌");
             } else if (code === 5) {
-                setErrorText("Nederīgs lietotāja ID.");
+                setErrorText("Nederīgs lietotāja ID. ❌");
             } else if (code === 6) {
-                setErrorText("Nederīgs saņēmēja ID.");
+                setErrorText("Nederīgs saņēmēja ID. ❌");
+            } else if (code === 11) {
+                setErrorText("Lūdzu, mēģiniet vēlreiz pēc 2 minūtēm. ❌");
             } else {
-                setErrorText("Nezināma kļūda.");
+                setErrorText("Nezināma kļūda. ❌");
             }
         } finally {
             isSaving.current = false;
+            setSavingButton(false);
         }
     };
 
@@ -79,7 +83,7 @@ function CommentReply({ commentReceiver, cancelReply, parentId, refreshReplies }
                 <textarea  className='replyInputText' placeholder="Atbilde" value={inputReply}
                     onChange={ (e) => setInputReply(e.target.value)}/>
                 <div>
-                    <button className='replyButtonChild' onClick={saveReply} disabled={isSaving.current} >
+                    <button className='replyButtonChild' onClick={saveReply} disabled={savingButton} >
                         {isSaving.current ? "Saglabā..." : "Saglabāt"}
                     </button> &nbsp;&nbsp;&nbsp;
                     <button className='replyButtonChild' onClick={cancelReply} >

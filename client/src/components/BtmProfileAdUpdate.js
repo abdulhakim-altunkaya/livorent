@@ -40,6 +40,7 @@ function BtmProfileAdUpdate() {
   const [resultArea, setResultArea] = useState("");
   const [missingData, setMissingData] = useState(false); // 🔑
   const [removedImages, setRemovedImages] = useState([]);
+  const [savingButton, setSavingButton] = useState(false);
   const token = localStorage.getItem("token_livorent"); 
 
   useEffect(() => {
@@ -165,6 +166,7 @@ function BtmProfileAdUpdate() {
     // prevent duplicates
     if (isSaving.current) return; 
     isSaving.current = true;
+    setSavingButton(true);
     try {
       const adUpdateObject = {
         adNumber: adNumber,
@@ -236,6 +238,7 @@ function BtmProfileAdUpdate() {
       }
     } finally {
       isSaving.current = false;
+      setSavingButton(false);
     }
   }
 
@@ -481,7 +484,7 @@ function BtmProfileAdUpdate() {
                       </div>
                 </div>
       
-                <button className="button7007" type="submit" disabled={isSaving.current} >
+                <button className="button7007" type="submit" disabled={savingButton} >
                   {isSaving.current ? "Saglabā..." : "Atjaunināt"}
                 </button>
               </form>

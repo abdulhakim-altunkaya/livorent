@@ -9,6 +9,7 @@ function Review({ reviewReceiver, refreshReplies }) {
     const [reviewerName, setReviewerName] = useState("") 
     const [errorText, setErrorText] = useState("");
     const [selectedRating, setSelectedRating] = useState(null);
+    const [savingButton, setSavingButton] = useState(false);
 
     const escapeHtml = str => str.replace(/[<>]/g, t => t === '<' ? '&lt;' : '&gt;');
 
@@ -43,6 +44,7 @@ function Review({ reviewReceiver, refreshReplies }) {
         // prevent duplicates
         if (isSaving.current) return; 
         isSaving.current = true;
+        setSavingButton(true);
         try {
             const reviewObject = {
                 reviewText: safeReview,
@@ -60,27 +62,30 @@ function Review({ reviewReceiver, refreshReplies }) {
         } catch (error) {
             const code = error.response?.data?.resErrorCode; //"response" is a keyword/field name of error object.
             if (code === 1) {
-                setErrorText("Datubāzes kļūda, lūdzu, mēģiniet vēlāk.");
+                setErrorText("Datubāzes kļūda, lūdzu, mēģiniet vēlāk. ❌");
             } else if (code === 2) {
-                setErrorText("Atsauksmes vai vārds ir tukšs.");
+                setErrorText("Atsauksmes vai vārds ir tukšs. ❌");
             } else if (code === 3) {
-                setErrorText("Atsauksmei jābūt no 4 līdz 3000 rakstzīmēm.");
+                setErrorText("Atsauksmei jābūt no 4 līdz 3000 rakstzīmēm. ❌");
             } else if (code === 4) {
-                setErrorText("Vārdam jābūt no 4 līdz 100 rakstzīmēm.");
+                setErrorText("Vārdam jābūt no 4 līdz 100 rakstzīmēm. ❌");
             } else if (code === 5) {
-                setErrorText("Nederīgs lietotāja ID.");
+                setErrorText("Nederīgs lietotāja ID. ❌");
             } else if (code === 6) {
-                setErrorText("Nederīgs saņēmēja ID.");
+                setErrorText("Nederīgs saņēmēja ID. ❌");
             } else if (code === 7) {
-                setErrorText("Vai izvēlējāties atsauksmes vērtējumu?");
+                setErrorText("Vai izvēlējāties atsauksmes vērtējumu? ❌");
+            } else if (code === 11) {
+                setErrorText("Lūdzu, mēģiniet vēlreiz pēc 2 minūtēm. ❌");
             } else {
-                setErrorText("Radās nezināma kļūda.");
+                setErrorText("Radās nezināma kļūda. ❌");
             }
             console.log(error);
         } finally {
             isSaving.current = false;
             setTextReview("");
             setReviewerName("");
+            setSavingButton(false);
         }
     };
     
@@ -108,7 +113,7 @@ function Review({ reviewReceiver, refreshReplies }) {
                     onChange={ (e) => setReviewerName(e.target.value)}/>
                 <textarea  className='commentInputText' placeholder="Atsauksmes"
                     onChange={ (e) => setTextReview(e.target.value)} value={textReview} />
-                <button className='commentSaveBtn' onClick={saveReview} disabled={isSaving.current} >
+                <button className='commentSaveBtn' onClick={saveReview} disabled={savingButton} >
                     {isSaving.current ? "Saglabā..." : "Saglabāt"}
                 </button>
                 {errorText && <div className="commentError">{errorText}</div>}

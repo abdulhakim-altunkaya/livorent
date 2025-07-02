@@ -12,8 +12,8 @@ function BtmLogin() {
   const [email, setEmail] = useState("");
   const [passtext, setPasstext] = useState("");
   const [resultArea, setResultArea] = useState("");
-  const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [savingButton, setSavingButton] = useState(false);
   const token = localStorage.getItem("token_livorent");
   
   useEffect(() => {
@@ -70,10 +70,10 @@ function BtmLogin() {
     }
 
     setResultArea(""); // Clear previous result before submitting
-    setLoading(true);
     // prevent duplicates
     if (isSaving.current) return; 
     isSaving.current = true;
+    setSavingButton(true);
     try { 
       const loginObject = {
         loginEmail: email.toLowerCase().trim(), 
@@ -125,8 +125,8 @@ function BtmLogin() {
           console.error("Unhandled login error:", error.message);
         }
     } finally {
-      setLoading(false);
       isSaving.current = false;
+      setSavingButton(false); 
     }  
   }
 
@@ -160,8 +160,8 @@ function BtmLogin() {
                 </div>
               </div>
             <span className="passwordResetLink" onClick={() => navigate("/password-reset") }>Aizmirsāt paroli?</span>
-            <button className="btnSelectCategory2" disabled={loading}>
-              {loading ? "Pārbauda..." : "Ieiet"}
+            <button className="btnSelectCategory2" disabled={savingButton}>
+              {isSaving.current ? "Pārbauda..." : "Ieiet"}
             </button>
           </form>
           <br/>
