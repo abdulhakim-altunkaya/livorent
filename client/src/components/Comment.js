@@ -29,11 +29,11 @@ function Comment({ commentReceiver, refreshComments }) {
         const safeName = escapeHtml(trimmedName);
 
         if (trimmedTextComment.length < 10 || trimmedTextComment.length > 800) {
-            setErrorText("Komentārs ir pārāk īss vai pārāk garš");
+            setErrorText("Komentārs ir pārāk īss vai pārāk garš. ❌");
             return;
         }
         if (trimmedName.length < 3 || trimmedName.length > 40 ) {
-            setErrorText("Vārds ir pārāk īss vai pārāk garš");
+            setErrorText("Vārds ir pārāk īss vai pārāk garš. ❌");
             return;
         }
         // prevent duplicates

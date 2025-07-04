@@ -18,7 +18,6 @@ function BtmProfile() {
   const [message, setMessage] = useState(null); // Initialize with null to better handle initial state
   const [errorFrontend, setErrorFrontend] = useState(null); // Add error state
   const [loading, setLoading] = useState(true); // Add loading state
-  const [resultArea, setResultArea] = useState("");
   const token = localStorage.getItem("token_livorent");
 
   useEffect(() => {
@@ -85,12 +84,12 @@ function BtmProfile() {
     const adNumber = Number(n)
       // Check if n is a valid number
     if (!adNumber || isNaN(adNumber)) {
-      setResultArea("Nederīgs sludinājuma ID");
+      setErrorFrontend("Nederīgs sludinājuma ID");
       return;
     }
     // Check if user is authenticated
     if (!token) {
-      setResultArea("Nepieciešama autorizācija");
+      setErrorFrontend("Nepieciešama autorizācija");
       return;
     }
 
@@ -116,7 +115,7 @@ function BtmProfile() {
         });
         window.location.reload(); // ← Force page refresh
       } catch (error) {
-        setResultArea(error.response?.data?.error || "Dzēšanas kļūda"); // Red error toast
+        setErrorFrontend(error.response?.data?.error || "Dzēšanas kļūda"); // Red error toast
       } finally {
         isSaving.current = false;
       }

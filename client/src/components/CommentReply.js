@@ -15,18 +15,18 @@ function CommentReply({ commentReceiver, cancelReply, parentId, refreshReplies }
         const visitorNumber = localStorage.getItem("visitorNumber");
 
         if (!token || !visitorNumber) {
-            setErrorText("Jūs neesat pilnvarots komentēt.");
+            setErrorText("Jūs neesat pilnvarots komentēt. ❌");
             return;
         }
   
         const trimmedReply = inputReply.trim();
         const trimmedName = inputName.trim();
         if (trimmedReply.length < 4 || trimmedReply.length > 300) {
-            setErrorText("Atbilde ir pārāk īsa vai pārāk gara");
+            setErrorText("Atbilde ir pārāk īsa vai pārāk gara ❌");
             return;
         }
         if (trimmedName.length < 4 || trimmedName.length > 100 ) {
-            setErrorText("Vārds ir pārāk īss vai pārāk garš");
+            setErrorText("Vārds ir pārāk īss vai pārāk garš ❌");
             return;
         }
 

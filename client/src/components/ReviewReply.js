@@ -17,18 +17,18 @@ function RewiewReply({ reviewReceiver, cancelReply, parentId, refreshReplies }) 
         const visitorNumber = localStorage.getItem("visitorNumber");
 
         if (!token || !visitorNumber) {
-            setErrorText("Jums nav atļauts atbildēt.");
+            setErrorText("Jums nav atļauts atbildēt. ❌");
             return;
         }
   
         const trimmedReply = inputReply.trim();
         const trimmedName = inputName.trim();
         if (trimmedReply.length < 4 || trimmedReply.length > 300) {
-            setErrorText("Atbilde ir pārāk īsa vai pārāk gara.");
+            setErrorText("Atbilde ir pārāk īsa vai pārāk gara. ❌");
             return;
         }
         if (trimmedName.length < 4 || trimmedName.length > 100 ) {
-            setErrorText("Nosaukums ir pārāk īss vai pārāk garš.");
+            setErrorText("Nosaukums ir pārāk īss vai pārāk garš. ❌");
             return;
         }
 

@@ -18,11 +18,11 @@ function Review({ reviewReceiver, refreshReplies }) {
         const visitorNumber = localStorage.getItem("visitorNumber");
 
         if (!token || !visitorNumber) {
-            setErrorText("Jūs neesat pilnvarots veikt atsauksmi.");
+            setErrorText("Jūs neesat pilnvarots veikt atsauksmi. ❌");
             return;
         }
         if (selectedRating < 1 || selectedRating > 10 || selectedRating === null) {
-            setErrorText("Izvēlieties vērtējumu no 1 līdz 10");
+            setErrorText("Izvēlieties vērtējumu no 1 līdz 10 ❌");
             return;
         }
  
@@ -33,11 +33,11 @@ function Review({ reviewReceiver, refreshReplies }) {
         const safeName = escapeHtml(trimmedName);
 
         if (trimmedTextReview.length < 10 || trimmedTextReview.length > 800) {
-            setErrorText("Atsauksme ir pārāk īsa vai pārāk gara");
+            setErrorText("Atsauksme ir pārāk īsa vai pārāk gara ❌");
             return;
         }
         if (trimmedName.length < 3 || trimmedName.length > 40) {
-            setErrorText("Vārds ir pārāk īss vai pārāk garš");
+            setErrorText("Vārds ir pārāk īss vai pārāk garš ❌");
             return;
         }
 

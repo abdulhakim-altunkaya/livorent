@@ -375,8 +375,6 @@ app.post("/api/register", checkCooldown, rateLimiter, blockBannedIPs, async (req
 });
 
 app.post("/api/login", rateLimiter, blockBannedIPs, async (req, res) => {
-  //preventing spam logins
-  const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
 
   let client; 
   const loginObject = req.body;
@@ -499,8 +497,6 @@ app.post("/api/login", rateLimiter, blockBannedIPs, async (req, res) => {
 });
 
 app.post("/api/post/password-renewal", checkCooldown, rateLimiter, blockBannedIPs, async (req, res) => {
-  //preventing spam logins
-  const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
 
   let client; 
   const renewalObject = req.body;
@@ -611,9 +607,6 @@ app.post("/api/post/password-renewal", checkCooldown, rateLimiter, blockBannedIP
 })
 
 app.post("/api/post/password-change", checkCooldown, rateLimiter, blockBannedIPs, async (req, res) => {
-  //preventing spam logins
-  const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
-
 
   let client; 
   const changeObject = req.body;
@@ -842,8 +835,6 @@ app.get("/api/get/item/:itemNumber", rateLimiter, blockBannedIPs, async (req, re
 }); 
  
 app.post("/api/update", checkCooldown, authenticateToken, rateLimiter, blockBannedIPs, async (req, res) => {
-  //preventing spam signups
-  const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
 
   let client;
   const updateObject = req.body;
@@ -1214,8 +1205,6 @@ app.get('/api/verify-token', rateLimiter, blockBannedIPs, async (req, res) => {
 });
 
 app.post("/api/post/save-comment", checkCooldown, authenticateToken, rateLimiter, blockBannedIPs, async (req, res) => {
-  //preventing spam likes
-  const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
 
   let client;
 
@@ -1339,8 +1328,6 @@ app.get("/api/get/comments/:commentReceiver", rateLimiter, blockBannedIPs, async
   } 
 });
 app.post("/api/post/save-reply", checkCooldown, authenticateToken, rateLimiter, blockBannedIPs, async (req, res) => {
-  //preventing spam likes
-  const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
 
   let client;
   const { replyText, replyToken, replierNum, replierName, replyReceiverNum, repliedCommentId } = req.body;
@@ -1420,8 +1407,6 @@ app.post("/api/post/save-reply", checkCooldown, authenticateToken, rateLimiter, 
   }
 });
 app.post("/api/post/save-review", checkCooldown, authenticateToken, rateLimiter, blockBannedIPs, async (req, res) => {
-  //preventing spam likes
-  const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
 
   let client;
 
@@ -1508,8 +1493,6 @@ app.post("/api/post/save-review", checkCooldown, authenticateToken, rateLimiter,
   }
 });
 app.post("/api/post/save-review-reply", checkCooldown, authenticateToken, rateLimiter, blockBannedIPs, async (req, res) => {
-  //preventing spam likes
-  const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
 
   let client;
   const { replyText, replyToken, replierNum, replierName, replyReceiverNum, repliedReviewId } = req.body;
@@ -1802,8 +1785,6 @@ app.get("/api/get/like-seller/:sellerId", rateLimiter, blockBannedIPs, async (re
   } 
 })
 app.post("/api/post/save-like-seller", authenticateToken, rateLimiter, blockBannedIPs, async (req, res) => {
-  //preventing spam likes
-  const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
 
   let client;
   const { likerId, likedSeller, likeOldStatus, likeNewStatus, likeIsFirst, likersArrayLength } = req.body;
@@ -1941,8 +1922,6 @@ app.post("/api/post/save-like-seller", authenticateToken, rateLimiter, blockBann
   }
 });
 app.post("/api/post/save-like-item", authenticateToken, rateLimiter, blockBannedIPs, async (req, res) => {
-  //preventing spam likes
-  const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
 
   let client;
   const { likerId, likedItem, likeOldStatus, likeNewStatus, likeIsFirst, likersArrayLength } = req.body;
@@ -2353,8 +2332,7 @@ add security check for repetitive wrong login attempt
 Only last 10 records will be uploaded to the main pages. How to add a button to add another 10 when user clicks?
 And another 10 if user clicks again and so on?
 Add date column to ads
-Remove ipVisitor data from endpoints if they are not used. Wait for counter and visitor log code before removing it.
-Maybe you can limit resUser to specific fields to prevent sending hashed password and secret words
+Add a paging system
 Add small screen style
 Add returning to all db requests to prevent data leak
 Fix margin left of all resultArea and errorFrontend areas 
@@ -2385,7 +2363,7 @@ Add visit counter to each ad page
 update the endpoints for expanded responses
 Add like logic
 isSaving.current-useRef added to all relevant components to display dynamic button text
-
+Remove ipVisitor data from endpoints if not used.
 
 *Security: button disabled attribute tied to a tracking variable to prevent duplicates
 *Security: Input validations check on both frontend and backend

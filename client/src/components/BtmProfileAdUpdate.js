@@ -489,7 +489,7 @@ function BtmProfileAdUpdate() {
                 </button>
               </form>
               <br/>
-              <div>{resultArea}</div>
+              <div >{resultArea}</div>
             </div>
             <br /><br /><br /><br /><br /><br /><br /><br />
             <Footer />
