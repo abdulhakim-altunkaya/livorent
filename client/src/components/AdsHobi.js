@@ -62,6 +62,7 @@ function AdsHobi() {
                           <th className='column3' scope="col">Informācija</th>
                           <th className='column4' scope="col">Cena</th>
                           <th className='column5' scope="col">Pilsēta</th>
+                          <th className='column5' scope="col">Datums</th>
                         </tr>
                       </thead> 
                       <tbody>
@@ -78,6 +79,7 @@ function AdsHobi() {
                             </td>
                             <td onClick={() => navigate(`/item/${record.id}`)} className='cell4'>{record.price}</td>
                             <td onClick={() => navigate(`/item/${record.id}`)} className='cell5'>{record.city}</td>
+                            <td onClick={() => navigate(`/item/${record.id}`)} className='cell5'>{record.city}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -85,7 +87,7 @@ function AdsHobi() {
                   </div>
                 </>
               ) : (
-                <p>Nav pieejamu datu</p> // Handle case where message is null or empty
+                <p className='errorFieldAdsMain'>Nav pieejamu datu</p> // Handle case where message is null or empty
               )}
             </>
         }

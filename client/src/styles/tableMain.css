@@ -37,9 +37,12 @@
 .column2, .column3, .column4, .column5 {
     border-bottom: 2px double #979797;
 }
-.cell2, .cell3, .cell4, .cell5 {
+.cell2, .cell3, .cell4, .cell5, .cell6 {
     border-bottom: 2px dashed #c0c0c0;
     padding: 10px;
+}
+.cell6 {
+    font-size: 11px;
 }
 .tableRows img {
     max-width: 100%;
