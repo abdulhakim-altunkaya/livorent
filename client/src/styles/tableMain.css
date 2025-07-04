@@ -8,7 +8,7 @@
     margin: auto;
 }
 .column3 {
-    width: 50%;
+    width: 40%;
 }
 .tableMainCategory th {
     text-align: left;
@@ -42,7 +42,7 @@
     padding: 10px;
 }
 .cell6 {
-    font-size: 11px;
+    font-size: 12px;
 }
 .tableRows img {
     max-width: 100%;

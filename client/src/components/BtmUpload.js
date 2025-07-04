@@ -98,11 +98,11 @@ function BtmUpload() {
       setResultArea("Apraksts ir pārāk īss. Minimums 50 rakstzīmes. ❌");
       return;
     }
-    if (!price || price.trim().length < 1 || price.trim().length > 40) {
+    if (!price || price.trim().length < 1 || price.trim().length > 25) {
       setResultArea("Lūdzu, ievadiet derīgu cenu. ❌");
       return;
     }
-    if (!city || city.trim().length < 3 || city.trim().length > 40) {
+    if (!city || city.trim().length < 3 || city.trim().length > 25) {
       setResultArea("Lūdzu, ievadiet derīgu pilsētas nosaukumu (min 3 rakstzīmes). ❌");
       return;
     }

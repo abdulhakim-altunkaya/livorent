@@ -80,8 +80,8 @@ function BtmProfileAdUpdate() {
 
   useEffect(() => {
     if (missingData) {
-      alert("Dati zuduši lapas atsvaidzināšanas dēļ. Neatsvaidziniet lapu, kamēr atjaunojat sludinājumu. Atgriezieties profilā.");
-      navigate("/"); // or wherever your profile page is
+      setResultArea("Dati zuduši. Neatsvaidziniet lapu. Atgriezieties profilā.");
+      navigate("/");
     }
   }, [missingData, navigate]);
 
@@ -95,17 +95,17 @@ function BtmProfileAdUpdate() {
     //selected images arrive, control checks and add them to newImages array
     const selectedFiles = Array.from(e.target.files);
     if (selectedFiles.length + oldImages.length > 5) {
-      alert("Maksimāli 5 bildes");
+      setResultArea("Maksimāli 5 bildes ❌");
       return;
     }
     if (selectedFiles.length + oldImages.length < 1) {
-      alert("Vismaz 1 bilde");
+      setResultArea("Vismaz 1 bilde ❌");
       return;
     }
     // ✅ Check individual file size (max 3MB)
     for (const file of selectedFiles) {
       if (file.size > 3 * 1024 * 1024) {
-        alert(`Katrs attēls nedrīkst pārsniegt 3 MB: '${file.name}'`);
+        setResultArea(`Katrs attēls nedrīkst pārsniegt 3 MB: '${file.name}' ❌`);
         return;
       }
     }
@@ -139,27 +139,27 @@ function BtmProfileAdUpdate() {
     e.preventDefault();
     
     if (!title || title.trim().length < 20 || title.trim().length > 400) {
-      setResultArea("Virsraksts ir pārāk īss vai pārāk garš. Minimums 20, maksimums 400 rakstzīmes.");
+      setResultArea("Virsraksts ir pārāk īss vai pārāk garš. Minimums 20, maksimums 400 rakstzīmes. ❌");
       return;
     }
     if (!description || description.trim().length < 50 || description.trim().length > 2000) {
-      setResultArea("Apraksts ir pārāk īss vai pārāk garš. Minimums 50, maksimums 2000 rakstzīmes.");
+      setResultArea("Apraksts ir pārāk īss vai pārāk garš. Minimums 50, maksimums 2000 rakstzīmes. ❌");
       return;
     }
-    if (!price || price.trim().length < 1 || price.length > 40) {
-      setResultArea("Lūdzu, norādiet derīgu cenu.");
+    if (!price || price.trim().length < 1 || price.length > 25) {
+      setResultArea("Lūdzu, norādiet derīgu cenu. ❌");
       return;
     }
-    if (!city || city.trim().length < 3 || city.length > 40) {
-      setResultArea("Lūdzu, ievadiet derīgu pilsētas nosaukumu (vismaz 3 rakstzīmes).");
+    if (!city || city.trim().length < 3 || city.length > 25) {
+      setResultArea("Lūdzu, ievadiet derīgu pilsētas nosaukumu (vismaz 3 rakstzīmes). ❌");
       return;
     }
     if (!selectedCategory || Number(selectedCategory) < 10 || Number(selectedCategory) > 99) {
-      setResultArea("Izvēlēta nederīga kategorija.");
+      setResultArea("Izvēlēta nederīga kategorija. ❌");
       return;
     }
     if (!visitorNumberFromStorage || Number(visitorNumberFromStorage) < 1 || Number(visitorNumberFromStorage) > 1000000) {
-      setResultArea("Nederīgs apmeklētāja ID.");
+      setResultArea("Nederīgs apmeklētāja ID. ❌");
       return;
     }
 
@@ -168,7 +168,7 @@ function BtmProfileAdUpdate() {
     isSaving.current = true;
     setSavingButton(true);
     try {
-      const adUpdateObject = {
+      const adUpdateObject = { 
         adNumber: adNumber,
         adTitle: title, 
         adDescription: description, 
@@ -180,7 +180,7 @@ function BtmProfileAdUpdate() {
         adRemovedImages: removedImages,
       };
       if (newImages.length + oldImages.length < 1 || newImages.length + oldImages.length > 5) {
-        alert("Lūdzu, augšupielādējiet vismaz 1 un ne vairāk kā 5 attēlus.");  // Latvian: Please upload at least 1 and no more than 4 images.
+        setResultArea("Lūdzu, augšupielādējiet vismaz 1 un ne vairāk kā 5 attēlus. ❌");  // Latvian: Please upload at least 1 and no more than 4 images.
         return;
       }
       const formData = new FormData();
@@ -189,11 +189,11 @@ function BtmProfileAdUpdate() {
       if (newImages.length >= 0 && newImages.length <= 5) {
         newImages.forEach( (image) => {
           const uniqueFileName = generateUniqueFileName();
-          const renamedFile = new File([image], uniqueFileName, { type: image.type })
+          const renamedFile = new File([image], uniqueFileName, { type: image.type });
           formData.append("adUpdateImages", renamedFile);
         });
       } else {
-        alert("Lūdzu, augšupielādējiet vismaz 1 un ne vairāk kā 5 attēlus.");  // Latvian: Please upload at least 1 and no more than 4 images.
+        setResultArea("Lūdzu, augšupielādējiet vismaz 1 un ne vairāk kā 5 attēlus. ❌");  // Latvian: Please upload at least 1 and no more than 4 images.
         return;
       }
       const res1 = await axios.patch("http://localhost:5000/api/profile/update-ad", formData, {
@@ -489,7 +489,7 @@ function BtmProfileAdUpdate() {
                 </button>
               </form>
               <br/>
-              <div >{resultArea}</div>
+              <div>{resultArea}</div>
             </div>
             <br /><br /><br /><br /><br /><br /><br /><br />
             <Footer />

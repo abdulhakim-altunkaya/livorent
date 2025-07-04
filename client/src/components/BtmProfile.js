@@ -49,7 +49,7 @@ function BtmProfile() {
         const response = await axios.get(`http://localhost:5000/api/get/adsbyuser/${visitorNumber}`);
         setMessage(response.data);  
       } catch (error) {
-        setErrorFrontend("Kļūda: reklāmas neizdevās ielādēt");
+        setErrorFrontend("Kļūda: sludinājumi neizdevās ielādēt ❌");
         console.log(error.message);
       } finally {
         setLoading(false);
@@ -62,7 +62,7 @@ function BtmProfile() {
 
 
   const deleteAccount = () => {
-    alert("Konti, kas nav aktīvi 6 mēnešus, tiks dzēsti kopā ar viņu reklāmām, ja tādas ir");
+    alert("Konti, kas 6 mēnešus ir neaktīvi, tiks automātiski dzēsti ❌");
     return;
   }
 
@@ -76,25 +76,23 @@ function BtmProfile() {
     //navigate("/");//we dont use navigate because zustand old user number will persist after navigate.
     window.location.href = "/";//we use navigate that zustand old user number will reset to zero.
   }
- 
-
 
   const deleteAd = async (n) => {
     // This will show a browser confirmation dialog with OK/Cancel buttons
     const adNumber = Number(n)
       // Check if n is a valid number
     if (!adNumber || isNaN(adNumber)) {
-      setErrorFrontend("Nederīgs sludinājuma ID");
+      setErrorFrontend("Nederīgs sludinājuma ID ❌");
       return;
     }
     // Check if user is authenticated
     if (!token) {
-      setErrorFrontend("Nepieciešama autorizācija");
+      setErrorFrontend("Nepieciešama autorizācija ❌");
       return;
     }
 
     const userConfirmed = window.confirm(
-      "Jūsu konts tiks dzēsts pēc 6 mēnešu neaktivitātes\n\nVai vēlaties turpināt?"
+      "Vai vēlaties turpināt?"
     );
     //userConfirmed means user confirmed delete operation.
     if (userConfirmed) {
@@ -115,7 +113,7 @@ function BtmProfile() {
         });
         window.location.reload(); // ← Force page refresh
       } catch (error) {
-        setErrorFrontend(error.response?.data?.error || "Dzēšanas kļūda"); // Red error toast
+        setErrorFrontend(error.response?.data?.error || "Dzēšanas kļūda ❌"); // Red error toast
       } finally {
         isSaving.current = false;
       }
@@ -204,8 +202,8 @@ function BtmProfile() {
                             <td onClick={() => navigate(`/item/${record.id}`)} className='imgContainerCell'> 
                               <img className='adMainImage' src={record.image_url[0]} alt='a small pic of ad'/></td>
                             <td onClick={() => navigate(`/item/${record.id}`)} className='cellProfile2'>
-                              {record.title.length > 100 
-                                ? `${record.title.substring(0, 100)}...` 
+                              {record.title.length > 60 
+                                ? `${record.title.substring(0, 60)}...` 
                                 : record.title}
                             </td>
                             <td onClick={() => navigate(`/item/${record.id}`)} className='cellProfile3'>

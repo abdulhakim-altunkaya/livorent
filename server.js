@@ -137,7 +137,7 @@ app.post("/api/post/serversavead", checkUploadCooldown, authenticateToken,
     });
   }
   if (!adPrice || !adCity || adPrice.trim().length < 1 || adCity.trim().length < 3 || 
-  adCity.trim().length > 40 || adPrice.trim().length > 40) {
+  adCity.trim().length > 25 || adPrice.trim().length > 25) {
     return res.status(400).json({
       resStatus: false,
       resMessage: "City or price info not valid",
@@ -970,7 +970,8 @@ app.patch("/api/profile/update-ad", upload.array("adUpdateImages", 5), authentic
       resErrorCode: 2
     });
   }
-  if (!adPrice || !adCity || adPrice.trim().length < 1 || adCity.trim().length < 3) {
+  if (!adPrice || !adCity || adPrice.trim().length < 1 || adCity.trim().length < 3 ||
+    adPrice.trim().length > 25 || adCity.trim().length > 25 ) {
     return res.status(400).json({
       resStatus: false,
       resMessage: "City or price info not valid",
@@ -2335,11 +2336,11 @@ Add date column to ads
 Add a paging system
 Add small screen style
 Add returning to all db requests to prevent data leak
-Fix margin left of all resultArea and errorFrontend areas 
 Check each endpoint and component with chatgpt to see if any mistake or sth to fix
 convert all error, success and alert messages to Latvian, also buttons and any other text
 change all xxxxx things in the footer component 
 create or remove kontakti component
+Fix section title area to allow return back clicks
 
 BEFORE DEPLOYING:
   Delete images from storage too   
@@ -2364,6 +2365,7 @@ update the endpoints for expanded responses
 Add like logic
 isSaving.current-useRef added to all relevant components to display dynamic button text
 Remove ipVisitor data from endpoints if not used.
+Fix margin left of all resultArea and errorFrontend areas 
 
 *Security: button disabled attribute tied to a tracking variable to prevent duplicates
 *Security: Input validations check on both frontend and backend

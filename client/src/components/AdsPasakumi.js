@@ -75,14 +75,14 @@ function AdsPasakumi() {
                               <img src={record.image_url[0]} alt='small pic of advertisement'/>
                             </td>
                             <td onClick={() => navigate(`/item/${record.id}`)} className='cell2'>
-                              {record.title.length > 100 ? `${record.title.substring(0, 100)}...` : record.title}
+                              {record.title.length > 60 ? `${record.title.substring(0, 60)}...` : record.title}
                             </td>
                             <td onClick={() => navigate(`/item/${record.id}`)} className='cell3'>
                               {record.description.length > 200 ? `${record.description.substring(0, 200)}...` : record.description}
                             </td>
                             <td onClick={() => navigate(`/item/${record.id}`)} className='cell4'>{record.price}</td>
                             <td onClick={() => navigate(`/item/${record.id}`)} className='cell5'>{record.city}</td>
-                            <td onClick={() => navigate(`/item/${record.id}`)} className='cell5'>{record.city}</td>
+                            <td onClick={() => navigate(`/item/${record.id}`)} className='cell6'>{record.date}</td>
                           </tr>
                         ))}
                       </tbody>
