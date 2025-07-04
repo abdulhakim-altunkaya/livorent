@@ -27,7 +27,7 @@ function AdsMasinas() {
     getData();
   }, []);
 
-  return (
+  return ( 
     <div>
       <div className='adsMainArea'>
         <div className='adsTopArea'>

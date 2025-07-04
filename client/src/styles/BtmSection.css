@@ -6,3 +6,9 @@
 .sectionTitleArea {
     margin-left: 20px;
 }
+.sectionCategoryLinks {
+    margin-left: 20px;
+    cursor: pointer;
+    color: blue;
+    text-decoration: underline;
+}

@@ -67,7 +67,7 @@ function AdsApgerbi() {
                         <th className='column5' scope="col">Datums</th>
                       </tr>
                     </thead> 
-                    <tbody>
+                    <tbody> 
                       {message.map(record => (
                         <tr key={record.id} className='tableRows'>
                           <td onClick={() => navigate(`/item/${record.id}`)} className='imgContainerTd'>

@@ -5,7 +5,7 @@ import "../styles/BtmSection.css"
 import "../styles/tableMain.css";
 import Footer from "./Footer.js";
 import { useNavigate } from 'react-router-dom';
-import { detectSection } from './utilsCategories';
+import { detectSection, detectCategory } from './utilsCategories';
 
 function BtmSection() {
   const navigate = useNavigate();
@@ -14,6 +14,9 @@ function BtmSection() {
   const [message, setMessage] = useState(null); // Initialize with null to better handle initial state
   const [errorFrontend, setErrorFrontend] = useState(null); // Add error state
   const [loading, setLoading] = useState(true); // Add loading state
+  //states for returning back main category or section pages
+  const [mainCategoryNum, setMainCategoryNum] = useState(0);
+  const [titleMainCategory, setTitleMainCategory] = useState("");
 
   useEffect(() => {
     const getData = async () => { 
@@ -34,9 +37,47 @@ function BtmSection() {
   const sectionNum2 = Number(sectionNumber); // Convert to number
   const titleSection = detectSection(sectionNum2);
 
+  useEffect(() => {
+    if (!sectionNumber || Number(sectionNumber) > 99 || Number(sectionNumber) < 10) {
+      setErrorFrontend("Kļūda: sludinājumus nevarēja ielādēt");
+    }
+    const firstDigit = parseInt(sectionNumber[0]); // Get first digit
+    const secondDigit = parseInt(sectionNumber[1]); // Get second digit
+    setMainCategoryNum(firstDigit);
+
+    setTitleMainCategory(detectCategory(firstDigit));
+  }, [sectionNumber]);
+
+    //Also, back navigation links to return to main category or section pages
+  const goMain = () => {
+    if (mainCategoryNum === 1) {
+      navigate("/machines-construction")
+    } else if(mainCategoryNum === 2) {
+      navigate("electronics-instruments")
+    } else if(mainCategoryNum === 3) {
+      navigate("/vehicles")
+    } else if(mainCategoryNum === 4) {
+      navigate("/clothes")
+    } else if(mainCategoryNum === 5) {
+      navigate("/hobbies")
+    } else if(mainCategoryNum === 6) {
+      navigate("/event-organization")
+    } else {
+      return;
+    }
+  }
+  const goSection = () => { 
+    navigate(`/section/${sectionNumber}`)
+  }
+
   return (
     <div>
       <div className='sectionTitleArea'><h3>{titleSection}</h3></div>
+        <div>
+          <span className='sectionCategoryLinks' onClick={goMain}>{titleMainCategory}</span>
+          &nbsp;&nbsp;/&nbsp;&nbsp;
+          <span className='sectionCategoryLinks' onClick={goSection}>{titleSection}</span>
+        </div>
       <br/><br/><br/>
       <div>
         { loading ? 

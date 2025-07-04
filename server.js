@@ -2332,14 +2332,12 @@ app.listen(PORT, () => {
 add security check for repetitive wrong login attempt
 Only last 10 records will be uploaded to the main pages. How to add a button to add another 10 when user clicks?
 And another 10 if user clicks again and so on?
-Add date column to ads
 Add a paging system
 Add small screen style
 Add returning to all db requests to prevent data leak
 Check each endpoint and component with chatgpt to see if any mistake or sth to fix
-convert all error, success and alert messages to Latvian, also buttons and any other text
-change all xxxxx things in the footer component 
-create or remove kontakti component
+Update Footer component
+create or remove About/Contact component
 Fix section title area to allow return back clicks
 
 BEFORE DEPLOYING:
@@ -2366,6 +2364,8 @@ Add like logic
 isSaving.current-useRef added to all relevant components to display dynamic button text
 Remove ipVisitor data from endpoints if not used.
 Fix margin left of all resultArea and errorFrontend areas 
+convert all error, success and alert messages to Latvian, also buttons and any other text
+Add date column to ads
 
 *Security: button disabled attribute tied to a tracking variable to prevent duplicates
 *Security: Input validations check on both frontend and backend
