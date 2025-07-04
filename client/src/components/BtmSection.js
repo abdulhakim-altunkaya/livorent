@@ -72,13 +72,13 @@ function BtmSection() {
 
   return (
     <div>
-      <div className='sectionTitleArea'><h3>{titleSection}</h3></div>
-        <div>
+      <div className='sectionTitleArea'>
+          <h3>{titleSection}</h3>
           <span className='sectionCategoryLinks' onClick={goMain}>{titleMainCategory}</span>
           &nbsp;&nbsp;/&nbsp;&nbsp;
           <span className='sectionCategoryLinks' onClick={goSection}>{titleSection}</span>
-        </div>
-      <br/><br/><br/>
+          <br/><br/><br/>
+      </div>
       <div>
         { loading ? 
             <div aria-live="polite">Ielādē...</div> 
