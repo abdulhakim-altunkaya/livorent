@@ -49,6 +49,18 @@
         font-style: italic;
         margin-left: 20px;
     }
+    .loadMoreBtn {
+        padding: 10px 20px;
+        font-size: 16px;
+        background-color: #444;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+    .loadMoreBtn:hover {
+        background-color: #666;
+    }
 }
 
 

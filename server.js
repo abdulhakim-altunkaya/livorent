@@ -715,30 +715,36 @@ app.post("/api/post/password-change", checkCooldown, rateLimiter, blockBannedIPs
 });
 
 app.get("/api/get/adsbycategory/:idcategory", rateLimiter, blockBannedIPs, async (req, res) => {
-  const { idcategory } = req.params; 
-  let client;
-  if(!idcategory) {
-    return res.status(404).json({myMessage: "No category detected"});
+  const { idcategory } = req.params;
+  const offset = parseInt(req.query.offset) || 0;
+  const limit = parseInt(req.query.limit) || 5;
+
+  if (!idcategory) {
+    return res.status(404).json({ myMessage: "No category detected" });
   }
+
+  let client;
   try {
     client = await pool.connect();
-    //Only last 10 records will be uploaded to the page. 
     const result = await client.query(
-      `SELECT * FROM livorent_ads WHERE main_group = $1
-      ORDER BY id DESC LIMIT 10`, [idcategory]
+      `SELECT * FROM livorent_ads 
+       WHERE main_group = $1 
+       ORDER BY id DESC 
+       LIMIT $2 OFFSET $3`, 
+      [idcategory, limit, offset]
     );
-    const categoryDetails = await result.rows;
-    if(!categoryDetails) {
-      return res.status(404).json({ myMessage: "Category details not found although category id is correct"})
-    }
+
+    const categoryDetails = result.rows;
     res.status(200).json(categoryDetails);
   } catch (error) {
     console.log(error.message);
-    res.status(500).json({myMessage: "Error at the Backend: Couldnt fetch category details"})
+    res.status(500).json({ myMessage: "Error at the Backend: Could not fetch category details" });
   } finally {
-    if(client) client.release();
+    if (client) client.release();
   }
 });
+
+
 
 app.get("/api/get/adsbysubsection/:sectionNumber", rateLimiter, blockBannedIPs, async (req, res) => {
   const { sectionNumber } = req.params; 
