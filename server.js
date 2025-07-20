@@ -359,7 +359,7 @@ app.post("/api/register", checkCooldown, rateLimiter, blockBannedIPs, async (req
       resMessage: 'Profile created', 
       resVisitorNumber: newUser[0].id, 
       resToken: token,
-      resUser: {
+      resUser: { 
         id: newUser[0].id,
         name: newUser[0].name,
         telephone: newUser[0].telephone,
@@ -409,7 +409,7 @@ app.post("/api/login", rateLimiter, blockBannedIPs, async (req, res) => {
     client = await pool.connect();
     //find user by email
     const { rows: users } = await client.query(
-      `SELECT id, email, passtext, tokenversion, name, telephone, loginattempt, loginblockeduntil
+      `SELECT id, email, passtext, tokenversion, name, telephone, date, loginattempt, loginblockeduntil
        FROM livorent_users WHERE email = $1`, [loginLoad.email1]
     )
     if(users.length === 0) {
@@ -483,7 +483,14 @@ app.post("/api/login", rateLimiter, blockBannedIPs, async (req, res) => {
     res.status(200).json({
       resStatus: true,
       resMessage: "Autorizācija veiksmīga.",
-      resUser: user, 
+      resUser: {
+        id: user.id,
+        name: user.name,
+        telephone: user.telephone,
+        email: user.email,
+        date: user.date
+        // Include only what's safe and needed by frontend
+      },
       resVisitorNumber: user.id, 
       resToken: token,
       resErrorCode: 0
@@ -533,7 +540,8 @@ app.post("/api/post/password-renewal", checkCooldown, rateLimiter, blockBannedIP
     client = await pool.connect();
     //find user by email
     const { rows: users } = await client.query(
-      `SELECT id, passtext, tokenversion, secretword FROM livorent_users WHERE email = $1`, [renewalLoad.email1]
+      `SELECT id, name, telephone, email, date, passtext, tokenversion, 
+      secretword FROM livorent_users WHERE email = $1`, [renewalLoad.email1]
     )
     if(users.length === 0) {
       return res.status(401).json({
@@ -595,7 +603,14 @@ app.post("/api/post/password-renewal", checkCooldown, rateLimiter, blockBannedIP
       responseMessage: "Password updated",
       responseStatus: true,
       responseNumber: user.id,
-      responseUser: updatedUser[0],
+      responseUser: {
+        id: updatedUser[0].id,
+        name: updatedUser[0].name,
+        telephone: updatedUser[0].telephone,
+        email: updatedUser[0].email,
+        date: updatedUser[0].date
+        // Include only what's safe and needed by frontend
+      },
       responseToken: token
     });
   } catch (error) {
@@ -643,7 +658,7 @@ app.post("/api/post/password-change", checkCooldown, rateLimiter, blockBannedIPs
     client = await pool.connect();
     //find user by email
     const { rows: users } = await client.query(
-      `SELECT id, passtext FROM livorent_users WHERE email = $1`, [changeLoad.email1]
+      `SELECT id, name, telephone, email, date, passtext FROM livorent_users WHERE email = $1`, [changeLoad.email1]
     )
     if(users.length === 0) {
       return res.status(401).json({
@@ -697,7 +712,14 @@ app.post("/api/post/password-change", checkCooldown, rateLimiter, blockBannedIPs
       resMessage: "Password updated",
       resStatus: true,
       resNumber: user.id,
-      resUser: updatedUser[0],
+      resUser: {
+        id: updatedUser[0].id,
+        name: updatedUser[0].name,
+        telephone: updatedUser[0].telephone,
+        email: updatedUser[0].email,
+        date: updatedUser[0].date
+        // Include only what's safe and needed by frontend
+      },
       resErrorCode: 0
     });
   } catch (error) {
@@ -715,57 +737,100 @@ app.post("/api/post/password-change", checkCooldown, rateLimiter, blockBannedIPs
 });
 
 app.get("/api/get/adsbycategory/:idcategory", rateLimiter, blockBannedIPs, async (req, res) => {
-  const { idcategory } = req.params;
-  const offset = parseInt(req.query.offset) || 0;
-  const limit = parseInt(req.query.limit) || 5;
-
-  if (!idcategory) {
-    return res.status(404).json({ myMessage: "No category detected" });
-  }
-
+  const { idcategory } = req.params; 
   let client;
+  if(!idcategory) {
+    return res.status(404).json({
+      resMessage: "No category detected",  
+      resStatus: false,
+      resData: null,
+      resErrorCode: 1
+    });
+  }
   try {
     client = await pool.connect();
+    //Only last 10 records will be uploaded to the page. 
     const result = await client.query(
-      `SELECT * FROM livorent_ads 
-       WHERE main_group = $1 
-       ORDER BY id DESC 
-       LIMIT $2 OFFSET $3`, 
-      [idcategory, limit, offset]
+      `SELECT id, title, user_id, description, price, city, name, telephone, date, update_date, 
+          main_group, sub_group, image_url
+        FROM livorent_ads
+        WHERE main_group = $1
+        ORDER BY id DESC
+        LIMIT 200`, [idcategory]
     );
-
-    const categoryDetails = result.rows;
-    res.status(200).json(categoryDetails);
+    const categoryDetails = await result.rows;
+    if (categoryDetails.length === 0) {
+      return res.status(200).json({
+        resMessage: "No ads found for this category",
+        resStatus: true,     // Call successful
+        resData: [],         // Empty but valid
+        resOkCode: 1         
+      });
+    }
+    //Success Response
+    return res.status(200).json({
+      resMessage: "Ads by category successfully fetched",  
+      resStatus: true,
+      resData: categoryDetails,
+      resOkCode: 2
+    });
   } catch (error) {
     console.log(error.message);
-    res.status(500).json({ myMessage: "Error at the Backend: Could not fetch category details" });
+    return res.status(500).json({
+      resMessage: "Database connection failed",  
+      resStatus: false,
+      resData: null,
+      resErrorCode: 2
+    });
   } finally {
-    if (client) client.release();
+    if(client) client.release();
   }
 });
-
-
 
 app.get("/api/get/adsbysubsection/:sectionNumber", rateLimiter, blockBannedIPs, async (req, res) => {
   const { sectionNumber } = req.params; 
   let client;
   if(!sectionNumber) {
-    return res.status(404).json({myMessage: "No category detected"});
+    return res.status(404).json({
+      resMessage: "No category detected",  
+      resStatus: false,
+      resData: null,
+      resErrorCode: 1
+    });
   }
   try {
     client = await pool.connect();
     const result = await client.query(
-      `SELECT * FROM livorent_ads WHERE sub_group = $1
-      ORDER BY id DESC`, [sectionNumber]
+      `SELECT id, title, user_id, description, price, city, name, telephone, date, update_date, 
+          main_group, sub_group, image_url
+        FROM livorent_ads
+        WHERE sub_group = $1
+        ORDER BY id DESC`, [sectionNumber]
     );
     const categoryDetails = await result.rows;
-    if(!categoryDetails) {
-      return res.status(404).json({ myMessage: "Category details not found although category id is correct"})
+    if (categoryDetails.length === 0) {
+      return res.status(200).json({
+        resMessage: "No ads found for this category",
+        resStatus: true,     // Call successful
+        resData: [],         // Empty but valid
+        resOkCode: 1         
+      });
     }
-    res.status(200).json(categoryDetails);
+    //Success Response
+    return res.status(200).json({
+      resMessage: "Ads by category successfully fetched",  
+      resStatus: true,
+      resData: categoryDetails,
+      resOkCode: 2
+    });
   } catch (error) {
     console.log(error.message);
-    res.status(500).json({myMessage: "Error at the Backend: Couldnt fetch category details"})
+    return res.status(500).json({
+      resMessage: "Database connection failed",  
+      resStatus: false,
+      resData: null,
+      resErrorCode: 2
+    });
   } finally {
     if(client) client.release();
   }
@@ -775,27 +840,80 @@ app.get("/api/get/adsbyuser/:iduser", rateLimiter, blockBannedIPs, async (req, r
   const { iduser } = req.params;
   let client;
   if(!iduser) {
-    return res.status(404).json({myMessage: "No user detected"});
+    return res.status(404).json({
+      resMessage: "No user detected",  
+      resStatus: false,
+      resData: null,
+      resErrorCode: 1
+    });
   }
   try {
     client = await pool.connect();
     //Only last 10 records will be uploaded to the page. 
     const result = await client.query(
-      `SELECT * FROM livorent_ads WHERE user_id = $1
-      ORDER BY id DESC LIMIT 100`, [iduser]
+      `SELECT id, title, user_id, description, price, city, name, telephone, date, update_date, 
+        main_group, sub_group, image_url
+      FROM livorent_ads
+      WHERE user_id = $1
+      ORDER BY id DESC
+      LIMIT 200`, [iduser]
     );
     const userAds = await result.rows;
-    if(!userAds) {
-      return res.status(404).json({ myMessage: "Category details not found although category id is correct"})
+    if (userAds.length === 0) {
+      return res.status(200).json({
+        resMessage: "No ads found for this user",
+        resStatus: true,     // Call successful
+        resData: [],         // Empty but valid
+        resOkCode: 1         
+      });
     }
-    res.status(200).json(userAds);
+    //Success Response
+    return res.status(200).json({
+      resMessage: "Ads by user successfully fetched",  
+      resStatus: true,
+      resData: userAds,
+      resOkCode: 2
+    });
   } catch (error) {
     console.log(error.message);
-    res.status(500).json({myMessage: "Error at the Backend: Couldnt fetch category details"})
+    return res.status(500).json({
+      resMessage: "Database connection failed",  
+      resStatus: false,
+      resData: null,
+      resErrorCode: 2
+    });
   } finally {
     if(client) client.release();
   }
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 app.get("/api/get/userdata/:iduser", rateLimiter, blockBannedIPs, async (req, res) => {
   const { iduser } = req.params;
@@ -809,9 +927,17 @@ app.get("/api/get/userdata/:iduser", rateLimiter, blockBannedIPs, async (req, re
       `SELECT * FROM livorent_users WHERE id = $1`,
       [iduser]
     );
-    const userRawData = await result.rows[0];
-    if(!userRawData) {
+    const rawData = await result.rows[0];
+    if(!rawData) {
       return res.status(404).json({ myMessage: "User details not found although user id is correct"})
+    }
+    const userRawData = {
+        id: rawData.id,
+        name: rawData.name,
+        telephone: rawData.telephone,
+        email: rawData.email,
+        date: rawData.date
+        // Include only what's safe and needed by frontend    
     }
     res.status(200).json(userRawData);
   } catch (error) {
@@ -1143,15 +1269,6 @@ app.get("/api/search", rateLimiter, blockBannedIPs, async (req, res) => {
 
   try {
     client = await pool.connect();
-    /*The one below is for fuzzy-approximate search but it does not work.
-    const result = await client.query(
-      `SELECT * FROM livorent_ads
-      WHERE similarity(title, $1) > 0.3 OR similarity(description, $1) > 0.3
-      ORDER BY GREATEST(similarity(title, $1), similarity(description, $1)) DESC
-      LIMIT 20`,
-      [searchText.trim()]
-    );
-    */
     // this code below is for case insensitive exact word search. 
     //we will limit result by 20 records. No need to bring all records. Also, newest one comes first. 
     const result = await client.query(
@@ -1187,7 +1304,6 @@ app.get("/api/search", rateLimiter, blockBannedIPs, async (req, res) => {
     if (client) client.release();
   } 
 });
-
 app.get('/api/verify-token', rateLimiter, blockBannedIPs, async (req, res) => {
   const token = req.headers.authorization?.split(' ')[1];
   if (!token) {
@@ -1217,6 +1333,9 @@ app.get('/api/verify-token', rateLimiter, blockBannedIPs, async (req, res) => {
     if (client) client.release();
   }
 });
+
+
+
 
 app.post("/api/post/save-comment", checkCooldown, authenticateToken, rateLimiter, blockBannedIPs, async (req, res) => {
 
@@ -2073,6 +2192,11 @@ app.post("/api/post/save-like-item", authenticateToken, rateLimiter, blockBanned
   }
 })
 
+
+
+
+
+
 // Instead of using: const ipCache2 = {}
 // we are using the map logic below to prevent memory bloat in case website receives thousands of visitors at the same time
 const ipCache = new Map();
@@ -2342,10 +2466,6 @@ app.listen(PORT, () => {
 })
 
   /* 
-add security check for repetitive wrong login attempt
-Only last 10 records will be uploaded to the main pages. How to add a button to add another 10 when user clicks?
-And another 10 if user clicks again and so on?
-Add a paging system - Is there a limit on the ads displayed?
 Add small screen style
 Add returning to all db requests to prevent data leak
 Check each endpoint and component with chatgpt to see if any mistake or sth to fix
@@ -2364,8 +2484,10 @@ BEFORE DEPLOYING:
 
 DEFERRED:
 Fuzzy search
+pagination logic
 
 DONE
+add security check for repetitive wrong login attempt  
 add useRef logic to all components and add dynamic text display if needed
 all password inputs hidden with *
 Add password renewal logic

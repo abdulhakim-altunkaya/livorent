@@ -43,23 +43,42 @@ function BtmProfile() {
     }
    }, [visitorNumber])
  
-   useEffect(() => {
+  useEffect(() => {
     const getData = async () => {
       try {
         const response = await axios.get(`http://localhost:5000/api/get/adsbyuser/${visitorNumber}`);
-        setMessage(response.data);  
+        const data = response.data;
+        if (data.resStatus && Array.isArray(data.resData)) {
+          if (data.resData.length === 0) {
+            setErrorFrontend("Šim lietotājam nav neviena sludinājuma. ❌");
+          } else {
+            setMessage(data.resData);  // Set actual ads array
+          }
+        } else {
+          setErrorFrontend("Kļūda: dati no servera neatbilda gaidītajam formātam. ❌");
+          console.log("Backend returned unexpected structure:", data);
+        }
       } catch (error) {
-        setErrorFrontend("Kļūda: sludinājumi neizdevās ielādēt ❌");
-        console.log(error.message);
+        if (error.response && error.response.data) {
+          const backendError = error.response.data;
+          if (backendError.resErrorCode === 1) {
+            setErrorFrontend("Kļūda: lietotājs nav norādīts. ❌");
+          } else if (backendError.resErrorCode === 2) {
+            setErrorFrontend("Kļūda: datubāzes savienojuma problēma. ❌");
+          } else {
+            setErrorFrontend("Nezināma servera kļūda. ❌");
+          }
+          console.log("Backend error:", backendError.resMessage);
+        } else {
+          setErrorFrontend("Kļūda: neizdevās izveidot savienojumu ar serveri. ❌");
+          console.log("Network error:", error.message);
+        }
       } finally {
         setLoading(false);
       }
     };
     getData();
   }, [visitorNumber, cachedUserData]);
-
-  
-
 
   const deleteAccount = () => {
     alert("Konti, kas 6 mēnešus ir neaktīvi, tiks automātiski dzēsti ❌");

@@ -31,11 +31,21 @@ function BtmSeller() {
   useEffect(() => {
     const getData = async () => {
       try {
+        // Fetch ads by user
         const response = await axios.get(`http://localhost:5000/api/get/adsbyuser/${sellerNumber}`);
-        setMessage(response.data);     
-        //sometimes the visitor might want to visit the same seller over and over again. 
-        //To help backend receive less api calls, we can save the visited seller info in Zustand
-        //Thus, if the visitor visits the same seller again, the seller info will come from Zustand not from DB.
+        const data = response.data;
+
+        if (data.resStatus && Array.isArray(data.resData)) {
+          if (data.resData.length === 0) {
+            setErrorFrontend("Šim pārdevējam nav neviena sludinājuma.");
+          } else {
+            setMessage(data.resData);
+          }
+        } else {
+          setErrorFrontend("Kļūda: dati no servera neatbilda gaidītajam formātam.");
+          console.log("Backend returned unexpected structure:", data);
+        }
+        // Handle seller data (cache check)
         if (cachedSellerData?.id === sellerNumber) {
           setSellerData(cachedSellerData);
           console.log("cached data displayed");
@@ -43,19 +53,30 @@ function BtmSeller() {
           const responseUser = await axios.get(`http://localhost:5000/api/get/userdata/${sellerNumber}`);
           setSellerData(responseUser.data);
           useUserStore.getState().setCachedSellerData(responseUser.data);
-        } 
+        }
       } catch (error) {
-        setErrorFrontend("Kļūda: Neizdevās ielādēt reklāmas.");
-        console.log(error.message);
-        setSellerData({}); // Ensure sellerData is never null
+        if (error.response && error.response.data) {
+          const backendError = error.response.data;
+          if (backendError.resErrorCode === 1) {
+            setErrorFrontend("Kļūda: lietotājs nav norādīts.");
+          } else if (backendError.resErrorCode === 2) {
+            setErrorFrontend("Kļūda: datubāzes problēma.");
+          } else {
+            setErrorFrontend("Nezināma servera kļūda.");
+          }
+          console.log("Backend error:", backendError.resMessage);
+        } else {
+          setErrorFrontend("Kļūda: neizdevās izveidot savienojumu ar serveri.");
+          console.log("Network error:", error.message);
+        }
+        setSellerData({}); // Ensure sellerData is not null
       } finally {
         setLoading(false);
       }
     };
+
     getData();
   }, [sellerNumber]);
-
-
   
   const handleRating = (num) => {
     setRating(num);

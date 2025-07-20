@@ -37,7 +37,6 @@ function BtmItem() {
       try {
         const response = await axios.get(`http://localhost:5000/api/get/item/${itemNumber}`);
         setMessage(response.data);
-
       } catch (error) {
         setErrorFrontend("Kļūda: neizdevās ielādēt sludinājuma informāciju");
         console.log(error.message)

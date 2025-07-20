@@ -40,6 +40,7 @@ function BtmLogin() {
     }
   }, []);
 
+ const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
  
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -83,7 +84,7 @@ function BtmLogin() {
       if (!res1.data?.resToken || !res1.data?.resVisitorNumber || !res1.data?.resUser) {
         setResultArea("Atbilde no servera nesatur nepieciešamos datus.");
         return;
-      }
+      } 
       
       localStorage.setItem("token_livorent", res1.data.resToken);
       localStorage.setItem("visitorNumber", Number(res1.data.resVisitorNumber));

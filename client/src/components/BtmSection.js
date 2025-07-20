@@ -18,18 +18,42 @@ function BtmSection() {
   const [mainCategoryNum, setMainCategoryNum] = useState(0);
   const [titleMainCategory, setTitleMainCategory] = useState("");
 
-  useEffect(() => {
-    const getData = async () => { 
+    useEffect(() => {
+    const getData = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/get/adsbysubsection/${sectionNumber}`);
-        setMessage(response.data);
-      } catch (error) {
-        setErrorFrontend("Kļūda: sludinājumus nevarēja ielādēt");
-        console.log(error.message)
-      } finally {
-        setLoading(false);
-      }
-    };
+          const response = await axios.get(`http://localhost:5000/api/get/adsbysubsection/${sectionNumber}`);
+          const data = response.data;
+
+          if (data.resStatus && Array.isArray(data.resData)) {
+            if (data.resData.length === 0) {
+              setErrorFrontend("Šajā kategorijā nav sludinājumu.");
+            } else {
+              setMessage(data.resData);  // This is your actual ads array
+            }
+          } else {
+            // Handle unexpected empty or malformed data
+            setErrorFrontend("Neizdevās ielādēt sludinājumus.");
+            console.log("Backend returned unexpected structure:", data);
+          }
+        } catch (error) {
+          if (error.response && error.response.data) {
+            const backendError = error.response.data;
+            if (backendError.resErrorCode === 1) {
+              setErrorFrontend("Kļūda: kategorija nav norādīta.");
+            } else if (backendError.resErrorCode === 2) {
+              setErrorFrontend("Kļūda: datu bāzes savienojuma problēma.");
+            } else {
+              setErrorFrontend("Nezināma servera kļūda.");
+            }
+            console.log("Backend error:", backendError.resMessage);
+          } else {
+            setErrorFrontend("Kļūda: neizdevās izveidot savienojumu ar serveri.");
+            console.log("Network error:", error.message);
+          }
+        } finally {
+          setLoading(false);
+        }
+      };
     getData();
   }, [sectionNumber]);
 
@@ -88,7 +112,6 @@ function BtmSection() {
             <>
               {message ? (
                 <>
-                
                   <div className='tableMainCategoryArea'>
                   
                   <table className='tableMainCategory'>
