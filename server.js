@@ -887,34 +887,6 @@ app.get("/api/get/adsbyuser/:iduser", rateLimiter, blockBannedIPs, async (req, r
   }
 });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 app.get("/api/get/userdata/:iduser", rateLimiter, blockBannedIPs, async (req, res) => {
   const { iduser } = req.params;
   let client;
@@ -975,22 +947,45 @@ app.get("/api/get/item/:itemNumber", rateLimiter, blockBannedIPs, async (req, re
   const { itemNumber } = req.params;
   let client;
   if(!itemNumber) {
-    return res.status(404).json({myMessage: "No item number detected"});
+    return res.status(404).json({
+      resMessage: "No id detected",  
+      resStatus: false,
+      resData: null,
+      resErrorCode: 1
+    });
   }
   try {
     client = await pool.connect();
     const result = await client.query(
-      `SELECT * FROM livorent_ads WHERE id = $1`,
+      `SELECT id, title, user_id, description, price, city, name, telephone, date, update_date, 
+        main_group, sub_group, image_url
+      FROM livorent_ads
+      WHERE id = $1`,
       [itemNumber]
     );
     if (result.rows.length > 0) {
-      res.status(200).json(result.rows[0]); ; // Return the first matching item
+      return res.status(200).json({
+        resMessage: "Item details fetched",  
+        resStatus: true,
+        resData: result.rows[0],
+        resOkCode: 1
+      });
     } else {
-      return res.status(404).json({ myMessage: "Item details not found although item id is correct"})
+      return res.status(200).json({
+        resMessage: "Item details not found although item id is correct",  
+        resStatus: true,
+        resData: null,
+        resOkCode: 2
+      });
     }
   } catch (error) {
     console.log(error.message);
-    res.status(500).json({myMessage: "Error at the Backend: Couldnt fetch item details"})
+    return res.status(500).json({
+      resMessage: "Database connection error",  
+      resStatus: false,
+      resData: null,
+      resErrorCode: 2
+    });
   } finally {
     if(client) client.release();
   }
@@ -1047,7 +1042,7 @@ app.post("/api/update", checkCooldown, authenticateToken, rateLimiter, blockBann
     client = await pool.connect(); 
     const { rows: updatedUser } = await client.query(
       `UPDATE livorent_users SET name = $1, telephone = $2, email = $3 WHERE id = $4 
-      RETURNING id, name, telephone, email`,
+      RETURNING id, name, telephone, email, date`,
       [updateLoad.name1, Number(updateLoad.telephone1), updateLoad.email1, Number(updateLoad.id1)]
     );
     if (updatedUser.length === 0) {
@@ -1064,7 +1059,8 @@ app.post("/api/update", checkCooldown, authenticateToken, rateLimiter, blockBann
       resUpdatedUser: {
         name: updatedUser[0].name,
         telephone: updatedUser[0].telephone,
-        email: updatedUser[0].email
+        email: updatedUser[0].email,
+        date: updatedUser[0].date
       }
     })
   } catch (error) {
@@ -1078,6 +1074,33 @@ app.post("/api/update", checkCooldown, authenticateToken, rateLimiter, blockBann
     if (client) client.release();
   } 
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 app.delete("/api/delete/item/:itemNumber", authenticateToken, rateLimiter, blockBannedIPs, async (req, res) => {
   const { itemNumber } = req.params;
   let client;
@@ -2494,6 +2517,10 @@ Add returning to all db requests to prevent data leak
 Check each endpoint and component with chatgpt to see if any mistake or sth to fix
 Component Footer update
 Component About/Contact update
+I can still see some "loading" instead of useRef
+Double check for data leak on api-database requests
+Convert backend responses to Latvian if there is
+
 
 BEFORE DEPLOYING:
   Delete images from storage too   

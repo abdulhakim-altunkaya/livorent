@@ -5,7 +5,7 @@ import "../styles/Item.css"
 import Footer from "./Footer.js";
 import CommentDisplay from "./CommentDisplay.js"
 import { detectSection, detectCategory } from './utilsCategories';
-import BtmLikeItem from './BtmLikeItem.js';
+import BtmLikeItem from './BtmLikeItem.js'; 
 import BtmVisitor from './BtmVisitor.js';
 
 function BtmItem() {
@@ -36,7 +36,7 @@ function BtmItem() {
     const getData = async () => {
       try {
         const response = await axios.get(`http://localhost:5000/api/get/item/${itemNumber}`);
-        setMessage(response.data);
+        setMessage(response.data.resData);
       } catch (error) {
         setErrorFrontend("Kļūda: neizdevās ielādēt sludinājuma informāciju");
         console.log(error.message)
