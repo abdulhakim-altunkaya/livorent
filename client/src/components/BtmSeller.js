@@ -26,7 +26,7 @@ function BtmSeller() {
 
   const [rating, setRating] = useState(null);
   const [raters, setRaters] = useState(null);
-  const [visitorsSeller, setVisitorsSeller] = useState(null);
+  const [visitorsSeller, setVisitorsSeller] = useState(null); 
 
   useEffect(() => {
     const getData = async () => {
@@ -51,8 +51,8 @@ function BtmSeller() {
           console.log("cached data displayed");
         } else {
           const responseUser = await axios.get(`http://localhost:5000/api/get/userdata/${sellerNumber}`);
-          setSellerData(responseUser.data);
-          useUserStore.getState().setCachedSellerData(responseUser.data);
+          setSellerData(responseUser.data.resData);
+          useUserStore.getState().setCachedSellerData(responseUser.data.resData);
         }
       } catch (error) {
         if (error.response && error.response.data) {

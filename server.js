@@ -919,7 +919,12 @@ app.get("/api/get/userdata/:iduser", rateLimiter, blockBannedIPs, async (req, re
   const { iduser } = req.params;
   let client;
   if(!iduser) {
-    return res.status(404).json({myMessage: "No user id detected"});
+    return res.status(404).json({
+      resMessage: "No user id detected",  
+      resStatus: false,
+      resData: null,
+      resErrorCode: 1
+    });
   }
   try {
     client = await pool.connect();
@@ -929,7 +934,12 @@ app.get("/api/get/userdata/:iduser", rateLimiter, blockBannedIPs, async (req, re
     );
     const rawData = await result.rows[0];
     if(!rawData) {
-      return res.status(404).json({ myMessage: "User details not found although user id is correct"})
+      return res.status(200).json({
+        resMessage: "Seller details not found although seller id is correct",
+        resStatus: true,     // Call successful
+        resData: {},         // Empty but valid
+        resOkCode: 1         
+      });
     }
     const userRawData = {
         id: rawData.id,
@@ -939,10 +949,23 @@ app.get("/api/get/userdata/:iduser", rateLimiter, blockBannedIPs, async (req, re
         date: rawData.date
         // Include only what's safe and needed by frontend    
     }
-    res.status(200).json(userRawData);
+    //Success Response
+    return res.status(200).json({
+      resMessage: "Seller data fetched",  
+      resStatus: true,
+      resData: userRawData,
+      resOkCode: 2
+    });
+
+
   } catch (error) {
     console.log(error.message);
-    res.status(500).json({myMessage: "Error at the Backend: Couldnt fetch user details"})
+    return res.status(500).json({
+      resMessage: "Database connection error",  
+      resStatus: false,
+      resData: null,
+      resErrorCode: 2
+    });
   } finally {
     if(client) client.release();
   }
