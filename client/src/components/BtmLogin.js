@@ -55,7 +55,7 @@ function BtmLogin() {
       return;
     }
     // Password minimum length
-    if (passtext.length < 6 || passtext.length < 10) {
+    if (passtext.length < 6 || passtext.length > 20) {
       setResultArea("Parolei jābūt vismaz 6 rakstzīmes. E-pastam – vismaz 10.");
       return;
     }

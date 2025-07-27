@@ -908,7 +908,7 @@ app.get("/api/get/userdata/:iduser", rateLimiter, blockBannedIPs, async (req, re
     if(!rawData) {
       return res.status(200).json({
         resMessage: "Seller details not found although seller id is correct",
-        resStatus: true,     // Call successful
+        resStatus: false,     // Call successful
         resData: {},         // Empty but valid
         resOkCode: 1         
       });
@@ -973,7 +973,7 @@ app.get("/api/get/item/:itemNumber", rateLimiter, blockBannedIPs, async (req, re
     } else {
       return res.status(200).json({
         resMessage: "Item details not found although item id is correct",  
-        resStatus: true,
+        resStatus: false,
         resData: null,
         resOkCode: 2
       });
@@ -1075,57 +1075,46 @@ app.post("/api/update", checkCooldown, authenticateToken, rateLimiter, blockBann
   } 
 });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 app.delete("/api/delete/item/:itemNumber", authenticateToken, rateLimiter, blockBannedIPs, async (req, res) => {
   const { itemNumber } = req.params;
   let client;
   if(!itemNumber) {
-    return res.status(404).json({myMessage: "No item number detected"});
+    return res.status(400).json({
+      resStatus: false,
+      resMessage: "Item ID is required.",
+      resErrorCode: 1
+    });
   }
   try {
     client = await pool.connect();
     const result = await client.query(
       `DELETE FROM livorent_ads WHERE id = $1`,
       [itemNumber]
-    );
-    res.status(200).json({ message: "Sludinājums veiksmīgi dzēsts" }); 
+    ); 
     if (result.rowCount > 0) {
-      console.log("Sludinājums veiksmīgi dzēsts"); // "Advertisement deleted successfully"
+      return res.status(200).json({
+        resStatus: true,
+        resMessage: "Sludinājums veiksmīgi dzēsts",// "Advertisement deleted successfully"
+        resOkCode: 1
+      });
     } else {
-      console.log("Sludinājums nav atrasts" ); // "Advertisement not found"
+      return res.status(200).json({
+        resStatus: false,
+        resMessage: "Sludinājums nav atrasts",// "Advertisement not found"
+        resOkCode: 2
+      });
     }
   } catch (error) {
-    console.log(error.message);
-    res.status(500).json({myMessage: "Error at the Backend: database connection error"})
+    return res.status(500).json({
+      resStatus: false,
+      resMessage: "Sludinājums nav atrasts",// "Advertisement not found"
+      resErrorCode: 2
+    })
   } finally {
     if(client) client.release();
   }
 }); 
+
 app.patch("/api/profile/update-ad", upload.array("adUpdateImages", 5), authenticateToken, rateLimiter, blockBannedIPs, async (req, res) => { 
   //preventing spam comments
   const ipVisitor = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.socket.remoteAddress || req.ip;
@@ -1291,6 +1280,7 @@ app.patch("/api/profile/update-ad", upload.array("adUpdateImages", 5), authentic
     if (client) client.release();
   }
 });
+
 app.get("/api/search", rateLimiter, blockBannedIPs, async (req, res) => {
 
   const searchText = req.query.myQuery;
@@ -1318,7 +1308,12 @@ app.get("/api/search", rateLimiter, blockBannedIPs, async (req, res) => {
     // this code below is for case insensitive exact word search. 
     //we will limit result by 20 records. No need to bring all records. Also, newest one comes first. 
     const result = await client.query(
-      `SELECT * FROM livorent_ads WHERE title ILIKE $1 OR description ILIKE $1 ORDER BY id DESC LIMIT 20`,
+      `SELECT id, title, user_id, description, price, city, name, telephone, date, update_date, 
+        main_group, sub_group, image_url
+      FROM livorent_ads 
+      WHERE title ILIKE $1 OR description ILIKE $1 
+      ORDER BY id DESC 
+      LIMIT 20`,
       [`%${searchText.trim()}%`]
     );
 
@@ -1350,6 +1345,29 @@ app.get("/api/search", rateLimiter, blockBannedIPs, async (req, res) => {
     if (client) client.release();
   } 
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 app.get('/api/verify-token', rateLimiter, blockBannedIPs, async (req, res) => {
   const token = req.headers.authorization?.split(' ')[1];
   if (!token) {
@@ -1379,10 +1397,6 @@ app.get('/api/verify-token', rateLimiter, blockBannedIPs, async (req, res) => {
     if (client) client.release();
   }
 });
-
-
-
-
 app.post("/api/post/save-comment", checkCooldown, authenticateToken, rateLimiter, blockBannedIPs, async (req, res) => {
 
   let client;
@@ -2237,12 +2251,6 @@ app.post("/api/post/save-like-item", authenticateToken, rateLimiter, blockBanned
     if (client) client.release();
   }
 })
-
-
-
-
-
-
 // Instead of using: const ipCache2 = {}
 // we are using the map logic below to prevent memory bloat in case website receives thousands of visitors at the same time
 const ipCache = new Map();
@@ -2518,7 +2526,6 @@ Check each endpoint and component with chatgpt to see if any mistake or sth to f
 Component Footer update
 Component About/Contact update
 I can still see some "loading" instead of useRef
-Double check for data leak on api-database requests
 Convert backend responses to Latvian if there is
 
 

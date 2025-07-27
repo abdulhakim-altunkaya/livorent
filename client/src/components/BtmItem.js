@@ -38,8 +38,21 @@ function BtmItem() {
         const response = await axios.get(`http://localhost:5000/api/get/item/${itemNumber}`);
         setMessage(response.data.resData);
       } catch (error) {
-        setErrorFrontend("Kļūda: neizdevās ielādēt sludinājuma informāciju");
-        console.log(error.message)
+        if (error.response?.data?.resErrorCode) {
+          switch(error.response.data.resErrorCode) {
+            case 1:
+              setErrorFrontend("Kļūda: trūkst sludinājuma ID ❌");
+              break;
+            case 2:
+              setErrorFrontend("Kļūda: datu bāzes kļūda ❌");
+              break;
+            default:
+              setErrorFrontend("Kļūda: nezināma servera kļūda ❌");
+          }
+        } else {
+          setErrorFrontend("Kļūda: neizdevās ielādēt sludinājuma informāciju ❌");
+        }
+        console.log(error.message);
       } finally {
         setLoading(false);
       }

@@ -14,7 +14,7 @@ function BtmProfile() {
   const cachedUserData = useUserStore(state => state.cachedUserData);
 
   
-  const { visitorNumber } = useParams();
+  const { visitorNumber } = useParams(); 
   const [message, setMessage] = useState(null); // Initialize with null to better handle initial state
   const [errorFrontend, setErrorFrontend] = useState(null); // Add error state
   const [loading, setLoading] = useState(true); // Add loading state
@@ -132,7 +132,14 @@ function BtmProfile() {
         });
         window.location.reload(); // ← Force page refresh
       } catch (error) {
-        setErrorFrontend(error.response?.data?.error || "Dzēšanas kļūda ❌"); // Red error toast
+        const data = error.response?.data;
+        if (data?.resErrorCode === 1) {
+          setErrorFrontend("Nepieciešams sludinājuma ID ❌");
+        } else if (data?.resErrorCode === 2) {
+          setErrorFrontend("Sludinājums nav atrasts vai servera kļūda ❌");
+        } else {
+          setErrorFrontend(data?.resMessage || "Nezināma kļūda dzēšanas laikā ❌");
+        }
       } finally {
         isSaving.current = false;
       }
