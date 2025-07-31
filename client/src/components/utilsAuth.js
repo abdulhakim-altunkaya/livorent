@@ -63,7 +63,7 @@ export const getUserId = () => {
       };
     }
    
-    // ✅ In other cases, verify the token in the backend and also set the zustand cache user data to api call userData.
+    // ✅ In other cases, verify the token in the backend and also set the zustand cache user data to api call resData.
     try {
       const response = await axios.get('http://localhost:5000/api/verify-token', {
         headers: {
@@ -71,11 +71,11 @@ export const getUserId = () => {
         },
       });
   
-      if (response.data && response.data.userId) {
-        useUserStore.getState().setCachedUserData(response.data.userData);
+      if (response.data && response.data.resUserId) {
+        useUserStore.getState().setCachedUserData(response.data.resData);
         return {
-          userNumber: response.data.userId, 
-          userData: response.data.userData,
+          userNumber: response.data.resUserId, 
+          userData: response.data.resData,
         };
       } else {
         return {
@@ -84,10 +84,29 @@ export const getUserId = () => {
         };
       }
     } catch (error) {
-      console.error('Error verifying token:', error);
+      console.error('Tokena verifikācijas kļūda:', error);
+
+      let errorMessage = 'Kļūda, mēģinot sazināties ar serveri.';
+
+      if (error.response && error.response.data) {
+        const { resErrorCode } = error.response.data;
+
+        if (resErrorCode === 1) {
+          errorMessage = 'Nav nodrošināts autentifikācijas tokens.';
+        } else if (resErrorCode === 2) {
+          errorMessage = 'Lietotājs netika atrasts.';
+        } else if (resErrorCode === 3) {
+          errorMessage = 'Datu bāzes savienojuma kļūda.';
+        } else {
+          errorMessage = 'Nezināma kļūda serverī.';
+        }
+      }
+      console.log(errorMessage);
+      //we in any case return an empty user values to prevent crashes on frontend
       return {
         userNumber: 0,
         userData: null,
+        errorMessage,
       };
     }
   };

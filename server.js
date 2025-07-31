@@ -1288,14 +1288,14 @@ app.get("/api/search", rateLimiter, blockBannedIPs, async (req, res) => {
   let client;
   
   if(!searchText) {
-    return res.status(200).json({
+    return res.status(400).json({
       responseStatus: false, //false mean search failed, it brought zero result.
       responseMessage: "Meklēšanas teksts trūkst",
       responseResult: []
     });
   }
   if (searchText.trim().length < 3) {
-    return res.status(200).json({ //we are saying 200 here because I want below values to display 
+    return res.status(400).json({ //we are saying 200 here because I want below values to display 
       //If I say 400, only the catch error statement will display.
       responseStatus: false, //false mean search failed, it brought zero result.
       responseMessage: "Meklēšanas teksts ir pārāk īss",
@@ -1346,32 +1346,15 @@ app.get("/api/search", rateLimiter, blockBannedIPs, async (req, res) => {
   } 
 });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 app.get('/api/verify-token', rateLimiter, blockBannedIPs, async (req, res) => {
   const token = req.headers.authorization?.split(' ')[1];
   if (!token) {
-    return res.status(401).json({ error: 'No token provided' });
+    return res.status(401).json({
+      resStatus: false, //false mean search failed, it brought zero result.
+      resMessage: "No token provided",
+      resErrorCode: 1,
+      resData: {}
+    });
   }
  
   let client;
@@ -1381,22 +1364,60 @@ app.get('/api/verify-token', rateLimiter, blockBannedIPs, async (req, res) => {
 
     client = await pool.connect();
     const result = await client.query( 
-      'SELECT * FROM livorent_users WHERE id = $1',
+      `SELECT id, email, passtext, tokenversion, name, telephone, date, loginattempt, loginblockeduntil
+       FROM livorent_users WHERE id = $1`,
       [requestedId]
     );
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'User not found' });
+      return res.status(404).json({
+        resStatus: false, //false mean search failed, it brought zero result.
+        resMessage: "User not found",
+        resErrorCode: 2,
+        resData: {}
+      });
     }
     const userData = result.rows[0];
-    return res.status(200).json({ userId: requestedId, userData });
+    return res.status(200).json({
+      resStatus: true, //false mean search failed, it brought zero result.
+      resMessage: "User found",
+      resOkCode: 1,
+      resData: userData,
+      resUserId: requestedId
+    });
   } catch (err) {
     console.error('Token verification failed:', err);
-    return res.status(403).json({ error: 'Invalid token' });
+    return res.status(500).json({
+      resStatus: false, //false mean search failed, it brought zero result.
+      resMessage: "Database connection error",
+      resErrorCode: 3,
+      resData: {}
+    });    
   } finally {
     if (client) client.release();
   }
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 app.post("/api/post/save-comment", checkCooldown, authenticateToken, rateLimiter, blockBannedIPs, async (req, res) => {
 
   let client;
@@ -2527,6 +2548,7 @@ Component Footer update
 Component About/Contact update
 I can still see some "loading" instead of useRef
 Convert backend responses to Latvian if there is
+Create about page
 
 
 BEFORE DEPLOYING:
