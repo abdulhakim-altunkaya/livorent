@@ -2,7 +2,7 @@
 //Make sure only logged in users can leave a like
 //improve isLikeAllowed logic
 
-import { useState, useEffect } from 'react'; 
+import { useState, useEffect, useRef } from 'react'; 
 import axios from 'axios';
 import "../styles/Profile.css";
 import Footer from "./Footer.js";
@@ -22,7 +22,7 @@ function BtmSeller() {
   const [message, setMessage] = useState(null); // Initialize with null to better handle initial state
   const [sellerData, setSellerData] = useState(null);
   const [errorFrontend, setErrorFrontend] = useState(null); // Add error state
-  const [loading, setLoading] = useState(true); // Add loading state
+  const isSaving = useRef(false);  // flag to prevent repetitive requests and duplicates
 
   const [rating, setRating] = useState(null);
   const [raters, setRaters] = useState(null);
@@ -30,6 +30,10 @@ function BtmSeller() {
 
   useEffect(() => {
     const getData = async () => {
+
+      // prevent repetitive requests
+      if (isSaving.current) return; 
+      isSaving.current = true;
       try {
         // Fetch ads by user
         const response = await axios.get(`http://localhost:5000/api/get/adsbyuser/${sellerNumber}`);
@@ -71,7 +75,7 @@ function BtmSeller() {
         }
         setSellerData({}); // Ensure sellerData is not null
       } finally {
-        setLoading(false);
+        isSaving.current = false;
       }
     };
 
@@ -91,7 +95,7 @@ function BtmSeller() {
   return (
     <div>
       <div>
-        { loading ? 
+        { isSaving.current ? 
             <div aria-live="polite">Ielādē...</div> 
           : errorFrontend ? ( // Check for error first
             <p className='errorFieldProfile'>{errorFrontend}</p> 

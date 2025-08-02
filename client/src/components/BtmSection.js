@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useRef} from 'react';
 import axios from 'axios';
 import { useParams } from "react-router-dom";
 import "../styles/BtmSection.css"
@@ -13,13 +13,16 @@ function BtmSection() {
 
   const [message, setMessage] = useState(null); // Initialize with null to better handle initial state
   const [errorFrontend, setErrorFrontend] = useState(null); // Add error state
-  const [loading, setLoading] = useState(true); // Add loading state
   //states for returning back main category or section pages
   const [mainCategoryNum, setMainCategoryNum] = useState(0);
   const [titleMainCategory, setTitleMainCategory] = useState("");
+  const isSaving = useRef(false);  // flag to prevent repetitive requests and duplicates
 
     useEffect(() => {
     const getData = async () => {
+      // prevent repetitive requests
+      if (isSaving.current) return; 
+      isSaving.current = true;
       try {
           const response = await axios.get(`http://localhost:5000/api/get/adsbysubsection/${sectionNumber}`);
           const data = response.data;
@@ -51,7 +54,7 @@ function BtmSection() {
             console.log("Network error:", error.message);
           }
         } finally {
-          setLoading(false);
+          isSaving.current = false;
         }
       };
     getData();
@@ -104,7 +107,7 @@ function BtmSection() {
           <br/><br/><br/>
       </div>
       <div>
-        { loading ? 
+        { isSaving.current  ? 
             <div aria-live="polite">Ielādē...</div> 
           : errorFrontend ? ( // Check for error first
             <p className='errorFieldSection'>{errorFrontend}</p>

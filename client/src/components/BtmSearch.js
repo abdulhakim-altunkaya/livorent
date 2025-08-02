@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect, useRef} from "react";
 import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
 import Footer from "./Footer";
@@ -8,18 +8,19 @@ import "../styles/tableMain.css";
 function BtmSearch() {
   const [message, setMessage] = useState(null);
   const [errorFrontend, setErrorFrontend] = useState(null);
-  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const searchQuery = queryParams.get("query");
-
+  const isSaving = useRef(false);  // flag to prevent repetitive requests and duplicates
+ 
   useEffect(() => {
     const getData = async () => {
-      setLoading(true);
       setMessage(null);
       setErrorFrontend(null);
-
+      // prevent repetitive requests
+      if (isSaving.current) return; 
+      isSaving.current = true;
       try {
         if (!searchQuery || searchQuery.trim().length < 3) {
           alert("Meklēšanas vārds trūkst vai ir pārāk īss.");
@@ -43,14 +44,14 @@ function BtmSearch() {
         console.log(error);
         setErrorFrontend("Nav sludinājumu.");
       } finally {
-        setLoading(false);
+        isSaving.current = false;
       }
     };
 
     getData();
   }, [searchQuery]);
 
-  return (
+  return ( 
     <div>
       <div className="searchDiv">
         <span>Meklēšanas rezultāti: </span>
@@ -58,7 +59,7 @@ function BtmSearch() {
       </div>
 
       <div>
-        {loading ? (
+        {isSaving.current ? (
           <div aria-live="polite">Ielādē...</div>
         ) : errorFrontend ? (
           <p className="errorFieldAdsMain">{errorFrontend}</p>
