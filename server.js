@@ -2532,15 +2532,9 @@ app.listen(PORT, () => {
 
   /* 
 Add small screen style
-Check each endpoint and component with chatgpt to see if any mistake or sth to fix
 Component Footer update
 Component About/Contact update
-I can still see some "loading" instead of useRef
-I can still see some english text on errors
 Convert backend responses to Latvian if there is
-Create about page
-EXPANDED RESPONSE
-COMPATIBLE FRONTEND WITH TRANSLATIONS
 
 
 BEFORE DEPLOYING:

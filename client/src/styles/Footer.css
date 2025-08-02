@@ -1,22 +1,59 @@
 @media (min-width: 781px) {
   /* styles/Footer.css */
-  .footerArea {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
   .footer {
     width: 100%;
-    padding: 20px;
-    background-color: #3A3A3A;
-    color:#FFF;
-    font-family: "Josefin Sans";
-    font-size: 16px;
+    padding-left:20px;
+    padding-top:10px;
+    padding-bottom:10px;
+    border-top: 2px solid #dedfde47;
+    color: black;
+    font-family: "Comfortaa", sans-serif;
+    font-size: 13px;
     text-align: left;
+    display: flex;
+    flex-direction: row;
   }
-  .footer a {
-    color:#c4e1ff;
+  .footerIcon {
+    width: 20%;
+    
+  }
+  .footerIcon img {
+    width: 160px;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(71, 69, 58, 0.6); /* yellowish shadow */
+    cursor: pointer;
+  }
+  .footerIcon img:hover {
+    box-shadow: 0 8px 16px rgba(71, 69, 58, 0.85);
+  }
+  .footerContent1 {
+    width: 40%;
+  }
+  .footerContent2 {
+    width: 40%;
+  }
+  .footerContent1 a {
+    color:#174f8c;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .footerContent2 {
+    display: flex;
+    flex-direction: row;
+  }
+  .footerContent2 div {
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    row-gap: 10px;
+  }
+  .footerContent2 a {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .footerContent1 a:hover, .footerContent2 a:hover {
+    margin-left: 5px;
   }
 
 }
@@ -24,12 +61,6 @@
 /* Media query for mobile screens */
 @media (max-width: 780px) {
     /* styles/Footer.css */
-    .footerArea {
-      width: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
     .footer {
       width: 100%;
       background-color: #f2f2f2;
