@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from "react-router-dom";
-import "../styles/Item.css"
+import "../styles/Item.css";
 import Footer from "./Footer.js";
 import CommentDisplay from "./CommentDisplay.js"
 import { detectSection, detectCategory } from './utilsCategories';

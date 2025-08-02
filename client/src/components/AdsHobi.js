@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useRef} from 'react';
 import axios from 'axios';
 import "../styles/AdsMain.css";
 import "../styles/tableMain.css";
@@ -10,10 +10,14 @@ function AdsHobi() {
 
   const [message, setMessage] = useState(null); // Initialize with null to better handle initial state
   const [errorFrontend, setErrorFrontend] = useState(null); // Add error state
-  const [loading, setLoading] = useState(true); // Add loading state
+  const isSaving = useRef(false);  // flag to prevent repetitive requests and duplicates
 
   useEffect(() => {
     const getData = async () => {
+      // prevent re-rendering
+      if (isSaving.current) return; 
+      isSaving.current = true;
+
       try {
           const response = await axios.get(`http://localhost:5000/api/get/adsbycategory/5`);
           const data = response.data;
@@ -45,7 +49,7 @@ function AdsHobi() {
             console.log("Network error:", error.message);
           }
         } finally {
-          setLoading(false);
+          isSaving.current = false;
         }
       };
     getData();
@@ -69,7 +73,7 @@ function AdsHobi() {
       </div>
       <br/><br/><br/>
       <div>
-        { loading ? 
+        { isSaving.current ? 
             <div aria-live="polite">Notiek ielāde...</div> 
           : errorFrontend ? ( // Check for error first
             <p className='errorFieldAdsMain'>{errorFrontend}</p>

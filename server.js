@@ -1398,26 +1398,6 @@ app.get('/api/verify-token', rateLimiter, blockBannedIPs, async (req, res) => {
   }
 });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 app.post("/api/post/save-comment", checkCooldown, authenticateToken, rateLimiter, blockBannedIPs, async (req, res) => {
 
   let client;
@@ -1495,6 +1475,7 @@ app.post("/api/post/save-comment", checkCooldown, authenticateToken, rateLimiter
     if (client) client.release();
   }
 });
+
 app.get("/api/get/comments/:commentReceiver", rateLimiter, blockBannedIPs, async (req, res) => {
   const { commentReceiver } = req.params;
   let client;
@@ -1541,6 +1522,7 @@ app.get("/api/get/comments/:commentReceiver", rateLimiter, blockBannedIPs, async
     if(client) client.release();
   } 
 });
+
 app.post("/api/post/save-reply", checkCooldown, authenticateToken, rateLimiter, blockBannedIPs, async (req, res) => {
 
   let client;
@@ -1620,6 +1602,7 @@ app.post("/api/post/save-reply", checkCooldown, authenticateToken, rateLimiter, 
     if (client) client.release();
   }
 });
+
 app.post("/api/post/save-review", checkCooldown, authenticateToken, rateLimiter, blockBannedIPs, async (req, res) => {
 
   let client;
@@ -1706,6 +1689,7 @@ app.post("/api/post/save-review", checkCooldown, authenticateToken, rateLimiter,
     if (client) client.release();
   }
 });
+
 app.post("/api/post/save-review-reply", checkCooldown, authenticateToken, rateLimiter, blockBannedIPs, async (req, res) => {
 
   let client;
@@ -1785,6 +1769,7 @@ app.post("/api/post/save-review-reply", checkCooldown, authenticateToken, rateLi
     if (client) client.release();
   }
 });
+
 app.get("/api/get/reviews/:reviewReceiver", rateLimiter, blockBannedIPs, async (req, res) => {
   const { reviewReceiver } = req.params;
   let client;
@@ -1831,6 +1816,7 @@ app.get("/api/get/reviews/:reviewReceiver", rateLimiter, blockBannedIPs, async (
     if(client) client.release();
   } 
 });
+
 app.get("/api/get/like-item/:itemId", rateLimiter, blockBannedIPs, async (req, res) => {
 
   const { itemId } = req.params;
@@ -1914,6 +1900,7 @@ app.get("/api/get/like-item/:itemId", rateLimiter, blockBannedIPs, async (req, r
     if (client) client.release();
   } 
 });
+
 app.get("/api/get/like-seller/:sellerId", rateLimiter, blockBannedIPs, async (req, res) => {
 
   const { sellerId } = req.params;
@@ -1967,7 +1954,6 @@ app.get("/api/get/like-seller/:sellerId", rateLimiter, blockBannedIPs, async (re
       likers = [];
     }
 
-
     if (likers.includes(visitorId3)) {
       //Seller exists, and there is likers array. And visitor is also in the array.
       //Return true and liker array length and the heart should be filled.
@@ -1978,6 +1964,7 @@ app.get("/api/get/like-seller/:sellerId", rateLimiter, blockBannedIPs, async (re
         resOkCode: 2
       });
     }
+
     return res.status(200).json({
       //Seller exists, and there is likers array. But the visitor has not liked yet.
       //Return false and liker array length and the heart should be empty.
@@ -1998,6 +1985,7 @@ app.get("/api/get/like-seller/:sellerId", rateLimiter, blockBannedIPs, async (re
     if (client) client.release();
   } 
 })
+
 app.post("/api/post/save-like-seller", authenticateToken, rateLimiter, blockBannedIPs, async (req, res) => {
 
   let client;
@@ -2093,7 +2081,6 @@ app.post("/api/post/save-like-seller", authenticateToken, rateLimiter, blockBann
       });
     }
 
-
     if (likeOldStatus === true && likeNewStatus === false) {
       const result = await client.query(`SELECT * FROM livorent_likes WHERE seller_id = $1`, [likedSeller2]);
       const existingSeller = result.rows[0];
@@ -2135,6 +2122,8 @@ app.post("/api/post/save-like-seller", authenticateToken, rateLimiter, blockBann
     if (client) client.release();
   }
 });
+
+
 app.post("/api/post/save-like-item", authenticateToken, rateLimiter, blockBannedIPs, async (req, res) => {
 
   let client;
@@ -2337,6 +2326,7 @@ app.post("/api/post/visitor/seller", blockBannedIPs, async (req, res) => {
     if(client) client.release();
   }
 })
+
 app.get("/api/get/visits/seller/:sellerId", rateLimiter, blockBannedIPs, async (req, res) => {
 
   const { sellerId } = req.params;
@@ -2542,13 +2532,15 @@ app.listen(PORT, () => {
 
   /* 
 Add small screen style
-Add returning to all db requests to prevent data leak
 Check each endpoint and component with chatgpt to see if any mistake or sth to fix
 Component Footer update
 Component About/Contact update
 I can still see some "loading" instead of useRef
+I can still see some english text on errors
 Convert backend responses to Latvian if there is
 Create about page
+EXPANDED RESPONSE
+COMPATIBLE FRONTEND WITH TRANSLATIONS
 
 
 BEFORE DEPLOYING:
@@ -2566,7 +2558,6 @@ Fuzzy search
 pagination logic
 
 DONE
-add security check for repetitive wrong login attempt  
 add useRef logic to all components and add dynamic text display if needed
 all password inputs hidden with *
 Add password renewal logic
@@ -2591,6 +2582,8 @@ Fix section title area to allow return back clicks
 *Security: password reset: done with token version update
 *Security: token version added to password reset but not to password change
 *Security: password change: token version remains the same 
+*Security: Prevent data leak, check returning keyword on database queries
+*Security: Prevent repetitive login attempts by blocking
 
 */
 
