@@ -1,0 +1,32 @@
+
+@media (min-width: 768px) {
+    .aboutArea {
+        margin-left: 20px;
+        margin-right: 20px;
+        text-align: justify;
+        font-size: 16px;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+    }
+    .leftSideAbout {
+        padding: 30px;
+        width: 50%;
+        background-color: red;
+    }
+    .rightSideAbout {
+        padding: 30px;
+        width: 25%;
+        background-color: blue;
+    }
+    .titleAbout {
+        width: 50%;
+        border-left: 5px solid #ffb400;
+        padding-left: 10px;
+    }
+}
+
+
+@media (max-width: 767px) {
+
+}

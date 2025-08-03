@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import {useState, useEffect} from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getUserId } from './utilsAuth';
 import { setUserData } from './utilsAuth';
@@ -65,7 +65,7 @@ function TopNavbar() {
         <img id='searchIcon' onClick={handleSearch} src='/svg_search.svg' alt='search icon'/>
       </span>
 
-      <span className='topAreaNavSpans' onClick={() => navigate("/")}>Kontakti</span>
+      <span className='topAreaNavSpans' onClick={() => navigate("/about")}>Kontakti</span>
 
       {
         myNum > 0 ?
