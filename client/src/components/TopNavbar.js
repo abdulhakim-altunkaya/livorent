@@ -48,38 +48,72 @@ function TopNavbar() {
   }
 
   return (
-    <div className='TopNavbarArea'>
-      <div className='topTitleArea'>
-        <header className='headerArea'><span onClick={ () => navigate("/")}>LIVORENT</span></header>
+    <>
+      <div className='TopNavbarArea'>
+        <div className='topTitleArea'>
+          <header className='headerArea'><span onClick={ () => navigate("/")}>LIVORENT</span></header>
+        </div>
+        <span className='topAreaNavSpans' onClick={() => navigate("/upload")}>Iesniegt Sludinājumu</span>
+
+        <span className='topAreaNavSpans searchArea'>
+          <input id="searchAreaInput" type="text" placeholder="Meklēšana" 
+            value={searchText} onChange={(e) => setSearchText(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                handleSearch();
+              }
+            }}/>
+          <img id='searchIcon' onClick={handleSearch} src='/svg_search.svg' alt='search icon'/>
+        </span>
+
+        <span className='topAreaNavSpans' onClick={() => navigate("/about")}>Kontakti</span>
+
+        {
+          myNum > 0 ?
+          (<div className='topAreaLoginArea' onClick={() => navigate(`/profile/${myNum}`)} title='Mans profils'>
+            <img className='profileIcon' src='/svg_profile1.svg' alt='Profile icon'/>
+          </div>)     
+          :  
+          (<div className='topAreaLoginArea' onClick={() => navigate("/login")}>
+            <img className='loginIcon' src='/svg_login.svg' alt='Login icon'/>
+            <div>Ieiet</div>
+          </div>)
+        }
+
       </div>
-      <span className='topAreaNavSpans' onClick={() => navigate("/upload")}>Iesniegt Sludinājumu</span>
+      <div className='TopNavbarAreaSmall'>
+        <div className='topTitleArea'>
+          <header className='headerArea'><span onClick={ () => navigate("/")}>LIVORENT</span></header>
+          {
+            myNum > 0 ?
+            (<div className='topAreaLoginArea' onClick={() => navigate(`/profile/${myNum}`)} title='Mans profils'>
+              <img className='profileIcon' src='/svg_profile1.svg' alt='Profile icon'/>
+            </div>)     
+            :  
+            (<div className='topAreaLoginArea' onClick={() => navigate("/login")}>
+              <img className='loginIcon' src='/svg_login.svg' alt='Login icon'/>
+              <div>Ieiet</div>
+            </div>)
+          }
+        </div>
 
-      <span className='topAreaNavSpans searchArea'>
-        <input id="searchAreaInput" type="text" placeholder="Meklēšana" 
-          value={searchText} onChange={(e) => setSearchText(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              handleSearch();
-            }
-          }}/>
-        <img id='searchIcon' onClick={handleSearch} src='/svg_search.svg' alt='search icon'/>
-      </span>
+        <span className='topAreaNavSpans' onClick={() => navigate("/upload")}>Iesniegt Sludinājumu</span>
 
-      <span className='topAreaNavSpans' onClick={() => navigate("/about")}>Kontakti</span>
+        <span className='topAreaNavSpans searchArea'>
+          <input id="searchAreaInput" type="text" placeholder="Meklēšana" 
+            value={searchText} onChange={(e) => setSearchText(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                handleSearch();
+              }
+            }}/>
+          <img id='searchIcon' onClick={handleSearch} src='/svg_search.svg' alt='search icon'/>
+        </span>
 
-      {
-        myNum > 0 ?
-        (<div className='topAreaLoginArea' onClick={() => navigate(`/profile/${myNum}`)} title='Mans profils'>
-          <img className='profileIcon' src='/svg_profile1.svg' alt='Profile icon'/>
-        </div>)     
-        :  
-        (<div className='topAreaLoginArea' onClick={() => navigate("/login")}>
-          <img className='loginIcon' src='/svg_login.svg' alt='Login icon'/>
-          <div>Ieiet</div>
-        </div>)
-      }
+        <span className='topAreaNavSpans' onClick={() => navigate("/about")}>Kontakti</span>
+      </div>
+    </>
 
-    </div>
   )
 }
 

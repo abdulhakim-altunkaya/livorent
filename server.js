@@ -2532,10 +2532,7 @@ app.listen(PORT, () => {
 
   /* 
 Add small screen style
-Component Footer update
-Component About/Contact update
-Convert backend responses to Latvian if there is
-
+Check to see if there is any unused variables in each component
 
 BEFORE DEPLOYING:
   Delete images from storage too   
@@ -2565,6 +2562,8 @@ Fix margin left of all resultArea and errorFrontend areas
 convert all error, success and alert messages to Latvian, also buttons and any other text
 Add date column to ads
 Fix section title area to allow return back clicks
+Footer update
+About/Contact component finished
 
 *Security: button disabled attribute tied to a tracking variable to prevent duplicates
 *Security: Input validations check on both frontend and backend
