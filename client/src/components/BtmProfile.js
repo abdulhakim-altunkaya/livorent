@@ -267,9 +267,7 @@ function BtmProfile() {
       </div>
       <br/><br/><br/><br/><br/><br/>
       <br/><br/><br/><br/><br/><br/>
-      <div className='FooterContainer'>
-        <Footer />
-      </div>
+      <Footer />
     </div>
   )
 }

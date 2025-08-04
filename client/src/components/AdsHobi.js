@@ -56,6 +56,7 @@ function AdsHobi() {
   }, []);
 
   return (
+    <>
     <div>
       <div className='adsMainArea'>
         <div className='adsTopArea'>
@@ -119,13 +120,11 @@ function AdsHobi() {
               )}
             </>
         }
-      </div>
-      <br/><br/><br/><br/><br/><br/>
-      <div className='FooterContainer'>
-        <Footer />
-      </div>
-      
+      </div>     
     </div>
+    <br/><br/><br/><br/><br/><br/>
+    <Footer />
+    </>
   )
 }
 

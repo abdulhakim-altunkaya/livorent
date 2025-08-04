@@ -175,10 +175,8 @@ function BtmSeller() {
         handleRaters = {handleRaters} />
       </div>
       <br/><br/><br/><br/><br/><br/>
-      <div className='FooterContainer'>
-        <Footer />
-      </div>
       <BtmVisitor sellerId={sellerNumber} handleVisitorsSeller={handleVisitorsSeller} />
+      <Footer />
     </div>
   )
 }

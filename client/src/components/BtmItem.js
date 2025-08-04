@@ -255,10 +255,6 @@ function BtmItem() {
       </div>
       <div> <br/><br/><br/><br/> </div>
       <div> <CommentDisplay commentReceiver={itemNumber} /></div>
-      <br/><br/><br/><br/><br/><br/>
-      <div className='FooterContainer'>
-        <Footer />
-      </div>
       {!loading && mainCategoryNum > 0 && sectionNum > 0 && (
         <BtmVisitor
           itemId={itemNumber}
@@ -267,6 +263,8 @@ function BtmItem() {
           handleVisitorsItem={handleVisitorsItem}
         />
       )}
+      <br/><br/><br/><br/><br/><br/>
+      <Footer />
     </div>
   )
 }
