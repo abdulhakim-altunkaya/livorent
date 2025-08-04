@@ -101,6 +101,7 @@ function BtmSeller() {
             <p className='errorFieldProfile'>{errorFrontend}</p> 
           ) :
             <>
+              {sellerData && (
                 <div className='userInfoArea'>
                   <div>Name: <strong>{sellerData.name}</strong> </div>
                   <div>
@@ -122,7 +123,7 @@ function BtmSeller() {
                   <div className='lastDivProfile'>Kopš: <strong>{sellerData.date}</strong></div>
                   <BtmLikeSeller sellerId={sellerNumber}  />
                 </div>
-
+              )}
               {message && message.length > 0  ? (
                 <>
                   <div className='tableProfileArea'>

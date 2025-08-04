@@ -12,17 +12,27 @@
     .leftSideAbout {
         padding: 30px;
         width: 50%;
-        background-color: red;
     }
     .rightSideAbout {
         padding: 30px;
         width: 25%;
-        background-color: blue;
+        padding-top: 60px;
     }
     .titleAbout {
         width: 50%;
         border-left: 5px solid #ffb400;
+        border-top: 5px solid #ffb400;
+        border-radius: 5px;
         padding-left: 10px;
+    }
+    .rightSideAbout div {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        margin-top: 40px;
+    }
+    .rightSideAbout img {
+        width: 70px;
     }
 }
 

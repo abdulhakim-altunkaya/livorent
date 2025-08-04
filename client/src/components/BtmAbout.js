@@ -32,11 +32,26 @@ function BtmAbout() {
                 
           </div>
           <div className="rightSideAbout">
-            Free advertisements
-            Free registration
-            Data protection
-            User-to-user rentals
-            Local services
+            <div>
+              <img src='/svg_about_euro.svg' alt='free advertisements'/>
+              &nbsp;&nbsp;
+              <span>Bezmaksas sludinājumi</span>
+            </div>
+            <div>
+              <img src='/svg_about_euro2.svg' alt='free registration'/>
+              &nbsp;&nbsp;
+              <span>Bezmaksas reģistrācija</span>
+            </div>
+            <div>
+              <img src='/svg_about_data_protection.svg' alt='data protection'/>
+              &nbsp;&nbsp;
+              <span>Datu aizsardzība</span>
+            </div>
+            <div>
+              <img src='/svg_about_sharing.svg' alt='from person to person'/>
+              &nbsp;&nbsp;
+              <span>No personas uz personu</span>
+            </div>
           </div>
           
 
