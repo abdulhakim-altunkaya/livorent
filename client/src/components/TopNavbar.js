@@ -92,25 +92,24 @@ function TopNavbar() {
             :  
             (<div className='topAreaLoginArea' onClick={() => navigate("/login")}>
               <img className='loginIcon' src='/svg_login.svg' alt='Login icon'/>
-              <div>Ieiet</div>
             </div>)
           }
         </div>
+        <div className='addSearchAreaSmall'>
+          <span className='addButton' onClick={() => navigate("/upload")}>&#10133; Iesniegt</span>
 
-        <span className='topAreaNavSpans' onClick={() => navigate("/upload")}>Iesniegt Sludinājumu</span>
+          <span className='searchArea'>
+            <input id="searchAreaInput" type="text" placeholder="Meklēšana" 
+              value={searchText} onChange={(e) => setSearchText(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  handleSearch();
+                }
+              }}/>
+          </span>
 
-        <span className='topAreaNavSpans searchArea'>
-          <input id="searchAreaInput" type="text" placeholder="Meklēšana" 
-            value={searchText} onChange={(e) => setSearchText(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                handleSearch();
-              }
-            }}/>
-          <img id='searchIcon' onClick={handleSearch} src='/svg_search.svg' alt='search icon'/>
-        </span>
+        </div>
 
-        <span className='topAreaNavSpans' onClick={() => navigate("/about")}>Kontakti</span>
       </div>
     </>
 
