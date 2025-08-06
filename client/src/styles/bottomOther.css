@@ -105,13 +105,12 @@
 @media (max-width: 780px) {
     .bottomOtherArea {
         display: flex;
-        flex-direction: column;
+        flex-direction: column; 
         background-color: white;
     }
     .infoAreas2 {
         display: flex;
         flex-direction: column;
-        justify-content: space-around;
         padding-left: 10px;
         padding-top: 10px;
         padding-right: 10px;
@@ -138,24 +137,27 @@
         height: auto; /* Maintain aspect ratio */
     }
     .infoText2 {
-        font-size: 15px;
+        font-size: 14px;
         padding-left: 10px;
         padding-right: 10px;
         padding-bottom: 10px;
-        line-height: 1.2; /* Improve readability */
+        line-height: 1.6; /* Improve readability */
         color: #474747;
         font-style: italic;
+        display: flex;
+        flex-direction: column;
         text-align: justify;
         font-size: 16px;
+        align-self: stretch;
+    }
+    .infoText2 span {
+        display: block;
+        text-align: left;
     }
 
     #companyBox {
         background-color: aliceblue;
     }
-    #companyBox2 {
-        transition: box-shadow 0.3s ease; /* Smooth transition for both effects */
-    }
-
     #companyBox3 {
         background-color: aliceblue;
     }
