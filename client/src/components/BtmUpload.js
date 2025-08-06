@@ -2,7 +2,7 @@ import {useState, useEffect, useRef} from "react";
 import { useNavigate } from 'react-router-dom';
 import axios from "axios";
 import "../styles/upload.css";
-import Footer from "./Footer";
+import Footer from "./Footer"; 
 import { getUserId } from './utilsAuth'; 
 import useUserStore from '../store/userStore';
 import { jwtDecode } from 'jwt-decode';

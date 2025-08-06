@@ -204,17 +204,102 @@
 @media (max-width: 780px) {
 
 
+    .adFormArea{
+        height: 100%;
+        width: 100%;
+        margin-left: 20px;
+        font-size: 14px;
+    }
+    .adForm {
+        width: 85%;
+    }
+
+    .formInputs {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 18px;
+    }
+    .formInputs label {
+        color: black;
+        margin-bottom: 8px;
+    }
+    .formInputs input:hover {
+        border: 1px solid #4236e9;
+    }
+    .inputFieldLong {
+        padding: 12px 24px;
+        border-radius: 6px;
+        border: 1px solid #b0b0b0;
+        background: white;
+        font-weight: 500;
+        font-size: 16px;
+        font-family: "Concert One";
+        color: #4e535c;
+        outline: none;
+        resize: none;
+    }
+    .inputFieldShort {
+        padding: 12px 20px;
+        border-radius: 6px;
+        border: 1px solid #b0b0b0;
+        background: white;
+        font-weight: 500;
+        font-size: 16px;
+        font-family: "Concert One";
+        color: #6b7280;
+        outline: none;
+        resize: none;
+    }
+    .textAreaClass {
+        padding: 12px 24px;
+        border-radius: 6px;
+        border: 1px solid #b0b0b0;
+        background: white;
+        font-weight: 500;
+        font-size: 16px;
+        font-family: "Concert One";
+        color: #6b7280;
+        outline: none;
+        resize: none;
+    }
+    
+    .btnUploadArea {
+        display: flex;
+        flex-direction: row;
+        text-align: center;
+    }
+    .btnUploadArea input {
+        opacity: 0;
+        position: absolute;
+        left: 0;
+        top: 0;
+        cursor: pointer;
+    }
+    .btnUploadArea label {
+        padding: 8px 16px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 18px;
+        width: 240px;
+        display: inline-block;
+        text-align: center;
+        align-self: center;
+    }
     /*<button class="button7007">COPY ME</button>*/
     @import url('https://fonts.googleapis.com/css2?family=Dosis:wght@500&display=swap'); /*Dosis*/
     .button7007 {
         height: 40px;
-        width: 140px;
+        width: 170px;
         font-size: 20px;
         font-family: 'Dosis', sans-serif;
         background-color: aquamarine;
         padding: 4px;
         border-radius: 5px;
         cursor: pointer;
+        margin-top: 15px;
         transition-duration: 0.3s;
     }
     .button7007:hover {
@@ -227,20 +312,89 @@
         box-shadow: 0 0 .25rem rgba(0, 0, 0, 0.5), -.125rem -.125rem 1rem rgba(239, 71, 101, 0.5), .125rem .125rem 1rem rgba(255, 154, 90, 0.5);
     }
 
-    .customFileUpload {
-        background-color: #4CAF50;
-        color: white;
-        padding: 8px 16px;
-        border-radius: 5px;
-        cursor: pointer;
-        display: inline-block;
-        margin-top: 5px;
-      }
-      
-      .selectedFilesText {
+
+    .selectedFilesText {
         margin-top: 5px;
         font-size: 14px;
         color: #555;
+        display: block;
+    }
+
+    .btnUploadText {
+        font-weight: bold;
+    }
+    .btnSelectCategory {
+        padding: 8px 16px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 18px;
+        width: 240px;
+        text-align: center;
+        margin-top: 15px;
+    }
+    .svgUploadFile {
+        width: 24px;
+        color: #fdfefe;
+    }
+    .selectCategoryArea, .selectCategoryAreaDiv {
+        display: flex;
+        flex-direction: column;
+    }
+    .selectCategoryArea {
+        padding: 8px 16px;
+        background-color: #f1f1f1;
+        color: black;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 18px;
+        width: 240px;
+        margin-top: 2px;
+        height: 200px; /* Adjust height to fit 10 spans */
+        overflow-y: auto; /* Enable vertical scrolling */
+    }
+  
+      .selectCategoryArea span {
+        padding: 5px 0; /* Optional: Add spacing between spans */
+      }
+  
+      /* Optional: Custom scrollbar */
+      .selectCategoryArea::-webkit-scrollbar {
+        width: 8px;
+      }
+  
+      .selectCategoryArea::-webkit-scrollbar-track {
+        background: #c0c0c0;
+      }
+  
+      .selectCategoryArea::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 4px;
+      }
+  
+      .selectCategoryArea::-webkit-scrollbar-thumb:hover {
+        background: #555;
+      }
+      .selectCategoryTitle {
+        font-weight: bold;
+      }
+      .selectCategoryList:hover {
+        background-color: #cccccc;
+      }
+      .selectCategoryList.selected {
+        background-color: #d74f3aea; /* Background color for selected element */
+      }
+      .noUserBtmUpload {
+        margin-left: 20px;
+        font-size: 18px;
+      }
+      .noUserBtmUpload span {
+        cursor: pointer;
+        font-weight: bold;
+        color: blue;
       }
       
 

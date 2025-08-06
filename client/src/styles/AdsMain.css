@@ -66,6 +66,65 @@
 
 /* Media query for small screens */
 @media (max-width: 780px) {
-
-
+    .adsMainArea {
+        display: flex;
+        flex-direction: column;
+        font-family: "Nunito", sans-serif;
+        margin-left: 20px;
+    }
+    .adsTopArea{
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+    }
+    .adsMainSVG {
+        height: 25%;
+    }
+    .adsMainSVG img {
+        width: 70px; /* Ensure SVG image does not overflow */
+        height: auto; /* Maintain aspect ratio */
+    }
+    .adsMainTitle {
+        font-size: 20px;
+        font-weight: bold;
+        margin-left: 30px;
+    }
+    .adsListArea{
+        display: flex;
+        flex-direction: column;
+        font-family: "Maven Pro", sans-serif;
+        font-size: 18px;
+        margin-top: 40px;
+    }
+    .adsListArea span {
+        margin-bottom: 16px;
+    }
+    .adsListArea span:hover {
+        cursor: pointer;
+        color: blue;
+        font-weight: bolder;
+    }
+    .FooterContainer {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .errorFieldAdsMain {
+        font-size: 15px;
+        font-style: italic;
+        margin-left: 20px;
+    }
+    .loadMoreBtn {
+        padding: 10px 20px;
+        font-size: 16px;
+        background-color: #444;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+    .loadMoreBtn:hover {
+        background-color: #666;
+    }
 }

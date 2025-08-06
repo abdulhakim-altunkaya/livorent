@@ -28,6 +28,13 @@ function BtmAbout() {
                   <h4>Tory Software Solutions</h4>
                   <p>Tory Software Solutions, dibināts 2025. gadā Rīgā, Latvijā, izstrādā un pārvalda 
                       dažādus tiešsaistes projektus dažādās nozarēs, tostarp Livorent platformu.</p>
+                      &#127811;&#127811;&#127811;&#127811;&#127810;&#127810;&#127810;&#127810;
+                  <p>E-mail:&nbsp;&nbsp;<a href="mailto:torysoftware@gmail.com" 
+                      aria-label="Email contact to torysoftware@gmail.com">torysoftware@gmail.com</a></p>
+                  <p>Ikonas:&nbsp;&nbsp;<a href="https://icons8.com/icons" target="_blank" rel="noopener noreferrer" 
+                      aria-label="Link to icons8 website for the icons used on this website">icons8.com</a></p>
+                  SVG ikonas:&nbsp;&nbsp;<a href="https://www.svgrepo.com" target="_blank" rel="noopener noreferrer" 
+                      aria-label="Link to svgrepo website for the svg icons used on this website">svgrepo.com</a>
                 </div>
                 
           </div>
