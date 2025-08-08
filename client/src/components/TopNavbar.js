@@ -107,7 +107,6 @@ function TopNavbar() {
                 }
               }}/>
           </span>
-
         </div>
 
       </div>

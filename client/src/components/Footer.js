@@ -1,14 +1,16 @@
-
+import { useNavigate } from "react-router-dom";
 import '../styles/Footer.css';
 
 const Footer = () => {
-
+  
+  const navigate = useNavigate();
+  
   return (
     <div>
       <div className='borderTop'></div>
       <footer className="footer" role="contentinfo" aria-label="Footer">
-        <div className='footerIcon'>
-          <img src='/tory.png' alt='Website Manager'/>
+        <div className='footerIcon' >
+          <img src='/tory.png' alt='Website Manager' onClick={ () => navigate("/about") }/>
         </div>
         <div className="footerContent1">
           E-mail:&nbsp;&nbsp;<a href="mailto:torysoftware@gmail.com" 

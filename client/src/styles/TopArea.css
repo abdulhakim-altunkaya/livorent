@@ -112,7 +112,7 @@
   }
   .TopNavbarArea span, .topAreaLoginArea {
     cursor: pointer;
-    display: flex; /* Add Flexbox to the span */
+    display: flex; /* Add Flexbox to the span */ 
     align-items: center; /* Center text vertically */
     justify-content: center; /* Center text horizontally */
   }
