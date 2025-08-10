@@ -4,7 +4,7 @@
 
 import { useState, useEffect, useRef } from 'react'; 
 import axios from 'axios';
-import "../styles/Profile.css";
+import "../styles/Seller.css";
 import Footer from "./Footer.js";
 import ReviewDisplay from "./ReviewDisplay.js";
 import BtmLikeSeller from "./BtmLikeSeller.js";
@@ -115,7 +115,7 @@ function BtmSeller() {
                     }
                     {raters > 0 ?
                       <span>&nbsp;({raters})</span>
-                    :
+                    : 
                       <></>
                     }
                   </div>
@@ -160,32 +160,29 @@ function BtmSeller() {
                       </tbody>
                     </table>
                   </div>
-                  <div className='tableProfileAreaSmall'>
-                    <table className='tableMainCategory'>
+                  <div className="tableMainCategoryAreaSmall"> 
+                    <table className="tableMainCategory">
                       <thead> 
                         <tr>
-                          <th className='columnProfile1' scope="col"></th>
-                          <th className='columnProfile2' scope="col">Sludinājumi</th>
-                          <th className='columnProfile3' scope="col">Informācija</th>
+                          <th className="column1" scope="col"></th>
+                          <th className="column2" scope="col">Sludinājumi</th>
+                          <th className="column3" scope="col">Informācija</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {message.map( record => (
-                          <tr key={record.id} className='tableRowsProfile'>
-                            <td onClick={() => navigate(`/item/${record.id}`)} className='imgContainerCell'> 
-                              <img className='adMainImage' src={record.image_url[0]} alt='a small pic of ad'/></td>
-                            <td onClick={() => navigate(`/item/${record.id}`)} className='cellProfile2'>
-                              <strong>{record.title.length > 60 
-                                ? `${record.title.substring(0, 60)}...` 
-                                : record.title}</strong>
-                                <br/>
-                               <em>{record.description.length > 60
-                                ? `${record.description.substring(0, 60)}...` 
-                                : record.description}</em>
+                        {message.map((record) => (
+                          <tr key={record.id} className="tableRows">
+                            <td onClick={() => navigate(`/item/${record.id}`)} className="imgContainerTd">
+                              <img src={record.image_url[0]} alt="small pic of advertisement" />
                             </td>
-                            <td onClick={() => navigate(`/item/${record.id}`)} className='cellProfile4'>
+                            <td onClick={() => navigate(`/item/${record.id}`)} className="cell2"> 
+                              <strong>{record.title.length > 60 ? `${record.title.substring(0, 60)}...` : record.title}</strong> 
+                              <br/>
+                              <em>{record.description.length > 40 ? `${record.description.substring(0, 40)}...` : record.description}</em>
+                            </td>
+                            <td onClick={() => navigate(`/item/${record.id}`)} className="cell4">
                               {record.price} <br/><br/>
-                              {record.city}<br/><br/>
+                              {record.city} <br/><br/>
                               {record.date}
                             </td>
                           </tr>

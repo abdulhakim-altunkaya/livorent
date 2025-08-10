@@ -42,13 +42,13 @@
 }
 @media (max-width: 780px) {
     .replyArea {
-        width: 320px;
+        width: 290px;
         margin-top: 5px;
         padding: 8px;
         border-radius: 7px;
         background-color: #f1ec81;
         margin-bottom: 8px;
-        display: flex;
+        display: flex; 
         flex-direction: column; 
     }
     .replyInputName {
