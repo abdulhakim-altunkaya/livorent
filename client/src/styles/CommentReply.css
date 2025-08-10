@@ -7,7 +7,7 @@
         background-color: #f1ec81;
         margin-bottom: 15px;
         display: flex;
-        flex-direction: column;
+        flex-direction: column; 
     }
     .replyInputName {
         height: 25px;
@@ -34,6 +34,48 @@
         margin-top: 7px;
         border-radius: 3px;
         font-size: 14px;
+        color: white;
+        border: none;
+        cursor: pointer;
+        font-family: "Ubuntu";
+    }
+}
+@media (max-width: 780px) {
+    .replyArea {
+        width: 320px;
+        margin-top: 5px;
+        padding: 8px;
+        border-radius: 7px;
+        background-color: #f1ec81;
+        margin-bottom: 8px;
+        display: flex;
+        flex-direction: column; 
+    }
+    .replyInputName {
+        height: 20px;
+        padding: 4px 6px;             /* Optional: add padding for appearance */
+        margin-bottom: 6px;
+        border-radius: 4px;
+        border: 1px solid #ccc;       /* Add border so it's consistent */
+        transition: border 0.2s;
+    }
+    .replyInputText {
+        min-height: 30px; /* Minimum height for the textarea */
+        max-height: 80px; /* Maximum height for vertical resizing */
+        padding: 8px;
+        line-height: 1.5;
+        resize: vertical;
+        font-family: "Poppins", sans-serif;
+        border-radius: 4px;
+        border: 1px solid #ccc;       /* Add border so it's consistent */
+        transition: border 0.2s;
+    }
+    .replyButtonChild {
+        background-color: #4b97fc;
+        padding: 4px 18px;
+        margin-top: 5px;
+        border-radius: 3px;
+        font-size: 13px;
         color: white;
         border: none;
         cursor: pointer;

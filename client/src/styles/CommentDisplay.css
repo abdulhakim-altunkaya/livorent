@@ -8,7 +8,7 @@
         background-color: #f9f9f9;
         margin-bottom: 20px;
         display: flex;
-        flex-direction: column;
+        flex-direction: column; 
     }
     .commentItem {
         padding: 10px;
@@ -54,6 +54,70 @@
         border: 2px solid #cfde20;
         padding: 3px;
         margin-right: 15px;
+        border-radius: 3px;
+        min-width: 40px;
+        display: inline-block; /* <-- this is key */
+        text-align: center;     /* optional: centers number inside */
+        user-select: none;
+    }
+
+}
+@media (max-width: 780px) {
+    .commentDisplayArea {
+        width: 320px;
+        margin-left: 10px;
+        margin-top: 5px;
+        padding: 5px;
+        border-radius: 4px;
+        background-color: #f9f9f9;
+        margin-bottom: 10px;
+        display: flex;
+        flex-direction: column; 
+    }
+    .commentItem {
+        padding: 10px;
+        margin-bottom: 10px;
+        border-bottom: 1px solid #ddd;
+        font-family: "Ubuntu";
+    }
+    .commentTop {
+        display: flex; 
+        justify-content: space-between;
+        margin-bottom: 5px;
+    }
+    .commentorName {
+        font-weight: bolder; 
+        font-size: 14px;
+    }
+    .commentDate {
+        font-size: 13px;
+        color: #555;
+    }
+    .commentText {
+        font-size: 14px;
+        line-height: 1.4;
+    }
+    .replyButton {
+        background-color: #4b97fc;
+        padding: 4px 8px;
+        margin-top: 7px;
+        border-radius: 3px;
+        font-size: 14px;
+        color: white;
+        border: none;
+        cursor: pointer;
+        font-family: "Ubuntu";
+    }
+
+    .replyCommentContainer {
+        margin-top: 8px;
+        font-size: 13px;
+        padding-left: 20px;
+    }
+    .ratingNum {
+        border: 2px solid #cfde20;
+        padding: 3px;
+        margin-right: 10px;
         border-radius: 3px;
         min-width: 40px;
         display: inline-block; /* <-- this is key */

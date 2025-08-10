@@ -98,7 +98,7 @@ function BtmSearch() {
 
             <div className="tableMainCategoryAreaSmall"> 
             <table className="tableMainCategory">
-              <thead>
+              <thead> 
                 <tr>
                   <th className="column1" scope="col"></th>
                   <th className="column2" scope="col">Sludinājumi</th>

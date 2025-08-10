@@ -10,7 +10,7 @@ function CommentDisplay({ commentReceiver }) {
     const [replies, setReplies] = useState([]);
     const [repliedCommentId, setRepliedCommentId] = useState(null);
     const [errorText, setErrorText] = useState("");
-
+ 
     const getData = async () => { 
         try {
             const response = await axios.get(`http://localhost:5000/api/get/comments/${commentReceiver}`);

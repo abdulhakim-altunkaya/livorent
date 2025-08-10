@@ -160,6 +160,39 @@ function BtmSeller() {
                       </tbody>
                     </table>
                   </div>
+                  <div className='tableProfileAreaSmall'>
+                    <table className='tableMainCategory'>
+                      <thead> 
+                        <tr>
+                          <th className='columnProfile1' scope="col"></th>
+                          <th className='columnProfile2' scope="col">Sludinājumi</th>
+                          <th className='columnProfile3' scope="col">Informācija</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {message.map( record => (
+                          <tr key={record.id} className='tableRowsProfile'>
+                            <td onClick={() => navigate(`/item/${record.id}`)} className='imgContainerCell'> 
+                              <img className='adMainImage' src={record.image_url[0]} alt='a small pic of ad'/></td>
+                            <td onClick={() => navigate(`/item/${record.id}`)} className='cellProfile2'>
+                              <strong>{record.title.length > 60 
+                                ? `${record.title.substring(0, 60)}...` 
+                                : record.title}</strong>
+                                <br/>
+                               <em>{record.description.length > 60
+                                ? `${record.description.substring(0, 60)}...` 
+                                : record.description}</em>
+                            </td>
+                            <td onClick={() => navigate(`/item/${record.id}`)} className='cellProfile4'>
+                              {record.price} <br/><br/>
+                              {record.city}<br/><br/>
+                              {record.date}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </>
               ) : (
                 <div className="noAdsMessage">

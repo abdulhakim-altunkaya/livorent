@@ -30,7 +30,7 @@ function BtmItem() {
   //we need this to authenticate token on protected endpoints
   const token = localStorage.getItem("token_livorent");
   //visitors count set by the child BtmVisitor component
-  const [visitorsItem, setVisitorsItem] = useState(null);
+  const [visitorsItem, setVisitorsItem] = useState(null); 
 
   useEffect(() => {
     const getData = async () => {
@@ -190,7 +190,7 @@ function BtmItem() {
                       <div className='itemArrows' onClick={changeImageLeft}>
                         <img src='/svg_arrow_left.svg' alt='Go to left'/>
                       </div>
-                    )}
+                    )} 
                     <div className='itemImagesArea'>
                       <span className='itemImageContainer'>
                         <img 
@@ -229,7 +229,7 @@ function BtmItem() {
                     <span className='itemCategoryLinks' onClick={goSection}>{titleSection}</span>
                   </div>
                   <div className='itemDetailsArea'><h2>{message.title}</h2> </div>
-                  <div className='itemDetailsArea'>{message.description}</div>
+                  <div className='itemDetailsArea itemDescriptionArea'>{message.description}</div>
                   <div className='itemDetailsArea otherDetailsArea'>
                     <div><span className='grayText'>Pilsēta, pagasts vai rajons:</span><span>    {message.city}</span></div>
                     <div><span className='grayText'>Cena:</span><span>    {message.price}</span></div>

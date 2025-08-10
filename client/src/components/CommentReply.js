@@ -95,6 +95,6 @@ function CommentReply({ commentReceiver, cancelReply, parentId, refreshReplies }
             </div>
         </div>
     )
-}
+} 
 
 export default CommentReply

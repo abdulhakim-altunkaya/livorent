@@ -1,5 +1,8 @@
 
 @media (min-width: 781px) {
+    .tableProfileAreaSmall {
+        display: none;
+    }
     .tableProfileArea{
         width: 100%;
         font-size: 16px;
@@ -156,82 +159,59 @@
 }
 
 @media (max-width: 780px) {
-    .tableProfileArea{
-        width: 100%;
-        font-size: 16px;
+    .profileButtonsArea {
+        display: flex;
+        flex-direction: column;
+        row-gap: 15px;
     }
-    .tableProfile {
+    .tableProfileArea {
+        display: none;
+    }
+    .tableProfileSmall {
         width: 98%;
         margin: auto;
+        font-size: 13px;
     }
-    .columnProfile3 {
-        width: 50%;
-    }
-    .tableProfile th {
+    .tableProfileMain th {
         text-align: left;
     }
-    .tableProfile tr {
+    .tableProfileMain tr {
         background-color: white
     }
-    .tableRowsProfile {
-        height: 80px;
+    .tableRows {
+        
     }
-    .tableRowsProfile:hover {
-        background-color: #e5e4e4d1;
-        color:#120fcb;
+    .column1, .column2 {
+        border-bottom: 2px double #979797;
     }
-    .imgContainerCell {
-        display: flex;
-        justify-content: center;
-        align-items: center;
+    .cell1, .cell2, .cell3 {
         padding: 5px;          /* Add some padding */
-        height: 100px; /* Increased from 80px to give more space */
-        min-width: 120px; /* Add minimum width to prevent squeezing */
-        cursor: pointer;
+        border-bottom: 2px dashed #c0c0c0;
     }
-
-    .adMainImage {
+    .adImage {
         max-width: 100%;
-        max-height: 90px; /* Increased from 75px */
+        max-height: 100%;
         width: auto; /* Let the width adjust proportionally */
         height: auto; /* Let the height adjust proportionally */
         object-fit: contain; /* Changed from cover to show whole image */
-        border-radius: 5px;
+        border-radius: 3px;
     } 
-
-    .columnProfile2, .columnProfile3, .columnProfile4, .columnProfile5 {
-        border-bottom: 2px double #979797;
-    }
-    .cellProfile2, .cellProfile3, .cellProfile4, .cellProfile5 {
-        border-bottom: 2px dashed #c0c0c0;
-        padding: 10px;
-        cursor: pointer;
-    }
-    .cellProfile6 {
-        border-bottom: 2px dashed #c0c0c0;
-        padding: 1px;
-        background-color: white !important;
-        color: black !important;
-        font-weight:initial !important; 
-    }
-    .profileListButtonsArea {
+    .adButtons {
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
         background-color: #beddf8;
-        font-size: 14px;
+        font-size: 12px;
+        row-gap: 5px;
         margin: 2px;
-        padding: 5px;
-        cursor: pointer;
+        padding: 3px;
     }
-    .profileListButtonsArea:hover {
-        font-weight: bolder;
-        background-color: #6fb6f5;
-    }
-    .profileListIcons img {
+    .adButtonsIcons {
         width: 22px;
     }
+
+
     .errorFieldProfile {
         font-size: 15px;
         font-style: italic;
@@ -275,9 +255,6 @@
     -webkit-user-select: none;
     touch-action: manipulation;
     margin-right: 20px;
-    }
-    .button-54:hover {
-        background-color: #b0adad;
     }
     .button-54:active {
     box-shadow: 0px 0px 0px 0px;

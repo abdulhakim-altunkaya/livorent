@@ -32,11 +32,11 @@ function Review({ reviewReceiver, refreshReplies }) {
         const safeReview = escapeHtml(trimmedTextReview);
         const safeName = escapeHtml(trimmedName);
 
-        if (trimmedTextReview.length < 10 || trimmedTextReview.length > 800) {
+        if (trimmedTextReview.length < 10 || trimmedTextReview.length > 600) {
             setErrorText("Atsauksme ir pārāk īsa vai pārāk gara ❌");
             return;
         }
-        if (trimmedName.length < 3 || trimmedName.length > 40) {
+        if (trimmedName.length < 3 || trimmedName.length > 30) {
             setErrorText("Vārds ir pārāk īss vai pārāk garš ❌");
             return;
         }
@@ -99,6 +99,18 @@ function Review({ reviewReceiver, refreshReplies }) {
             <div className='commentArea'>
                 <div className='reviewButtonContainer'>
                     Rating:
+                    {Array.from({ length: 10 }, (_, i) => i + 1).map((num) => (
+                        <button
+                            key={num}
+                            onClick={() => handleSelect(num)}
+                            className={`reviewRatingButtons ${selectedRating === num ? 'selected' : ''}`}
+                            >
+                            {num}
+                        </button>
+                    ))}
+                </div>
+                <div className='reviewButtonContainerSmall'>
+                    <span className='reviewFormLabels'>Rating:</span><br/>
                     {Array.from({ length: 10 }, (_, i) => i + 1).map((num) => (
                         <button
                             key={num}

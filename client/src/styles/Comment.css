@@ -7,7 +7,7 @@
         border-radius: 4px;
         background-color: #f1ec81;
         margin-bottom: 20px;
-        display: flex;
+        display: flex; 
         flex-direction: column;
     }
     .commentInputName {
@@ -48,6 +48,9 @@
         margin-top: 10px;
         margin-bottom: 10px;
     }
+    .reviewButtonContainerSmall {
+        display: none;
+    }
     .reviewRatingButtons {
         padding: 8px 12px;
         border-radius: 5px;
@@ -57,6 +60,75 @@
     .reviewRatingButtons.selected {
         font-weight: bold;
         background-color: rgb(85, 208, 3);
+    }
+
+}
+@media (max-width: 780px) {
+    .commentArea {
+        width: 320px;
+        margin-left: 10px;
+        margin-top: 5px;
+        padding: 10px;
+        border-radius: 4px;
+        background-color: #f1ec81;
+        margin-bottom: 10px;
+        display: flex; 
+        flex-direction: column;
+    }
+    .commentInputName {
+        height: 30px;
+        padding: 4px 8px;             /* Optional: add padding for appearance */
+        margin-bottom: 10px;
+        border-radius: 4px;
+        border: 1px solid #ccc;       /* Add border so it's consistent */
+        transition: border 0.2s;
+    }
+    .commentInputText {
+        min-height: 80px; /* Minimum height for the textarea */
+        max-height: 200px; /* Maximum height for vertical resizing */
+        padding: 8px;
+        line-height: 1.5;
+        resize: vertical;
+        font-family: "Poppins", sans-serif;
+        border-radius: 4px;
+        border: 1px solid #ccc;       /* Add border so it's consistent */
+        transition: border 0.2s;
+    }
+    .commentSaveBtn {
+        background-color: #2563eb; /* bg-blue-600 */
+        color: #ffffff;
+        padding: 5px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-family: "Ubuntu";
+        font-size: 22px;
+        margin-bottom: 10px;
+        margin-top: 15px;
+    }
+    .reviewButtonContainer {
+        display: none;
+    }
+    .reviewButtonContainerSmall {
+        gap: 6px;
+        margin-top: 10px;
+        margin-bottom: 10px;
+    }
+    .reviewRatingButtons {
+        padding: 8px 12px;
+        width: 40px;
+        margin-right: 20px;
+        margin-top: 15px;
+        border-radius: 25px;
+        border: 1px solid #ccc;
+        cursor: pointer;
+    }
+    .reviewRatingButtons.selected {
+        font-weight: bold;
+        background-color: rgb(85, 208, 3);
+    }
+    .reviewFormLabels {
+        font-size: 15px;
     }
 
 }

@@ -1,3 +1,5 @@
+@media (min-width: 781px) {
+
 .itemMainContainer {
     display: flex;
     flex-direction: column;
@@ -30,9 +32,8 @@
     min-width: 300px;
     max-width: 700px;
     overflow: hidden;
-    height: 400px;
-    width: 100%;
     height: 500px;
+    width: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -132,3 +133,138 @@
   .closeButton:hover {
     color: #ccc;
   }
+}
+@media (max-width: 780px) {
+  .itemMainContainer {
+      display: flex;
+      flex-direction: column;
+      margin-right: 12px;
+      margin-left: 12px;
+      font-size: 14px;
+      overflow: hidden;
+      font-family: "Poppins";
+  }
+  .errorFieldItem {
+      font-size: 13px;
+      font-style: italic;
+  }
+  .carouselArea {
+      display: flex;
+      flex-direction: row;
+      width: 100%;
+      margin: auto;
+      justify-content: center;
+      align-items: center;
+  }
+  .itemArrows img {
+      width: 20px;
+      cursor: pointer;
+  }
+  .itemImagesArea {
+      display: flex;
+      flex-direction: column;
+  }
+  .itemImageContainer {
+    width: 100%;
+    overflow: hidden;
+    height: 300px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+  }
+  .itemImageContainer img {
+      max-width: 95%;
+      max-height: 95%;
+      width: auto;
+      height: auto;
+      object-fit: contain; /* Maintain aspect ratio */
+    }
+  .itemDetailsArea {
+      margin-top: 10px;
+      text-align: justify;
+  }
+  .itemDescriptionArea {
+    line-height: 1.5; /* 1.5 times the current font size */
+  }
+  .otherDetailsArea {
+      display: flex;
+      flex-direction: column;
+  }
+  .otherDetailsArea div {
+      margin-bottom: 4px;
+  }
+  .grayText {
+      color: #636363;
+      font-style: italic;
+      font-size: 16px;
+      font-family: "Concert One";
+  }
+  .smallText {
+    font-size: 13px;
+  }
+  .phoneNumber {
+      cursor: pointer;
+  }
+  .itemCategoryLinks {
+    color: blue;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  .dotsContainer {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    margin-top: 8px;
+  }
+  
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #ccc;
+  }
+  
+  .dot.active {
+    background: #555;
+  }
+  /* Fullscreen image modal */
+  .imageModal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    cursor: pointer;
+  }
+  
+  .modalContent {
+    position: relative;
+    max-width: 90%;
+    max-height: 90%;
+  }
+  
+  .modalContent img {
+    max-width: 100%;
+    max-height: 50vh;
+    object-fit: contain;
+  }
+  
+  .closeButton {
+    position: absolute;
+    top: -40px;
+    right: 0;
+    color: white;
+    font-size: 30px;
+    font-weight: bold;
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+
+}

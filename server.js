@@ -2533,6 +2533,8 @@ app.listen(PORT, () => {
   /* 
 Add small screen style
 Check to see if there is any unused variables in each component
+Add a go seller page button to the profile component. 
+Place date and city info in the same cell on big screen tables
 
 BEFORE DEPLOYING:
   Delete images from storage too   

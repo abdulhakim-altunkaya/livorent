@@ -116,3 +116,121 @@
         margin-left: 20px;
     }
 }
+/* Media query for small screens */
+@media (max-width: 780px) {
+
+    .loginFormArea{
+        height: 100%;
+        width: 95%;
+        margin: auto;
+        padding-top: 20px;
+        font-size: 15px;
+    }
+    .loginForm {
+        max-width: 80%;
+        margin-left: 10px;
+    }
+    .loginInputs {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 18px;
+        position: relative; /* <-- Add this */
+    }
+    .loginInputs label {
+        color: black;
+        margin-bottom: 6px;
+    }
+    .loginInputs input:hover {
+        border: 1px solid #4236e9;
+    }
+    .loginInputsInputArea {
+        width: 100%;
+    }
+    .loginInputShort {
+        width: 80%;
+        padding: 8px 15px;
+        border-radius: 6px;
+        border: 1px solid #b0b0b0;
+        background: white;
+        font-weight: 500;
+        font-size: 15px;
+        font-family: "Concert One";
+        color: #6b7280;
+        outline: none;
+        resize: none;
+    }
+    .btnSelectCategory2 {
+        padding: 8px 16px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 18px;
+        width: 240px;
+        text-align: center;
+        margin-top: 15px;
+    }
+    .tabContainer {
+        display: flex;
+        flex-direction: row;
+        margin-left: 25px;
+        font-size: 18px;
+    }
+    .activeTab {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 150px;
+        height: 35px;
+        cursor: pointer;
+        background-color: #ffffff;
+        color: #202124;
+        border: 1px solid #ccc; /* Add border to active tab */
+        border-bottom: none;
+        border-radius: 5px 5px 0 0; /* Rounded top corners */
+    }
+    .inactiveTab {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 150px;
+        height: 35px;
+        cursor: pointer;
+        background-color: #f1f3f4;
+        color: #5f6368;
+        border: 1px solid #ccc; /* Add border to active tab */
+        border-radius: 5px 5px 0 0; /* Rounded top corners */
+    }
+    .iconEye {
+        position: absolute;
+        top: 40px;
+        right: 40px;
+        transform: translateY(-50%);
+        width: 20px;
+        cursor: pointer;
+    }
+    .titlePasswordReset {
+        margin-left: 25px;
+        font-size: 25px;
+        font-family: "Maven pro";
+    }
+    .passwordResetLink{
+        color: blue;
+        display: block;
+        margin-bottom: 15px;
+        cursor: pointer;
+    }
+    .resultAreaRegister {
+        margin-left: 20px;
+    }
+    .resultAreaRenewal {
+        margin-left: 20px;
+    }
+    .resultAreaChange {
+        margin-left: 20px;
+    }
+    .resultAreaLogin {
+        margin-left: 20px;
+    }
+}

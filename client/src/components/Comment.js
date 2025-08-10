@@ -96,6 +96,6 @@ function Comment({ commentReceiver, refreshComments }) {
             </div>
         </div>
     )
-}
+} 
 
 export default Comment

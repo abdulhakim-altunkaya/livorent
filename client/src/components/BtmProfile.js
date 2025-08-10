@@ -256,6 +256,52 @@ function BtmProfile() {
                       </tbody>
                     </table>
                   </div>
+                  
+                  <div className='tableProfileSmall'> 
+                    <table className='tableProfileMain'>
+                      <thead> 
+                        <tr>
+                          <th className='column1' scope="col"></th>
+                          <th className='column2' scope="col">Sludinājumi</th>
+                          <th scope="col"></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {message.map( record => (
+                          <tr key={record.id} className='tableRows'>
+                            <td onClick={() => navigate(`/item/${record.id}`)} className='cell1'> 
+                              <img className='adImage' src={record.image_url[0]} alt='a small pic of ad'/>
+                              <br/> <br/>
+                              <span>{record.price}</span> <br/>
+                              <span>{record.city}</span> <br/>
+                              <span>{record.date}</span> 
+                            </td> 
+                            <td onClick={() => navigate(`/item/${record.id}`)} className='cell2'>
+                              <strong>{record.title.length > 70 
+                                ? `${record.title.substring(0, 70)}...` 
+                                : record.title}</strong>
+                                <br/>
+                              {record.description.length > 70 
+                                ? `${record.description.substring(0, 70)}...` 
+                                : record.description}
+                            </td>
+                            <td className='cell3'>
+                              <div className='adButtons' 
+                                onClick={() => updateAd(record.id)}>
+                                <span>Atjaunināt</span>
+                                <span className='adButtonsIcons'><img src='/svg_update2.svg' alt='Update icon'/></span>
+                              </div>
+                              <div className='adButtons'
+                                onClick={() => deleteAd(record.id)}>
+                                <span>Dzēst</span>
+                                <span className='adButtonsIcons'><img src='/svg_delete.svg' alt='Delete icon'/></span>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </>
               ) : (
                 <div className="noAdsMessage">
