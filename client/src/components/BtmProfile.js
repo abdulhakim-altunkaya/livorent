@@ -12,7 +12,6 @@ function BtmProfile() {
   //we will check zustand store to see if there is any user data in it. If there is
   //then no need to make repetitive requests to backend and database about user information
   const cachedUserData = useUserStore(state => state.cachedUserData);
-
   
   const { visitorNumber } = useParams(); 
   const [message, setMessage] = useState(null); // Initialize with null to better handle initial state
@@ -175,6 +174,10 @@ function BtmProfile() {
     navigate("/profile/password-change"); 
   }
 
+  const goSeller = () => {
+    navigate(`/seller/${Number(visitorNumber)}`)
+  }
+
   return (
     <div>
       { loading ? 
@@ -189,6 +192,7 @@ function BtmProfile() {
           <div><strong>Telefons:</strong> {cachedUserData.telephone}</div>
           <div className='lastDivProfile'><strong>Dalībnieks kopš:</strong> {cachedUserData.date}</div>
           <div className='profileButtonsArea'>
+              <span><button className='button-54' onClick={goSeller}>ATVERIET PĀRDĒVĒJA LAPU</button></span>
               <span><button className='button-54' onClick={signoutAccount}>Izrakstīties</button></span>
               <span><button className='button-54'
                 onClick={() => navigate(`/profile/update-account/${visitorNumber}`, {state: { userData: cachedUserData } }

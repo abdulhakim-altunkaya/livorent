@@ -2531,10 +2531,10 @@ app.listen(PORT, () => {
 })
 
   /* 
-Add small screen style
 Check to see if there is any unused variables in each component
-Add a go seller page button to the profile component. 
-Place date and city info in the same cell on big screen tables
+
+
+
 
 BEFORE DEPLOYING:
   Delete images from storage too   
@@ -2545,12 +2545,12 @@ BEFORE DEPLOYING:
   also check server file to uncomment relevant code
   remove all localhost words from api endpoints in frontend
 
-
 DEFERRED:
 Fuzzy search
 pagination logic
 
 DONE
+Add a go seller page button to the profile component. 
 add useRef logic to all components and add dynamic text display if needed
 all password inputs hidden with *
 Add password renewal logic
@@ -2566,6 +2566,8 @@ Add date column to ads
 Fix section title area to allow return back clicks
 Footer update
 About/Contact component finished
+Mobile screen style
+Place date and city info in the same cell on big screen tables
 
 *Security: button disabled attribute tied to a tracking variable to prevent duplicates
 *Security: Input validations check on both frontend and backend

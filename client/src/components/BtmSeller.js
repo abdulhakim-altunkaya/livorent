@@ -103,7 +103,7 @@ function BtmSeller() {
             <>
               {sellerData && (
                 <div className='userInfoArea'>
-                  <div>Name: <strong>{sellerData.name}</strong> </div>
+                  <div>Vārds: <strong>{sellerData.name}</strong> </div>
                   <div>
                     {rating > 0 ?
                       <>Vērtējums: <strong><span className="ratingNum">{rating}</span></strong></>
