@@ -218,7 +218,7 @@ function BtmProfile() {
                           <th className='columnProfile2' scope="col">Sludinājumi</th>
                           <th className='columnProfile3' scope="col">Informācija</th>
                           <th className='columnProfile4' scope="col">Cena</th>
-                          <th className='columnProfile5' scope="col">Pilsēta</th>
+                          <th className='columnProfile5' scope="col">Pilsēta-Datums</th>
                           <th className='columnProfile5' scope="col"></th>
                         </tr>
                       </thead>
@@ -238,7 +238,11 @@ function BtmProfile() {
                                 : record.description}
                             </td>
                             <td onClick={() => navigate(`/item/${record.id}`)} className='cellProfile4'>{record.price}</td>
-                            <td onClick={() => navigate(`/item/${record.id}`)} className='cellProfile5'>{record.city}</td>
+                            <td onClick={() => navigate(`/item/${record.id}`)} className='cellProfile5'>
+                              {record.city}
+                              <br/> <br/>
+                              {record.date}
+                            </td>
                             <td className='cellProfile6'>
                               <div className='profileListButtonsArea' 
                                 onClick={() => updateAd(record.id)}>

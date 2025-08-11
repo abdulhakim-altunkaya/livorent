@@ -108,7 +108,7 @@ function BtmSection() {
       </div>
       <div>
         { isSaving.current  ? 
-            <div aria-live="polite">Ielādē...</div> 
+            <div aria-live="polite" className='loadingText'>Ielādē...</div> 
           : errorFrontend ? ( // Check for error first
             <>
             <p className='errorFieldSection'>{errorFrontend} </p>

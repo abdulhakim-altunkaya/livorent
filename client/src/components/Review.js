@@ -98,7 +98,7 @@ function Review({ reviewReceiver, refreshReplies }) {
         <div>
             <div className='commentArea'>
                 <div className='reviewButtonContainer'>
-                    Rating:
+                    <strong>Novērtējiet:</strong> 
                     {Array.from({ length: 10 }, (_, i) => i + 1).map((num) => (
                         <button
                             key={num}
@@ -110,7 +110,7 @@ function Review({ reviewReceiver, refreshReplies }) {
                     ))}
                 </div>
                 <div className='reviewButtonContainerSmall'>
-                    <span className='reviewFormLabels'>Rating:</span><br/>
+                    <span className='reviewFormLabels'><em>Novērtējiet:</em></span><br/>
                     {Array.from({ length: 10 }, (_, i) => i + 1).map((num) => (
                         <button
                             key={num}
